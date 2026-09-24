@@ -1,13 +1,22 @@
 # Chapter 1 — The Three Ecosystems and Their Non-Negotiable Constraints
 
-Before any code gets shared between frameworks, it's worth mapping out exactly what each build system *requires* — not as a matter of convention, but as a hard constraint that, if violated, breaks the build. Everything in this chapter was verified empirically, on real hardware and real publish attempts — several assumptions that looked reasonable on paper turned out to be wrong once tested.
+Before discussing abstraction layers, repository layouts, or build integration, it's important to understand a fundamental reality: **the hardest part of a cross-ecosystem library is rarely the code itself**.
+
+Each ecosystem comes with its own assumptions about project structure, source discovery, dependency management, examples, packaging, and publication. **These are not conventions that can be bent or negotiated**; they are hard requirements enforced by the tooling. Ignore them, and the build breaks, the library fails validation, or the package never gets published.
+
+The challenge, therefore, is not simply making Arduino and ESP-IDF compile the same code. The challenge is designing a repository that simultaneously satisfies two independent ecosystems (three if considering also PlatformIO), each with its own rules and expectations.
+
+Everything described in this chapter was verified empirically through real builds, real hardware testing, and real publication attempts. Several assumptions that seemed perfectly reasonable when reading the documentation turned out to be incorrect once exercised in practice.
 
 ## 1.1 Arduino
 
-- **Source discovery is purely structural.** The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`**, with no manifest listing them individually. If a file exists under `src/`, it gets compiled — full stop. This has a direct consequence for multi-file architectures: any file that must **not** be compiled for a given target (e.g. a native ESP-IDF HAL implementation) needs to guard itself with preprocessor conditionals, because there's no way to exclude it structurally within `src/`.
-- **Examples are Name/Name.ino, one level deep.** The IDE (and PlatformIO's example browser, in the case of `.ino` files — see 1.3) expects `examples/<ExampleName>/<ExampleName>.ino`: the file name must match its containing folder. Anything nested deeper, or with a mismatched name, either doesn't get recognized as a sketch or shows up in unexpected places in the IDE's Examples menu.
-- **`library.properties`/`library.json` are read only from the tagged release**, not from the latest commit on the default branch. The Arduino Library Manager indexer snapshots the manifest at the Git tag you publish — moving a tag after the fact, or publishing before bumping the version fields, produces a mismatch that the indexer either silently ignores or flags as a duplicate/no-op version.
-- **No dependency resolution beyond name + version.** Arduino's library model has no concept of "component," no build-system-level linking between libraries — a `#include` either finds the header somewhere in the flattened include path, or it doesn't.
+- **Source discovery is primarily structure.** The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`**. There is no manifest that explicitly lists compilation units: if a source file exists under `src/`, it gets compiled. Because the *Arduino Library Manager* expects libraries to follow this standardized layout, reorganizing sources outside of src/ is generally not a practical solution. For multi-framework libraries, this has an important consequence: any source file that must **not** be compiled for a specific target (for example, an ESP-IDF-specific HAL implementation) must exclude itself through preprocessor conditionals, because the build system provides no structural mechanism to skip it.
+
+- **Examples follow a strict `Name/Name.ino` convention.** The Arduino IDE (and PlatformIO's example browser for `.ino` projects; see Section 1.3) expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`. The sketch name must match its parent directory. Additional levels of nesting can be used to organize examples into categories and do not affect discovery, provided this naming convention is preserved.
+
+- **Library metadata in `library.properties`is taken from the tagged release, not the default branch.** During publication, the *Arduino Library Manager* indexes the content associated with the Git tag being released. Updating `library.properties` after the tag already exists has no effect on that release. Likewise, publishing before incrementing the version field in `library.properties` typically results in the release being ignored or treated as a duplicate. The version declared in `library.properties` and the *GitHub release tag* must refer to the same release version.
+
+- **Dependency resolution is supported, but remains library-centric.** Arduino libraries can declare dependencies using the `depends` field in `library.properties`, enabling automatic installation of required libraries by the Library Manager.
 
 ## 1.2 ESP-IDF (native)
 
