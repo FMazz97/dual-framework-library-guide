@@ -16,7 +16,9 @@ At the same time, ESP-IDF is increasingly establishing itself as a reference pla
 A concrete signal is [ESPHome's migration toward ESP-IDF](https://esphome.io/guides/esp32_arduino_to_idf) where a project born and grown within the Arduino ecosystem chose to move its engine onto native IDF. 
 
 There is also a technical reality that is often underestimated:
->**when you write for Arduino code for an ESP32 board, you're already running on top of ESP-IDF**
+<p align="center">
+  <i><b>when you write for Arduino code for an ESP32 board, you're already running on top of ESP-IDF.</b></i>
+</p>
 
 The `arduino-esp32` is itself a layer built on top of ESP-IDF, not an independent alternative. The question isn't "Arduino or IDF?" but rather:
 ***Do you want to interact directly with the platform's engine, or through an additional translation layer?***
