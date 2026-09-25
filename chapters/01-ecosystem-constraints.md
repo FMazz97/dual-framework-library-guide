@@ -20,11 +20,9 @@ Everything described in this chapter was verified empirically through real build
 
 ## 1.2 ESP-IDF (native)
 
-- **A published component must be self-contained.** The IDF Component Registry packages **only the folder containing `idf_component.yml`**. Any `CMakeLists.txt` that references source files *outside* that folder via relative paths (e.g. `../../src/core/foo.cpp`) work fine during local development, but breaks as soon as the component is published and downloaded standalone: those paths simply do not exist in the extracted package.
+- **A published component must be self-contained.** The IDF Component Registry packages **only the folder containing `idf_component.yml`**. Any `CMakeLists.txt` that references source files *outside* that folder via relative paths (e.g. `../../src/core/foo.cpp`) works fine during local development, but breaks as soon as the component is published and downloaded standalone: those paths simply do not exist in the extracted package.
 
 - **Header visibility is explicit.** ESP-IDF exposes only the include directories explicitly declared through `INCLUDE_DIRS` in `idf_component_register()` on `CMakeLists.txt`. A header is part of the component's public interface only if it is intentionally exported. This makes the API boundary explicit, but also means the component structure must be designed deliberately from the start.
-
-- **Name resolution depends entirely on *which* mechanism declares the dependency — and each mechanism has a different, independent source of truth for the name.** This turned out to be the single most time-consuming constraint to pin down, precisely because it isn't documented as a unified rule anywhere — it only becomes visible by testing each mechanism in isolation:
 
 - **Name resolution depends entirely on *which* mechanism declares the dependency, and each mechanism has its own source of truth.** This turned out to be one of the most time-consuming constraints to pin down, precisely because it is not documented as a unified rule anywhere and only becomes obvious when each mechanism is tested in isolation:
   
@@ -33,9 +31,7 @@ Everything described in this chapter was verified empirically through real build
   - **`idf_component.yml`** (via the Component Manager, either through `override_path` during development or via the Registry): resolves the component's identity from the `name:` field **inside the manifest itself**. As with `EXTRA_COMPONENT_DIRS`, keeping the `name:` value identical to the component folder name avoids resolution inconsistencies across dependency mechanisms.
 
   - The practical rule of thumb is straightforward: **the component folder name and the component name declared in `idf_component.yml` should match.** For components intended to be published through the ESP-IDF Component Registry, keeping both names lowercase provides the most consistent behavior across local development, dependency resolution, and package distribution.
-<!--
-- **Standalone `REQUIRES` and a build tool's own dependency-injection mechanism do not compose automatically.** Declaring the same dependency both explicitly (`REQUIRES foo`) and through an external resolver that is not `idf_component.yml`-aware can lead to resolution conflicts rather than a predictable "last one wins" behavior. See 1.3 and Chapter 6 for the concrete case that exposed this limitation.
--->
+
 - **Component metadata is taken from the published package version, not from the current repository state.** Once a version is published to the Component Registry, the corresponding `idf_component.yml` and associated metadata are immutable from the consumer's perspective. Updating the manifest on the default branch has no effect on already-published versions; a new version must be released for dependency or metadata changes to become visible.
 
 - **Dependency management is component-based.** Components declare their dependencies through mechanisms such as `REQUIRES`, `PRIV_REQUIRES`, or `idf_component.yml`, allowing ESP-IDF to construct an explicit dependency graph at build time.
@@ -52,24 +48,20 @@ PlatformIO occupies a unique position in this discussion because it is neither a
 
 - **Dependency management is package-based.** Dependencies are declared in `library.json` and resolved through the PlatformIO Registry, allowing PlatformIO to automatically fetch and install the required packages.
 
-<!-- DA METTERE NEI PROGETTI / ESEMPI
-DA CLAUDE:
-- **`lib_deps` is a dependency-*fetching* mechanism, not a component-*registration* one.** Under `framework = espidf`, `lib_deps` resolves and downloads a library's source into `.pio/libdeps/`, but that alone does **not** make it visible to `REQUIRES` in `main/CMakeLists.txt` — those are two independent systems. Declaring the same dependency through both `lib_deps` *and* an explicit `REQUIRES` (with no `idf_component.yml` in between) causes a resolution failure, not redundancy: CMake's native resolver doesn't know how to find what PlatformIO fetched. Removing `REQUIRES` and leaving `lib_deps` as the sole source works cleanly — PlatformIO wires its own fetched libraries into the generated build automatically. Coexisting with `idf_component.yml` also works cleanly: the Component Manager resolves the dependency and the build proceeds through it, with `lib_deps` fetching the same source (redundant, but not conflicting) alongside.
-
-DA COPILOT:
-- **Dependency fetching and dependency registration are separate concepts.** This distinction is easy to miss because PlatformIO exposes both behind a seemingly unified experience.
+<!-- DA METTERE IN CAPITOLO 5: 05-dual-buildable-examples.md
+- **Dependency-*fetching* and component-*registration* are separate concepts.** This distinction is easy to miss because PlatformIO exposes both behind a seemingly unified experience (into `.pio/libdeps/`).
   - **`lib_deps`** is responsible for locating, downloading, and updating libraries.
-  - **`REQUIRES`** is an ESP-IDF build-system construct responsible for component registration and dependency declaration inside CMake.
+  - **`REQUIRES`** is an ESP-IDF build-system construct responsible for component registration inside CMake.
   - The two mechanisms are independent and do not automatically satisfy each other's requirements.
 
-- **`lib_deps` alone does not make a library visible to IDF's native component resolver.** Under `framework = espidf`, PlatformIO downloads dependencies into `.pio/libdeps/`, but a dependency fetched this way is not automatically discoverable by an explicit `REQUIRES foo` inside `main/CMakeLists.txt`. From ESP-IDF's perspective, fetching a dependency and registering a component are distinct operations.
+  - **`lib_deps` does not make a library visible to IDF's native component resolver.** Under `framework = espidf`, a dependency fetched by PlatformIO is not automatically discoverable by an explicit `REQUIRES foo` in `main/CMakeLists.txt` — those are two independent systems.
 
-- **`REQUIRES` and PlatformIO-managed dependencies only coexist cleanly when a valid `idf_component.yml` sits between them.** Declaring a dependency through both `lib_deps` and an explicit `REQUIRES` without a Component Manager-aware manifest typically produces a resolution failure rather than harmless redundancy: CMake attempts to resolve a component that PlatformIO merely downloaded, but never registered within IDF's native dependency graph.
+  - **Declaring a dependency in both `lib_deps` and `REQUIRES` without `idf_component.yml` breaks the build.** This produces a resolution failure rather than harmless redundancy, as CMake's native resolver cannot find what PlatformIO fetched.
 
-- **The practical rule is simple:** under `framework = espidf`, choose a single authoritative dependency-resolution path whenever possible.
-  - If the dependency is managed through PlatformIO, let `lib_deps` drive the process.
-  - If the dependency is managed through ESP-IDF's Component Manager, let `idf_component.yml` drive the process.
-  - Mixing multiple independent dependency-resolution systems without a clear source of truth usually introduces ambiguity rather than flexibility.
+  - **The practical rule is simple:** under `framework = espidf`, choose a single authoritative dependency-resolution path whenever possible.
+    - **PlatformIO-only flow:** If the library is available on the PlatformIO Registry, leave dependency management to `lib_deps` and omit `REQUIRES`. PlatformIO automatically injects its fetched libraries into the build, avoiding manual CMake registration.
+
+    - **ESP-IDF Component Manager flow:** Include a valid `idf_component.yml` and leave ESP-IDF's Component Manager handles registration natively; while lib_deps may fetch the same package alongside (causing minor redundancy), the build proceeds cleanly without conflicts.
 -->
 
 ## 1.4 Where the constraints collide
@@ -79,8 +71,16 @@ Comparing these three ecosystems reveals that the true challenge of a cross-ecos
 | | Source layout expected | Name resolved from | Case-sensitive? |
 | :--- | :--- | :--- | :--- |
 | **Arduino** (IDE / PlatformIO) | Everything under `src/`, compiled recursively | `name` field in `library.properties` / `library.json` | No practical constraint observed |
-| **ESP-IDF**: `EXTRA_COMPONENT_DIRS` + `REQUIRES` | Component folder, referenced directly | **Local folder name** | **Yes** — must match exactly |
-| **ESP-IDF**: `idf_component.yml` | Self-contained component folder | `name:` field inside the manifest | **Yes** — but decoupled from the local folder and from `library.json` |
+| **ESP-IDF**: `EXTRA_COMPONENT_DIRS` + `REQUIRES` | Component folder, referenced directly | `REQUIRES name` in CMake & local folder *name* | **Yes** — must match exactly |
+| **ESP-IDF**: `idf_component.yml` | Self-contained component folder | `name:` field inside the manifest & local folder *name* | **Yes** — must match exactly |
 | **PlatformIO**: `lib_deps` alone (`espidf`) | Whatever the fetched package contains | PlatformIO's own package name | No — bypasses IDF's native resolver entirely |
 
-The layout that satisfies all three simultaneously — used throughout this guide — places the IDF component manifest **at the repository root** (not nested under a `components/<name>/` folder pointing back out with `../..`), with `src/core/` as the single, self-contained source of truth referenced by relative paths that never leave the repository. Chapter 2 covers why that specific placement, and what breaks if the component manifest lives anywhere else.
+The root conflict lies in these non-negotiable rules:
+
+- **Arduino** demands that all source code live under `src/` and automatically compiles everything it finds there without a manifest.
+
+- **ESP-IDF** requires published components to be strictly self-contained within their manifest directory, so that meaning `CMakeLists.txt` cannot reference files outside via relative paths (like `../../src/`) without breaking once packaged and downloaded standalone.
+
+- **Component Identity & Metadata** are handled independently by each toolchain. ESP-IDF's local filesystem resolution depends strictly on case-sensitive folder names, while package registry resolutions rely on immutable manifest metadata captured at release time.
+
+The layout that satisfies all three simultaneously — used throughout this guide — places the IDF component manifest **at the repository root** (not nested under a `components/<name>/` folder pointing back out with `../..`), with `src/core/` as the single, self-contained source of truth. Chapter 2 covers why that specific placement, and what breaks if the component manifest lives anywhere else.
