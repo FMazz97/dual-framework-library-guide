@@ -11,7 +11,7 @@
    2.2 La soluzione: manifest IDF alla radice del repo, che punta VERSO src/core (non il contrario)
    2.3 Nome cartella locale vs nome repository GitHub: perché sono indipendenti e perché conta solo il primo
 
-3. Il core agnostico e il layer HAL
+3. Il core agnostico, il layer HAL e la facciata Arduino
    3.1 Perché macro a compile-time, non virtual dispatch né template
    3.2 La convenzione dei nomi (get_/read_/set_) e perché è emersa solo iterando
 
