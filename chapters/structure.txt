@@ -23,3 +23,13 @@
 6. Pubblicare sui tre registri, e la stessa trappola di case-sensitivity che li accomuna tutti
 
 7. Checklist finale
+
+arduino-espidf-dual-library-guide/
+├── README.md              ← indice, premessa (quella appena tradotta), link ai capitoli
+├── 01-ecosystem-constraints.md
+├── 02-repo-structure.md
+├── 03-hal-architecture.md
+├── 04-yield-watchdog.md
+├── 05-dual-buildable-examples.md
+├── 06-publishing.md
+└── LICENSE
