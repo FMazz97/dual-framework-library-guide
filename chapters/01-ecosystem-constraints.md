@@ -48,22 +48,6 @@ PlatformIO occupies a unique position in this discussion because it is neither a
 
 - **Dependency management is package-based.** Dependencies are declared in `library.json` and resolved through the PlatformIO Registry, allowing PlatformIO to automatically fetch and install the required packages.
 
-<!-- DA METTERE IN CAPITOLO 5: 05-dual-buildable-examples.md
-- **Dependency-*fetching* and component-*registration* are separate concepts.** This distinction is easy to miss because PlatformIO exposes both behind a seemingly unified experience (into `.pio/libdeps/`).
-  - **`lib_deps`** is responsible for locating, downloading, and updating libraries.
-  - **`REQUIRES`** is an ESP-IDF build-system construct responsible for component registration inside CMake.
-  - The two mechanisms are independent and do not automatically satisfy each other's requirements.
-
-  - **`lib_deps` does not make a library visible to IDF's native component resolver.** Under `framework = espidf`, a dependency fetched by PlatformIO is not automatically discoverable by an explicit `REQUIRES foo` in `main/CMakeLists.txt` — those are two independent systems.
-
-  - **Declaring a dependency in both `lib_deps` and `REQUIRES` without `idf_component.yml` breaks the build.** This produces a resolution failure rather than harmless redundancy, as CMake's native resolver cannot find what PlatformIO fetched.
-
-  - **The practical rule is simple:** under `framework = espidf`, choose a single authoritative dependency-resolution path whenever possible.
-    - **PlatformIO-only flow:** If the library is available on the PlatformIO Registry, leave dependency management to `lib_deps` and omit `REQUIRES`. PlatformIO automatically injects its fetched libraries into the build, avoiding manual CMake registration.
-
-    - **ESP-IDF Component Manager flow:** Include a valid `idf_component.yml` and leave ESP-IDF's Component Manager handles registration natively; while lib_deps may fetch the same package alongside (causing minor redundancy), the build proceeds cleanly without conflicts.
--->
-
 ## 1.4 Where the constraints collide
 
 Comparing these three ecosystems reveals that the true challenge of a cross-ecosystem library is not managing different APIs, but harmonizing conflicting toolchain assumptions about source discovery, identity, and metadata immutability:
@@ -83,4 +67,4 @@ The root conflict lies in these non-negotiable rules:
 
 - **Component Identity & Metadata** are handled independently by each toolchain. ESP-IDF's local filesystem resolution depends strictly on case-sensitive folder names, while package registry resolutions rely on immutable manifest metadata captured at release time.
 
-The layout that satisfies all three simultaneously — used throughout this guide — places the IDF component manifest **at the repository root** (not nested under a `components/<name>/` folder pointing back out with `../..`), with `src/core/` as the single, self-contained source of truth. Chapter 2 covers why that specific placement, and what breaks if the component manifest lives anywhere else.
+The layout that satisfies all three simultaneously — used throughout this guide — places the IDF component manifest **at the repository root** (not nested under a `components/<name>/` folder pointing back out with `../..`), with `src/core/` as the single, self-contained source of truth. [Chapter 2 - Repository structure](02-repo-structure.md) covers why that specific placement, and what breaks if the component manifest lives anywhere else.

@@ -17,6 +17,7 @@ This distinction is easy to miss, because PlatformIO exposes both behind a seemi
 **The practical rule is simple:** under `framework = espidf`, choose a single authoritative dependency-resolution path whenever possible.
 
 - **PlatformIO-only flow:** if the library is available on the PlatformIO Registry, leave dependency management to `lib_deps` and omit `REQUIRES`. PlatformIO automatically injects its fetched libraries into the build, avoiding manual CMake registration.
+
 - **ESP-IDF Component Manager flow:** include a valid `idf_component.yml` and let ESP-IDF's Component Manager handle registration natively; `lib_deps` may fetch the same package alongside (causing minor redundancy), but the build proceeds cleanly without conflicts.
 
 ## The layout that makes one example buildable by both toolchains
