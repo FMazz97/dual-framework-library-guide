@@ -8,14 +8,15 @@ It also covers an architectural dead end that initially appeared to satisfy ever
 
 ## 2.1 Why `components/<name>/` with a `CMakeLists.txt` pointing outward (`../..`) breaks publishing
 
-A natural first instinct, once Arduino's `src/` tree becomes the single source of truth ([Chapter 1.1](01-ecosystem-constraints.md#1.1-Arduino)), is to leave all implementation files there and simply have the ESP-IDF component "reach into" it:
+A natural first instinct, especially for libraries that originated in the Arduino ecosystem with a *PascalCase* repository name, is to leave all implementation files in Arduino's `src/` tree once it becomes the single source of truth ([Chapter 1.1](01-ecosystem-constraints.md#11-arduino)), and simply have the ESP-IDF component "reach into" it:
 
 ```text
 repo/
 ├── src/
-│   └── core/
-│       ├── foo.cpp
-│       └── foo.h
+│   ├── Foo.h ← Arduino public include
+│   └── core/ ← shared implementation
+│       ├── foo.h
+│       └── foo.cpp
 └── components/
     └── foo/
         ├── idf_component.yml
@@ -54,10 +55,7 @@ In other words, **neither direction works**.
 
 Keeping the implementation under `src/` violates the ESP-IDF packaging model once the component is published. Keeping the implementation under `components/` violates Arduino's source-discovery model before the build even begins.
 
-<!--
-Neither direction works, because each side of the asymmetry has an absolute requirement about *where its own source lives*, not just about what it can reference.
-The reason is subtle but fundamental: both ecosystems impose requirements on where the implementation itself must live, not merely on what can be referenced from elsewhere.
--->
+Neither ecosystem is satisfied by simply referencing the other's sources.
 
 ## 2.2 The solution: IDF manifest at the repository root, pointing *toward* `src/core`
 
@@ -65,19 +63,16 @@ The resolution is to stop treating the component folder as a subfolder that must
 
 ```text
 repo/ ← same folder as idf_component.yml
-    ├── idf_component.yml
-    ├── CMakeLists.txt ← SRCS "src/core/foo.cpp" (no ../..)
-    ├── library.properties ← Arduino
-    ├── library.json ← PlatformIO
-    ├── src/
-    │   ├── Foo.h ← Arduino facade (PascalCase)
-    │   ├── core/
-    │   │   ├── foo.h ← framework-agnostic core (snake_case)
-    │   │   └── foo.cpp
-    │   └── hal/
-    │       ├── foo_hal_arduino.h
-    │       └── foo_hal_espidf.h
-    └── examples/
+├── idf_component.yml
+├── CMakeLists.txt ← SRCS "src/core/foo.cpp" (no ../..)
+├── library.properties ← Arduino
+├── library.json ← PlatformIO
+├── src/
+│   ├── Foo.h ← Arduino public include
+│   └── core/ ← shared implementation
+│       ├── foo.h
+│       └── foo.cpp
+└── examples/
 ```
 
 With `idf_component.yml` at the root, publishing packages the **entire repository** — `src/core/foo.cpp` is now *inside* the packaged unit, referenced with a plain relative path (`src/core/foo.cpp`, no `..`) that resolves identically whether you're building from the live repository or from a downloaded, extracted package. Arduino continues to see exactly what it always expected — everything it needs under `src/` — untouched by any of this.
