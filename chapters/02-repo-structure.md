@@ -6,6 +6,8 @@ This chapter documents how those requirements were reconciled into a single fold
 
 It also covers an architectural dead end that initially appeared to satisfy every requirement on paper, yet failed when subjected to real publication and validation workflows. That failure is worth documenting precisely because it is difficult to predict from the official documentation alone and only becomes apparent when the repository is exercised across all three ecosystems.
 
+---
+
 ## 2.1 Why `components/<name>/` with a `CMakeLists.txt` pointing outward (`../..`) breaks publishing
 
 A natural first instinct, especially for libraries that originated in the Arduino ecosystem with a *PascalCase* repository name, is to leave all implementation files in Arduino's `src/` tree once it becomes the single source of truth ([Chapter 1.1](01-ecosystem-constraints.md#11-arduino)), and simply have the ESP-IDF component "reach into" it:
@@ -57,27 +59,54 @@ Keeping the implementation under `src/` violates the ESP-IDF packaging model onc
 
 Neither ecosystem is satisfied by simply referencing the other's sources.
 
+---
+
 ## 2.2 The solution: IDF manifest at the repository root, pointing *toward* `src/core`
 
-The resolution is to stop treating the component folder as a subfolder that must physically contain its source, and instead let **the whole repository be the self-contained unit** the Registry packages:
+The resolution is to stop treating the ESP-IDF component as a nested subdirectory with its own isolated source tree, and instead make the entire **repository the self-contained unit** consumed by all three ecosystems.
 
 ```text
-repo/ ← same folder as idf_component.yml
-├── idf_component.yml
-├── CMakeLists.txt ← SRCS "src/core/foo.cpp" (no ../..)
-├── library.properties ← Arduino
-├── library.json ← PlatformIO
+repo/                    ← same folder as idf_component.yml
+├── idf_component.yml    ← ESP-IDF Manifest
+├── CMakeLists.txt       ← SRCS "src/core/foo.cpp" (no ../..)
+├── library.properties   ← Arduino
+├── library.json         ← PlatformIO
 ├── src/
-│   ├── Foo.h ← Arduino public include
-│   └── core/ ← shared implementation
+│   ├── Foo.h            ← Arduino public include
+│   └── core/            ← shared implementation
 │       ├── foo.h
 │       └── foo.cpp
 └── examples/
 ```
 
-With `idf_component.yml` at the root, publishing packages the **entire repository** — `src/core/foo.cpp` is now *inside* the packaged unit, referenced with a plain relative path (`src/core/foo.cpp`, no `..`) that resolves identically whether you're building from the live repository or from a downloaded, extracted package. Arduino continues to see exactly what it always expected — everything it needs under `src/` — untouched by any of this.
+At first glance, this may look like a small adjustment. In practice, it changes the packaging boundary completely.
 
-The rule this generalizes to: **a component's `CMakeLists.txt` may reference paths *down and into* its own package root, never *up and out* of it.** Placing the manifest at the root, rather than in a nested subfolder, is what makes "down and into" cover the entire shared core.
+With `idf_component.yml` at the repository root, the ESP Component Registry packages the entire **repository rather** than a nested subdirectory. The shared implementation under `src/core/` is now part of the published package itself, not something referenced from outside it.
+
+As a result, the component's `CMakeLists.txt` can reference:
+
+```text
+src/core/foo.cpp
+```
+
+using an ordinary relative path entirely contained within the packaged artifact.
+
+The same path resolves correctly in every scenario:
+
+- local development through `EXTRA_COMPONENT_DIRS`;
+- installation through `idf.py` add-dependency;
+- handled through **PlatformIO's Component Manager** integration.
+
+Arduino remains equally satisfied. Its source-discovery model still finds everything under src/, exactly where it expects it to be, and the presence of ESP-IDF-specific metadata at the repository root does not interfere with Arduino Library Manager or PlatformIO's Arduino framework.
+
+So, the rule this generalizes to is simple:
+
+- **A component's `CMakeLists.txt` may reference paths *down and into* its own package root, but never up and out of it.**
+- **Likewise, Arduino expects the library's source tree to be *rooted at the repository level*, with all compilable sources living under `src/`.**
+
+Placing `idf_component.yml` at the repository root is what allows both requirements to be satisfied simultaneously.
+
+---
 
 ## 2.3 Local folder name vs. GitHub repository name: independent, and only the local one matters
 
