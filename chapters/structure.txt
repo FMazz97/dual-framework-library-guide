@@ -32,5 +32,5 @@ arduino-espidf-dual-library-guide/
 │   ├── 04-yield-watchdog.md
 │   ├── 05-dual-buildable-examples.md
 │   └── 06-publishing.md
-├── README.md ← preamble
+├── README.md ← introduction
 └── LICENSE

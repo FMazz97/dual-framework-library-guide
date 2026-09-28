@@ -102,3 +102,16 @@ The root conflict lies in these non-negotiable rules:
 - **Component Identity & Metadata** are handled independently by each toolchain. ESP-IDF's local filesystem resolution depends strictly on case-sensitive folder names, while package registry resolutions rely on immutable manifest metadata captured at release time.
 
 The layout that satisfies all three simultaneously — used throughout this guide — places the IDF component manifest **at the repository root** (not nested under a `components/<name>/` folder pointing back out with `../..`), with `src/core/` as the single, self-contained source of truth. [Chapter 2 - Repository structure](02-repo-structure.md) covers why that specific placement, and what breaks if the component manifest lives anywhere else.
+
+---
+
+## Index
+
+[Introduction](../README.md)
+
+[Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
+[Chapter 2 - Repository structure](02-repo-structure.md)
+[Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
+[Chapter 4 - Yield & Watchdog](04-yield-watchdog.md)
+[Chapter 5 - ESP-IDF dual buildable examples](05-dual-buildable-examples)
+[Chapter 6 - Publishing](06-publishing.md)

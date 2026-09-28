@@ -70,3 +70,16 @@ It covers everything from the non-negotiable requirements of each ecosystem, to 
 
 More importantly, the conclusions presented here are not theoretical deductions from documentation alone. Every design decision and every claim has been validated empirically on real hardware and through the development of the **CS123x** library:
 👉 [https://github.com/FMazz97/CS123](https://github.com/FMazz97/CS123x)
+
+---
+
+## Index
+
+[Introduction](README.md)
+
+[Chapter 1 - Ecosystem Constraints](chapters/01-ecosystem-constraints.md)
+[Chapter 2 - Repository structure](chapters/02-repo-structure.md)
+[Chapter 3 - Agnostic Core & HAL Architecture](chapters/03-agnostic-core_hal-architecture.md)
+[Chapter 4 - Yield & Watchdog](chapters/04-yield-watchdog.md)
+[Chapter 5 - ESP-IDF dual buildable examples](chapters/05-dual-buildable-examples)
+[Chapter 6 - Publishing](chapters/06-publishing.md)

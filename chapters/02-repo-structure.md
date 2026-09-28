@@ -110,16 +110,39 @@ Placing `idf_component.yml` at the repository root is what allows both requireme
 
 ## 2.3 Local folder name vs. GitHub repository name: independent, and only the local one matters
 
-A related trap, easy to fall into once Chapter 1.2's case-sensitivity constraint is understood: the instinct to **rename the GitHub repository itself** to match the lowercase component name.
+A related trap, once the [case-sensitivity constraints for ESP-IDF framework](01-ecosystem-constraints.md#12-esp-idf-native) was understood, is the instinct to rename the GitHub repository itself to match the *lowercase* component name, especially for libraries that originated in the Arduino ecosystem with a *PascalCase* repository name.
 
-This isn't necessary, and it's worth understanding precisely why. `EXTRA_COMPONENT_DIRS` and the Component Manager both resolve names from **what's physically on the local disk at build time** — the repository's name on GitHub has no bearing on this at all. When someone runs:
+**This isn't necessary.**
+
+The key observation is that `EXTRA_COMPONENT_DIRS` and the Component Manager operate on **what exists locally on disk at build time**. They do not care what the repository is called on GitHub.
+
+Using:
 
 ```bash
 git clone https://github.com/owner/Foo.git foo
 ```
 
-Git clones the exact same repository — same history, same tags, same remote URL — into a **locally chosen** folder name, independent of whatever the repository is called on GitHub. Every registry registration tied to the repository's URL (Arduino Library Manager, PlatformIO Registry entries referencing the Git remote) remains valid regardless of what any individual clone is named on someone's disk.
+clones the exact same repository into a local folder named `foo` — same history, same tags, same remote URL — into a **locally chosen** folder name, independent of whatever the repository is called on GitHub.
 
-The only thing that matters for the constraints in Chapter 1.2 is the folder name **at the moment `EXTRA_COMPONENT_DIRS` or a manual checkout is used** — which is a per-user, per-clone choice, not a property of the repository itself. Renaming the GitHub repository solves nothing that a documented `git clone ... <lowercase-name>` instruction doesn't already solve, while introducing real (if usually low) risk to existing registrations that may reference the current URL or name more strictly than expected.
+From ESP-IDF's perspective the component-resolution mechanisms see only the local checkout, not the GitHub repository page. As long as the component folder and manifest names satisfy the expected conventions, the remote repository name is irrelevant.
 
-Chapter 6 covers the one place this distinction *does* have a hard consequence: package names on the Registries themselves (as opposed to folder/repository names) are not free to change after first publication without losing accumulated download history — a different, and non-reversible, kind of "name" entirely.
+Renaming the GitHub repository solves nothing that a documented `git clone ... <lowercase-name>` instruction doesn't already solve, while introducing real (if usually low) risk to existing registrations that may reference the current URL or name more strictly than expected.
+
+The distinction becomes even more important once publication enters the picture: ***repository name, local folder name, and package name are three different things.*** The first two can usually be changed with little consequence; **the third often cannot.**
+
+[Chapter 6 - Publishing](06-publishing.md) covers this in detail, including why package names on the *Arduino Library Manager*, *PlatformIO Registry*, and *ESP Component Registry* should be treated as effectively **permanent** once published.
+
+With the repository structure established, [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md) focuses on how that layout is combined with a code organization that keeps the application logic shared across frameworks while isolating framework-specific hardware access.
+
+---
+
+## Index
+
+[Introduction](../README.md)
+
+[Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
+[Chapter 2 - Repository structure](02-repo-structure.md)
+[Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
+[Chapter 4 - Yield & Watchdog](04-yield-watchdog.md)
+[Chapter 5 - ESP-IDF dual buildable examples](05-dual-buildable-examples)
+[Chapter 6 - Publishing](06-publishing.md)
