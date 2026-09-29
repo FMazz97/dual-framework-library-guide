@@ -47,11 +47,11 @@ So, *the protocol implementation exists exactly **once***, while each framework 
 
 ## 3.1 Why compile-time macros, not virtual dispatch or templates
 
-Before settling on compile-time macros, two more conventional abstraction mechanisms were evaluated and ultimately rejected. The decision was not driven by unfamiliarity with virtual interfaces or templates, but by the fact that both introduce trade-offs that become difficult to justify in a low-level hardware-access layer whose entire purpose is to disappear after compilation.
+Before settling on compile-time macros, two standard abstraction mechanisms — *virtual interfaces* and *C++ templates* — were evaluated and rejected. Both introduce overhead that cannot be justified in a low-level hardware-access layer designed to disappear at compile time.
 
 ## Virtual dispatch
 
-A classic object-oriented solution would be to define a HAL interface and provide separate Arduino and ESP-IDF implementations behind virtual methods:
+A classic object-oriented solution defines a HAL interface and provides separate framework implementations behind virtual methods:
 
 ```cpp
 class IHal {
@@ -61,32 +61,34 @@ virtual void digitalWrite(...) = 0;
 };
 ```
 
-While functional, this approach introduces runtime indirection into the hottest part of the codebase: every hardware operation passes through a virtual call. The overhead is often small, but it exists, and more importantly it solves a problem that is already known at compile time. The framework is never selected dynamically at runtime, so paying a runtime cost for runtime flexibility provides little benefit.
-<!--
-**Virtual dispatch** (an abstract `IHal` interface, implemented separately per platform) would let the core hold a pointer to a HAL implementation and call through it — clean, familiar, and completely reasonable for most code. It falls apart specifically in `readBits()`/`writeBits()`, which toggle a clock line **once per bit**, called up to 46 times per register transaction, at a data rate where the entire transaction budget is measured in microseconds (Chapter 4 covers the 1280 Hz timing budget in detail). A virtual call's indirection — a few extra instructions per invocation — is negligible in most contexts, but multiplied by every single bit of every single transaction, on hardware where an ordinary `digitalWrite()` was *already* the bottleneck being fought (see the AVR direct-register-access work that predates this architecture), it's not a cost worth reintroducing for the sake of a cleaner interface.
--->
+While clean, this approach introduces runtime indirection into the hottest part of the codebase. In tight bit-banging loops or high-frequency register transactions, clock and data lines are toggled repeatedly within strict microsecond-level timing budgets.
+
+A virtual call's indirection (a few extra cycles per invocation) is negligible in high-level software, but when multiplied across every single bit operation on hardware where standard GPIO functions are already a bottleneck, it is an unnecessary performance tax. More importantly, it solves a **non-existent problem**: the target framework is fixed at build time, so paying a performance penalty for runtime flexibility provides zero benefit.
 
 ## Templates
 
-Templates eliminate virtual dispatch and allow the compiler to inline everything:
+Templates eliminate virtual dispatch and allow the compiler to inline every hardware call:
 
 ```cpp
 template<typename Hal>
-class cs123x {
-  ...
+class Driver {
+  // ...
 };
 ```
 
-From a performance perspective this is excellent. The drawback is complexity.
+From a performance perspective, this is optimal but the drawback is API *complexity* becouse templates rapidly propagate through the public API.
 
-Templates rapidly propagate through the public API, increase compile-time complexity, complicate error messages, and force implementation details into type definitions. For a library whose hardware layer ultimately consists of a small number of GPIO and timing operations, the added machinery felt disproportionate to the problem being solved.
-<!--
-**Templates** (`template<typename Hal> class cs123x`) avoid the virtual-call cost — the compiler can inline everything — but push the abstraction into the class's *type*. The public class Arduino users instantiate would need to either carry an explicit template parameter (`CS123x<ArduinoHal> adc(...)`, a syntax burden for a library whose whole audience-facing goal on that side is simplicity) or be wrapped in yet another layer to hide it — at which point the facade's job doubles for no benefit.
--->
+Users would either need to:
+
+- instantiate explicit template types, such as `Driver<ArduinoHal>`, introducing a syntax burden for a library whose audience-facing goal is simplicity;
+
+- rely on an additional wrapper layer whose sole purpose is hiding the template parameter, at which point the facade's responsibilities double for little practical benefit.
+
+For a HAL consisting of just a *few low-level I/O primitives*, **the additional template machinery feels disproportionate to the value it provides**.
 
 ## Why macros won
 
-The framework is known before compilation begins:
+Because the target platform is *known before compilation begins*, preprocessor macros allow the HAL implementation to be selected entirely at **compile time**:
 
 ```cpp
 #if defined(ARDUINO)
@@ -95,6 +97,9 @@ The framework is known before compilation begins:
   #include "foo_hal_espidf.h"
 #endif
 ```
+
+>This approach allows each hardware macro (such as HARDWARE_SET_HIGH()) to expand directly into the platform's fastest primitive — whether direct register access, a native framework API, or a standard I/O function.
+>The trade-off is clear: macros are unscoped, global, and lack language-level type safety across boundaries. However, since the target platform never changes at runtime, sacrificing dynamic flexibility yields a zero-cost abstraction: no vtables, no complex template syntax, and zero runtime overhead.
 
 This allows the HAL implementation to be selected entirely at compile time. The core sees only a uniform set of FOO_* macros, the compiler sees only one concrete implementation, and the resulting binary contains no virtual tables, no template instantiations, and no runtime abstraction cost.
 
