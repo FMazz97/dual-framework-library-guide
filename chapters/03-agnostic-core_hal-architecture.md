@@ -1,28 +1,26 @@
 # Chapter 3 — The Agnostic Core, the HAL Layer, and the Arduino Facade
 
-<!--
-With the repository structure established ([Chapter 2 - A Folder Structure That Satisfies All Three at Once](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol implementation exists only once, while still allowing Arduino and ESP-IDF to use their own native hardware APIs?
+With the repository structure established ([Chapter 2 - A Folder Structure That Satisfies All Three at Once](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing Arduino and ESP-IDF to use their own native hardware APIs?
 
 The resulting architecture separates responsibilities into three layers:
 
 ```text
-CS123x (Arduino facade, camelCase)
+Foo (Arduino facade, camelCase)
 │ forwards every call 1:1, adds nothing
 ▼
-cs123x (core, snake_case)
-│ this IS the public API on ESP-IDF
-│ calls CS123X_* macros, never Arduino/IDF APIs directly
+foo (core, snake_case)
+│ this IS the public API, also used by ESP-IDF
+│ calls FOO_* macros, never Arduino/IDF APIs directly
 ▼
-HAL macros
-(cs123x_hal_arduino.h / cs123x_hal_espidf.h)
+HAL macros (foo_hal_arduino.h / foo_hal_espidf.h)
 resolved at compile time through:
 #if defined(ARDUINO)
 #elif defined(ESP_PLATFORM)
 ```
 
-The core contains all protocol logic, calculations, state handling, and device behavior. The HAL provides framework-specific hardware access, while the Arduino facade exists solely to expose the naming style Arduino users typically expect.
+The **core** (styled in `snake_case`, following C++ and ESP-IDF standard) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect forwarding every public method: `bool classMethod() { return _core.class_method(); }`.
 
-Only the HAL knows whether the code is being built for Arduino or ESP-IDF, allowing the same protocol implementation to run natively on both frameworks.
+*By isolating framework selection within the HAL, the same protocol implementation runs natively on both Arduino and ESP-IDF using their respective hardware access paths.*
 
 The resulting repository layout becomes:
 
@@ -42,53 +40,8 @@ repo/
 │       └── foo_hal_espidf.h
 └── examples/
 ```
--->
 
-With the repository structure established ([Chapter 2 - Repository structure](02-repo-structure.md)), the remaining challenge is no longer where the code lives, but how it is organized.
-
-The goal is simple: write the protocol logic **once** and have it run natively on both Arduino and ESP-IDF frameworks, without runtime translation layers, virtual dispatch, duplicated implementations, or framework-specific code leaking into the application's core logic.
-
-The architecture that emerged consists of three clearly separated layers/folders:
-
-- **framework-agnostic `core/`** containing all *protocol logic*, *calculations*, *state handling*, and *device behavior* (`snake_case` as C++ recommended);
-- **lightweight Hardware Abstraction Layer `hal/`** responsible only for *hardware* access and resolved entirely at compile time (`snake_case` as C++ recommended);
-- **Arduino facade** whose sole purpose is to expose the class's naming and API in *Arduino* `camelCase` style that users typically expect.
-
-The key design decision is that only the *HAL* knows which **framework is being used**, allowing the protocol implementation to exist exactly **once** while each framework retains its own native hardware access path and the resulting repository layout becomes:
-
-```text
-repo/
-├── idf_component.yml    ← ESP-IDF
-├── CMakeLists.txt       ← ESP-IDF
-├── library.properties   ← Arduino
-├── library.json         ← PlatformIO
-├── src/
-│   ├── Foo.h            ← Arduino facade
-│   ├── core/            ← Framework-agnostic core
-│   │   ├── foo.h
-│   │   └── foo.cpp
-│   └── hal/             ← Hardware Abstraction Layer
-│       ├── foo_hal_arduino.h
-│       └── foo_hal_espidf.h
-└── examples/
-```
-
-The Arduino facade's entire job is forwarding: `bool classMethod() { return _core.class_method(); }`, repeated for every public method.
-
-The facade intentionally contains *no business logic*, *state management*, or *hardware interaction*. This is precisely what makes it safe to expose two naming styles (`Foo` and `foo`) without risking divergence: there is no behavior in the facade to diverge. Every call is mechanically forwarded to the same underlying implementation.
-
-```text
-    Foo (Arduino facade, camelCase)
-    │ forwards every call 1:1, adds nothing
-    ▼
-    foo (core, snake_case — this IS the core public API used direcly by ESP-IDF)
-    │ calls FOO_* macros, never touches Arduino/IDF APIs directly
-    ▼
-    HAL macros (foo_hal_arduino.h / foo_hal_espidf.h)
-      resolved by #if defined(ARDUINO) / #elif defined(ESP_PLATFORM)
-```
-
-so, ***the protocol implementation exists exactly once.***
+So, *the protocol implementation exists exactly **once***, while each framework retains its own **native hardware implementation**.
 
 ---
 
