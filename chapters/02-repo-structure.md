@@ -136,7 +136,7 @@ With the repository structure established, [Chapter 3 - Agnostic Core & HAL Arch
 
 ---
 
-## Index
+## Table of Contents
 
 - [Introduction](../README.md)
 - [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)

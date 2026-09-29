@@ -8,7 +8,7 @@ Before diving into the technical constraints, it's worth answering a more fundam
 
 **Arduino remains, and will remain for a long time, the primary entry point into embedded development.**
 
-Its greatest strength is not raw technical capability, but accessibility. Projects can be initialized in seconds, the API is intentionally approachable, and compiling and flashing firmware is often reduced to a single click. For beginners, hobbyists, educators, and even experienced developers building quick prototypes, **this reduction in friction is not a secondary advantage**: it is the very reason the platform became dominant and continues to attract the largest community in the embedded world.
+**Its greatest strength is not raw technical capability, but accessibility.** Projects can be initialized in seconds, the API is intentionally approachable, and compiling and flashing firmware is often reduced to a single click. For beginners, hobbyists, educators, and even experienced developers building quick prototypes, **this reduction in friction is not a secondary advantage**: it is the very reason the platform became dominant and continues to attract the largest community in the embedded world.
 
 **Ignoring Arduino means ignoring where most users begin.**
 
@@ -46,15 +46,7 @@ Designing with a Hardware Abstraction Layer (HAL) from the start solves the prob
 
 **Most importantly**, that choice is resolved at **compile time**, not at runtime.
 
-The result is a single codebase that can target both Arduino and ESP-IDF while preserving each framework's native implementation path:
-
-* one application layer;
-* one maintenance effort;
-* no runtime switches;
-* no translation layer;
-* no hidden performance costs.
-
-In practice, you get the native performance of each ecosystem while writing and maintaining your application logic only once.
+**The result is a single codebase that preserves each framework's native implementation path** while avoiding runtime switches, translation layers, and duplicated application logic. In practice, you get the native performance of each ecosystem while *writing and maintaining your application logic only once.*
 
 ---
 
@@ -73,7 +65,7 @@ More importantly, the conclusions presented here are not theoretical deductions 
 
 ---
 
-## Index
+## Table of Contents
 
 * [Introduction](README.md)
 * [Chapter 1 - Ecosystem Constraints](chapters/01-ecosystem-constraints.md)

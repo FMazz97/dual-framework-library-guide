@@ -105,7 +105,7 @@ The layout that satisfies all three simultaneously — used throughout this guid
 
 ---
 
-## Index
+## Table of Contents
 
 - [Introduction](../README.md)
 - [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
