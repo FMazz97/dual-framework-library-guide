@@ -1,10 +1,10 @@
-# Chapter 1 — The Three Ecosystems and Their Non-Negotiable Constraints
+# Chapter 1 — The Two Ecosystems and Their Non-Negotiable Constraints
 
 Before discussing abstraction layers, repository layouts, or build integration, it's important to understand a fundamental reality: **the hardest part of a cross-ecosystem library is rarely the code itself**.
 
 Each ecosystem comes with its own assumptions about project structure, source discovery, dependency management, examples, packaging, and publication. **These are not conventions that can be bent or negotiated**; they are hard requirements enforced by the tooling. Ignore them, and the build breaks, the library fails validation, or the package never gets published.
 
-The challenge, therefore, is not simply making Arduino and ESP-IDF compile the same code. The challenge is designing a repository that simultaneously satisfies two independent ecosystems (three if considering also PlatformIO), each with its own rules and expectations.
+The challenge, therefore, is not simply making Arduino and ESP-IDF compile the same code. It is designing a repository that simultaneously satisfies two independent ecosystems (and the cross-platform toolchains like PlatformIO) each with its own rules, directory structures, and developer expectations.
 
 Everything described in this chapter was verified empirically through real builds, real hardware testing, and real publication attempts. Several assumptions that seemed perfectly reasonable when reading the documentation turned out to be incorrect once exercised in practice.
 
@@ -62,7 +62,9 @@ Components declare their dependencies through mechanisms such as `REQUIRES`, `PR
 
 ## 1.3 PlatformIO
 
-PlatformIO occupies a unique position in this discussion because it is neither a framework nor a standalone build system in the traditional sense. Its behavior changes significantly depending on the selected `framework`, and many integration problems originate from assuming that it behaves the same way in all cases.
+PlatformIO introduces no additional structural constraints on the library itself. When used with Arduino, it follows Arduino's library conventions; when used with ESP-IDF, it follows ESP-IDF's component model. As a result, the repository layout established in the previous sections already satisfies PlatformIO without requiring any PlatformIO-specific source organization.
+
+The only area that typically requires additional attention is the example/project structure on the ESP-IDF side, where the same examples may need to remain buildable under both native ESP-IDF and PlatformIO's ESP-IDF integration.
 
 ### `framework = arduino`
 

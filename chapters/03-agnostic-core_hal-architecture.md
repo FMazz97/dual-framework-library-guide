@@ -1,6 +1,6 @@
 # Chapter 3 — The Agnostic Core, the HAL Layer, and the Arduino Facade
 
-With the repository structure established ([Chapter 2 - A Folder Structure That Satisfies All Three at Once](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing Arduino and ESP-IDF to use their own native hardware APIs?
+With the repository structure established ([Chapter 2 - Repository structure](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing Arduino and ESP-IDF to use their own native hardware APIs?
 
 The resulting architecture separates responsibilities into three layers:
 
