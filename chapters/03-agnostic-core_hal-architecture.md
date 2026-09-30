@@ -49,7 +49,7 @@ So, *the protocol implementation exists exactly **once***, while each framework 
 
 Before settling on compile-time macros, two standard abstraction mechanisms — *virtual interfaces* and *C++ templates* — were evaluated and rejected. Both introduce overhead that cannot be justified in a low-level hardware-access layer designed to disappear at compile time.
 
-## Virtual dispatch
+### Virtual dispatch
 
 A classic object-oriented solution defines a HAL interface and provides separate framework implementations behind virtual methods:
 
@@ -65,7 +65,7 @@ While clean, this approach introduces runtime indirection into the hottest part 
 
 A virtual call's indirection (a few extra cycles per invocation) is negligible in high-level software, but when multiplied across every single bit operation on hardware where standard GPIO functions are already a bottleneck, it is an unnecessary performance tax. More importantly, it solves a **non-existent problem**: the target framework is fixed at build time, so paying a performance penalty for runtime flexibility provides zero benefit.
 
-## Templates
+### Templates
 
 Templates eliminate virtual dispatch and allow the compiler to inline every hardware call:
 
@@ -86,7 +86,7 @@ Users would either need to:
 
 For a HAL consisting of just a *few low-level I/O primitives*, **the additional template machinery feels disproportionate to the value it provides**.
 
-## Why macros won
+### Why macros won
 
 Because the target platform is *known before compilation begins*, preprocessor macros allow the HAL implementation to be selected entirely at **compile time**:
 
@@ -103,9 +103,59 @@ This approach allows each hardware macro (such as `HARDWARE_SET_HIGH()`) to expa
 The trade-off is clear: macros are unscoped, global, and lack language-level type safety across boundaries. However, since the target platform never changes at runtime, sacrificing dynamic flexibility yields a zero-cost abstraction: no vtables, no complex template syntax, and zero runtime overhead.
 
 *The hardware abstraction exists for the developer, but **disappears completely for the machine.***
-<!--
-Macros resolved once, at preprocessing time, via `#if defined(ARDUINO) / #elif defined(ESP_PLATFORM)`, sidestep both costs: each `CS123X_SCLK_HIGH()`/`CS123X_DOUT_READ()` expands directly to the target platform's fastest available primitive (direct AVR register access, `gpio_set_level()`, or a plain `digitalWrite()`), with zero indirection and zero extra type parameters. The trade-off is real and worth naming honestly: macros are global, unscoped, and can't be swapped at runtime — exactly one HAL is compiled in per build. For a library where the target is always known at compile time (you're never deciding at runtime whether you're on Arduino or IDF), that's not a limitation in practice — it's the same assumption the constraint already makes.
--->
+
+---
+
+## 3.2 Integrating the HAL into the Core
+
+Once the abstraction boundary is established, integration into the core is minimal.
+
+The core header selects the appropriate HAL at compile time:
+
+```cpp
+// foo.h
+#if defined(ARDUINO)
+#include "../hal/foo_hal_arduino.h"
+#elif defined(ESP_PLATFORM)
+#include "../hal/foo_hal_espidf.h"
+#else
+#error "Foo core: unsupported platform (expected ARDUINO or ESP_PLATFORM)"
+#endif
+```
+
+From that point onward, the implementation uses only **framework-neutral macros**:
+
+```cpp
+//foo.cpp
+FOO_WRITE(_pin, MODE);
+FOO_DELAY_US(_us);
+```
+
+Each HAL then provides the *platform-specific* implementation of those operations.
+
+- Arduino:
+
+  ```cpp
+  //foo_hal_arduino.h
+  #define FOO_WRITE(_pin, MODE)   digitalWrite(_pin, MODE)
+  #define FOO_DELAY_US(_us)       delayMicroseconds(_us)
+  ```
+
+- ESP-IDF:
+
+  ```cpp
+  //foo__hal_espidf.h
+  #define FOO_WRITE(_pin, MODE)   gpio_set_level(_pin, MODE)
+  #define FOO_DELAY_US(_us)       esp_rom_delay_us(_us)
+  ```
+
+From the core's perspective, there is no concept of **Arduino** `digitalWrite()` or **ESP-IDF** `gpio_set_level()`, or any other *framework-specific* API. **The only contract it knows is the set of HAL macros.**
+
+This separation has an important consequence: the protocol code can **focus exclusively** on *device behavior*, *timing requirements*, *state management*, and *calculations*, while the HAL remains responsible for translating those operations into the *platform's native hardware primitives*.
+
+As a result, framework-specific code is confined to a small number of HAL headers, while the core implementation remains identical across every supported ecosystem.
+
+The *core* never call **Arduino** or **ESP-IDF** APIs directly.
 
 ---
 
