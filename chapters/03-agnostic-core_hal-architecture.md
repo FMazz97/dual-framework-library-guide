@@ -157,6 +157,10 @@ As a result, framework-specific code is confined to a small number of HAL header
 
 The *core* never call **Arduino** or **ESP-IDF** APIs directly.
 
+With the architecture defined and the `src/` directory fully framework-agnostic, **the library source code is complete.**
+
+While Arduino examples require no special setup (PlatformIO handles them natively just like the Arduino Library Manager) sharing **ESP-IDF examples** across toolchains requires a specific layout. The next step explores how to apply single-source principles to these shared projects in [Chapter 4 - ESP-IDF dual buildable examples](04-ESP-IDF-dual-buildable-examples.md)
+
 ---
 
 ## Table of Contents
