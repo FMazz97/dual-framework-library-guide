@@ -94,6 +94,6 @@ This is worth stating explicitly in any example's own README — it's the single
 - [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
 - [Chapter 2 - Repository structure](02-repo-structure.md)
 - [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
-- [Chapter 4 - ESP-IDF dual buildable examples](04-ESP-IDF-dual-buildable-examples)
+- [Chapter 4 - ESP-IDF dual buildable examples](04-ESP-IDF-dual-buildable-examples.md)
 - [Chapter 5 - Publishing](05-publishing.md)
 - [Chapter 6 - Bonus: Yield & Watchdog - Naming Convention](06-bonus_yield-watchdog_naming-convention.md)
