@@ -13,14 +13,16 @@
 
 3. Il core agnostico, il layer HAL e la facciata Arduino
    3.1 Perché macro a compile-time, non virtual dispatch né template
-   3.2 La convenzione dei nomi (get_/read_/set_) e perché è emersa solo iterando
-
-4. Cooperare con lo scheduler: yield/watchdog su quattro ambienti diversi
-   (AVR bare-metal, ESP8266 event-loop, Arduino-ESP32 su FreeRTOS, IDF nativo su FreeRTOS)
+   3.2 Integrazione delle macro nel core
 
 5. Esempi compilabili da un solo albero sorgente, sia idf.py sia PlatformIO
 
 6. Pubblicare sui tre registri, e la stessa trappola di case-sensitivity che li accomuna tutti
+
+4. Bounus
+   6.1 Cooperare con lo scheduler: yield/watchdog su quattro ambienti diversi
+   (AVR bare-metal, ESP8266 event-loop, Arduino-ESP32 su FreeRTOS, IDF nativo su FreeRTOS)
+   6.2 La convenzione dei nomi (get_/read_/set_) e perché è emersa solo iterando
 
 7. Checklist finale
 
@@ -28,9 +30,9 @@ arduino-espidf-dual-library-guide/
 ├── chapters/
 │   ├── 01-ecosystem-constraints.md
 │   ├── 02-repo-structure.md
-│   ├── 03-hal-architecture.md
-│   ├── 04-yield-watchdog.md
-│   ├── 05-dual-buildable-examples.md
-│   └── 06-publishing.md
+│   ├── 03-agnostic-core_hal-architecture.md
+│   ├── 04-ESP-IDF-dual-buildable-examples.md
+│   ├── 05-publishing.md
+│   └── 06-bonus_yield-watchdog_naming-convention.md
 ├── README.md ← introduction
 └── LICENSE
