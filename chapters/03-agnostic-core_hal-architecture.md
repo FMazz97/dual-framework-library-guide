@@ -98,12 +98,11 @@ Because the target platform is *known before compilation begins*, preprocessor m
 #endif
 ```
 
->This approach allows each hardware macro (such as HARDWARE_SET_HIGH()) to expand directly into the platform's fastest primitive — whether direct register access, a native framework API, or a standard I/O function.
->The trade-off is clear: macros are unscoped, global, and lack language-level type safety across boundaries. However, since the target platform never changes at runtime, sacrificing dynamic flexibility yields a zero-cost abstraction: no vtables, no complex template syntax, and zero runtime overhead.
+This approach allows each hardware macro (such as `HARDWARE_SET_HIGH()`) to expand directly into the platform's fastest *primitive* — direct register access, a native framework API, or a standard I/O function.
 
-This allows the HAL implementation to be selected entirely at compile time. The core sees only a uniform set of FOO_* macros, the compiler sees only one concrete implementation, and the resulting binary contains no virtual tables, no template instantiations, and no runtime abstraction cost.
+The trade-off is clear: macros are unscoped, global, and lack language-level type safety across boundaries. However, since the target platform never changes at runtime, sacrificing dynamic flexibility yields a zero-cost abstraction: no vtables, no complex template syntax, and zero runtime overhead.
 
-The hardware abstraction exists for the developer, but disappears completely for the machine.
+*The hardware abstraction exists for the developer, but **disappears completely for the machine.***
 <!--
 Macros resolved once, at preprocessing time, via `#if defined(ARDUINO) / #elif defined(ESP_PLATFORM)`, sidestep both costs: each `CS123X_SCLK_HIGH()`/`CS123X_DOUT_READ()` expands directly to the target platform's fastest available primitive (direct AVR register access, `gpio_set_level()`, or a plain `digitalWrite()`), with zero indirection and zero extra type parameters. The trade-off is real and worth naming honestly: macros are global, unscoped, and can't be swapped at runtime — exactly one HAL is compiled in per build. For a library where the target is always known at compile time (you're never deciding at runtime whether you're on Arduino or IDF), that's not a limitation in practice — it's the same assumption the constraint already makes.
 -->
