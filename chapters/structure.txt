@@ -1,12 +1,12 @@
 0. Premessa
 
-1. I tre ecosistemi e i loro vincoli non negoziabili
+1. I due ecosistemi e i loro vincoli non negoziabili
    1.1 Arduino: compila ricorsivamente tutto sotto src/, esempi .ino, library.properties/library.json
    1.2 ESP-IDF nativo: il componente deve essere autocontenuto (niente path che escono dalla propria cartella), REQUIRES/idf_component.yml case-sensitive con la cartella root
    1.3 PlatformIO: doppio ruolo (wrapper su Arduino O scaffolding IDF proprio), src_dir
    1.4 Dove i vincoli collidono — tabella di confronto diretto
 
-2. La struttura a cartelle che soddisfa tutti e tre insieme
+2. La struttura a cartelle che soddisfa entrambi insieme
    2.1 Perché components/<nome>/ con CMakeLists.txt che punta fuori (../..) rompe la pubblicazione sul Registry
    2.2 La soluzione: manifest IDF alla radice del repo, che punta VERSO src/core (non il contrario)
    2.3 Nome cartella locale vs nome repository GitHub: perché sono indipendenti e perché conta solo il primo

@@ -1,6 +1,6 @@
 # Chapter 3 — The Agnostic Core, the HAL Layer, and the Arduino Facade
 
-With the repository structure established ([Chapter 2 - Repository structure](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing Arduino and ESP-IDF to use their own native hardware APIs?
+With the repository structure established ([Chapter 2 - Repository structure](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing **Arduino** and **ESP-IDF** to use their own **native hardware APIs**?
 
 The resulting architecture separates responsibilities into three layers:
 
@@ -18,7 +18,7 @@ resolved at compile time through:
 #elif defined(ESP_PLATFORM)
 ```
 
-The **core** (styled in `snake_case`, following C++ and ESP-IDF standard) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect forwarding every public method: `bool classMethod() { return _core.class_method(); }`.
+The **core** (styled in `snake_case`, following **C++** and **ESP-IDF** standard) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect forwarding every public method: `bool classMethod() { return _core.class_method(); }`.
 
 *By isolating framework selection within the HAL, the same protocol implementation runs natively on both Arduino and ESP-IDF using their respective hardware access paths.*
 
