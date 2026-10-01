@@ -144,7 +144,7 @@ Each HAL then provides the *platform-specific* implementation of those operation
 - ESP-IDF:
 
   ```cpp
-  //foo__hal_espidf.h
+  //foo_hal_espidf.h
   #define FOO_WRITE(_pin, MODE)   gpio_set_level(_pin, MODE)
   #define FOO_DELAY_US(_us)       esp_rom_delay_us(_us)
   ```

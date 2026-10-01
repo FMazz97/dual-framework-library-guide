@@ -79,13 +79,11 @@ This distinction is easy to miss, because PlatformIO exposes both behind a seemi
 
 **Declaring a dependency in both `lib_deps` and `REQUIRES` without `idf_component.yml` breaks the build.** This produces a resolution failure rather than harmless redundancy, as CMake's native resolver cannot find what PlatformIO fetched.
 
-**The practical rule is simple:** under `framework = espidf`, choose a single authoritative dependency-resolution path whenever possible.
-
 - **PlatformIO-only flow:** if the library is managed through PlatformIO (`library.json` or registry), leave dependency management to `lib_deps` and omit `REQUIRES`. *PlatformIO* automatically injects its fetched libraries into the build, avoiding manual CMake registration.
 
 - **ESP-IDF Component Manager flow:** include a valid `idf_component.yml` and let *ESP-IDF's Component Manager* handle registration natively; `lib_deps` may fetch the same package alongside (causing minor redundancy), but the build proceeds cleanly without conflicts.
 
-The practical rule remains the same: choose a ***single** authoritative dependency-resolution path* for a given dependency, rather than mixing PlatformIO's package management and ESP-IDF's component-registration mechanisms unnecessarily.
+**The practical rule is simple:** under `framework = espidf`, choose a ***single** authoritative dependency-resolution path*, rather than mixing PlatformIO's package management and ESP-IDF's component-registration mechanisms unnecessarily.
 
 The same separation of responsibilities extends beyond build systems and into package registries themselves. Through their respective manifests (`library.json` and `idf_component.yml`).
 
