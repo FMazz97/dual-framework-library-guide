@@ -1,4 +1,4 @@
-# Chapter 6 — Publishing on All Three Registries, and the Case-Sensitivity Trap That Follows You Everywhere
+# Chapter 5 — Publishing on All Three Registries, and the Case-Sensitivity Trap That Follows You Everywhere
 
 Publishing to Arduino Library Manager, the PlatformIO Registry, and the ESP Component Registry are three independent processes, with three independent review models. But the same case-sensitivity constraint from Chapter 1 resurfaces at publish time in a way that isn't obvious until it's hit directly — and, in this case, it wasn't caught until after a first publication had already happened under the "wrong" case.
 

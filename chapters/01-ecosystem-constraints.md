@@ -44,11 +44,11 @@ ESP-IDF exposes only the include directories explicitly declared through `INCLUD
 
 This turned out to be one of the most time-consuming constraints to pin down, precisely because it is not documented as a unified rule anywhere and only becomes obvious when each mechanism is tested in isolation:
   
-- **`EXTRA_COMPONENT_DIRS` + `REQUIRES`**: purely filesystem-based. CMake scans the listed directories and registers each component **under the exact name of the folder that contains it** — case-sensitive and with no fallback. `REQUIRES foo` will fail to resolve a component sitting in a folder named `Foo`, even though the two strings differ only in case.
+- **`EXTRA_COMPONENT_DIRS` + `REQUIRES`**: purely filesystem-based. CMake scans the listed directories and registers each component **under the exact name of the folder that contains it** — case-sensitive and with no fallback. During local development, using `PascalCase` or `UPPERCASE` (e.g., a folder named `Foo` required via REQUIRES `Foo`) works perfectly fine and poses no strict architectural compatibility issues on your local machine.
 
-- **`idf_component.yml`** (via the Component Manager, either through `override_path` during development or via the Registry): resolves the component's identity from the `name:` field **inside the manifest itself**. As with `EXTRA_COMPONENT_DIRS`, keeping the `name:` value identical to the component folder name avoids resolution inconsistencies across dependency mechanisms.
+- **`idf_component.yml`** (via the Component Manager, either through `override_path` during development or via the Registry): resolves the component's identity from the `name:` field **inside the manifest itself**. As with `EXTRA_COMPONENT_DIRS`, keeping the `name:` value identical to the component folder name avoids resolution inconsistencies across dependency mechanisms. **Unlike CMake, the Component Manager enforces strict lowercase naming rules for the `name:` field even during local development, creating an immediate mismatch if your local filesystem folder uses uppercase.**
 
-The practical rule of thumb is straightforward: **the component folder name and the component name declared in `idf_component.yml` should match.** For components intended to be published through the ESP-IDF Component Registry, keeping both names lowercase provides the most consistent behavior across local development, dependency resolution, and package distribution.
+In short, while local development allows for custom filesystem names, **the ESP Component Registry strictly requires lowercase component and component folder name.** Ensuring this condition from day one is a prerequisite for behavior across local development, dependency resolution, and package distribution.
 
 ### Component metadata is taken from the published package version, not from the current repository state
 
@@ -83,12 +83,12 @@ Once a version is published to PlatformIO Registry, the corresponding manifest `
 Dependencies are declared in `library.json` and resolved through the PlatformIO Registry, allowing PlatformIO to automatically fetch and install the required packages.
 
 ---
-
+<!--questa parte va sistemata sulla base dell'aggiornamente fatto al case sensitve di esp-idf (differenze tra cmake e idf_componente.yml)-->
 ## 1.4 Where the constraints collide
 
 Comparing these three ecosystems reveals that the true challenge of a cross-ecosystem library is not managing different APIs, but harmonizing conflicting toolchain assumptions about source discovery, identity, and metadata immutability:
 
-| | Source layout expected | Name resolved from | Case-sensitive? |
+| Environment | Source layout expected | Name resolved from | Case-sensitive? |
 | :--- | :--- | :--- | :--- |
 | **Arduino** (IDE / PlatformIO) | Everything under `src/`, compiled recursively | `name` field in `library.properties` / `library.json` | No practical constraint observed |
 | **ESP-IDF**: `EXTRA_COMPONENT_DIRS` + `REQUIRES` | Component folder, referenced directly | `REQUIRES name` in CMake & local folder *name* | **Yes** — must match exactly |
