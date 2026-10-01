@@ -2,7 +2,7 @@
 
 Before discussing abstraction layers, repository layouts, or build integration, it's important to understand a fundamental reality: **the hardest part of a cross-ecosystem library is rarely the code itself**.
 
-Each ecosystem comes with its own assumptions about project structure, source discovery, dependency management, examples, packaging, and publication. **These are not conventions that can be bent or negotiated**; they are hard requirements enforced by the tooling. Ignore them, and the build breaks, the library fails validation, or the package never gets published.
+Each ecosystem comes with its own assumptions about project structure, source discovery, dependency management, examples, packaging, and publication. **These are not conventions that can be bent or negotiated**: they are hard requirements enforced by the tooling. Ignore them, and the build breaks, the library fails validation, or the package never gets published.
 
 The challenge, therefore, is not simply making Arduino and ESP-IDF compile the same code. It is designing a repository that simultaneously satisfies two independent ecosystems (and the cross-platform toolchains like PlatformIO) each with its own rules, directory structures, and developer expectations.
 
@@ -14,7 +14,7 @@ Everything described in this chapter was verified empirically through real build
 
 ### Source discovery is primarily structure
 
-The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`**. There is no manifest that explicitly lists compilation units: if a source file exists under `src/`, it gets compiled. Because the *Arduino Library Manager* expects libraries to follow this standardized layout, reorganizing sources outside of src/ is generally not a practical solution. For multi-framework libraries, this has an important consequence: any source file that must **not** be compiled for a specific target (for example, an ESP-IDF-specific HAL implementation) must exclude itself through preprocessor conditionals, because the build system provides no structural mechanism to skip it.
+The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`**. There is no manifest that explicitly lists compilation units: if a source file exists under `src/`, it gets compiled. Because the *Arduino Library Manager* expects libraries to follow this standardized layout, reorganizing sources outside of `src/` is **not permetted**.
 
 ### Library metadata in `library.properties`is taken from the tagged release, not the default branch
 

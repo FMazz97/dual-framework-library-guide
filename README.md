@@ -2,6 +2,8 @@
 
 Before diving into the technical constraints, it's worth answering a more fundamental question: **why accept the complexity of supporting both Arduino and ESP-IDF natively at all?** Why not simply choose one ecosystem, or rely on Arduino-as-a-component as a compatibility layer?
 
+>**Spoiler:** the final solution is far less complicated than this guide might suggest. Most of the discussion that follows is not about complexity, but about explaining the constraints, trade-offs, and reasoning that led to each architectural choice.
+
 ---
 
 ## 🚪 Arduino is still the front door

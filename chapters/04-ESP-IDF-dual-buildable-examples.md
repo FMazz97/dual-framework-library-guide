@@ -2,9 +2,9 @@
 
 With the `src/` directory fully framework-agnostic [(Chapter 3 - Agnostic Core & HAL Architecture)](03-agnostic-core_hal-architecture.md) the focus shifts to structuring `examples/`.
 
-- For **Arduino**, example layout is straightforward and strictly constrained: as detailed in [Arduino example conventio](01-ecosystem-constraints.md#examples-follow-a-strict-namenameino-convention), both the Arduino IDE and PlatformIO expect projects organized as `examples/<ExampleName>/<ExampleName>.ino`, where the sketch name must match its parent directory.
+While **Arduino** example layout is straightforward and strictly constrained, as detailed in [Arduino example convention](01-ecosystem-constraints.md#examples-follow-a-strict-namenameino-convention), both the Arduino IDE and PlatformIO expect projects organized as `examples/<ExampleName>/<ExampleName>.ino`, where the sketch name must match its parent directory with optional levels of nesting can be used to organize examples into categories. So, no more explain is needed.
 
-- For **ESP-IDF**, native `CMake` projects and PlatformIO’s `framework = espidf` integration follow different structural conventions. However, the actual differences are minimal: with a small configuration tweak, a single example folder can satisfy both toolchains seamlessly.
+For **ESP-IDF**, native `CMake` projects and PlatformIO’s `framework = espidf` integration follow different structural conventions — a distinction worth exploring in detail. However, the actual differences are minimal: with a small configuration tweak, a single example folder can satisfy both toolchains seamlessly.
 
 ---
 
@@ -65,6 +65,8 @@ As a result, the same `main.cpp` builds unchanged whether the project is compile
 
 But, *which build system is responsible for resolving external dependencies?*
 
+---
+
 ## 4.2 Dependency-*fetching* and component-*registration* are separate concepts
 
 This distinction is easy to miss, because PlatformIO exposes both behind a seemingly unified experience (everything lands in `.pio/libdeps/`, regardless of framework).
@@ -85,7 +87,9 @@ This distinction is easy to miss, because PlatformIO exposes both behind a seemi
 
 The practical rule remains the same: choose a ***single** authoritative dependency-resolution path* for a given dependency, rather than mixing PlatformIO's package management and ESP-IDF's component-registration mechanisms unnecessarily.
 
-<!--This division of responsibilities at the project level directly informs how the library itself is published. In Chapter 5 — Publishing, we extend this principle to package registries—explaining how to configure manifest files (library.json and idf_component.yml) so that both the PlatformIO Registry and the ESP-IDF Component Manager resolve and register the library smoothly without conflicting version requirements or cross-registry ambiguity.-->
+The same separation of responsibilities extends beyond build systems and into package registries themselves. Through their respective manifests (`library.json` and `idf_component.yml`).
+
+How those manifests are structured is covered in [Chapter 5 - Publishing](05-publishing.md).
 
 ## 4.3 Note: Unidirectional build conflict (`idf.py` → `PlatformIO`)
 

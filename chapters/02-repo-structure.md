@@ -51,11 +51,14 @@ The obvious mirror-image solution seems to be moving the real source code *into*
 
 **That fails for the opposite reason.**
 
-As established in [Chapter 1.1](01-ecosystem-constraints.md#1.1-Arduino), Arduino's build system discovers source files structurally and compiles only implementation files located under src/. A .cpp file living exclusively inside components/ is simply invisible to the Arduino build, regardless of what headers are included.
+Arduino's build system discovers source files structurally and compiles **only implementation files located under `src/`**. A `.cpp` file living exclusively inside `components/` is simply invisible to the Arduino build, regardless of what headers are included.
 
 In other words, **neither direction works**.
 
-Keeping the implementation under `src/` violates the ESP-IDF packaging model once the component is published. Keeping the implementation under `components/` violates Arduino's source-discovery model before the build even begins.
+In this way:
+
+- keeping the implementation under `src/` violates the ESP-IDF packaging model once the component is published.
+- Keeping the implementation under `components/` violates Arduino's source-discovery model before the build even begins.
 
 Neither ecosystem is satisfied by simply referencing the other's sources.
 
