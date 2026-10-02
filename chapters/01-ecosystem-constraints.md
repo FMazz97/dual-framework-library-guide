@@ -16,6 +16,10 @@ Everything described in this chapter was verified empirically through real build
 
 The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`**. There is no manifest that explicitly lists compilation units: if a source file exists under `src/`, it gets compiled. Because the *Arduino Library Manager* expects libraries to follow this standardized layout, reorganizing sources outside of `src/` is **not permetted**.
 
+### Arduino has no meaningful folder-name identity constraint
+
+Library discovery is driven primarily by the library's structure and public headers within the **Arduino libraries directory**, not by the exact name of the local folder. As long as the expected public include (e.g. `#include <Foo.h>`) is available, the library continues to function regardless of how the folder is named on disk.
+
 ### Library metadata in `library.properties`is taken from the tagged release, not the default branch
 
 During publication, the *Arduino Library Manager* indexes the content associated with the Git tag being released. Updating `library.properties` after the tag already exists has no effect on that release. Likewise, publishing before incrementing the version field in `library.properties` typically results in the release being ignored or treated as a duplicate. The version declared in `library.properties` and the *GitHub release tag* must refer to the same release version.
@@ -40,15 +44,15 @@ The IDF Component Registry packages **only the folder containing `idf_component.
 
 ESP-IDF exposes only the include directories explicitly declared through `INCLUDE_DIRS` in `idf_component_register()` on `CMakeLists.txt`. A header is part of the component's public interface only if it is intentionally exported. This makes the API boundary explicit, but also means the component structure must be designed deliberately from the start.
 
-### Name resolution depends entirely on *which* mechanism declares the dependency, and each mechanism has its own source of truth
+### Component identity is defined differently by `CMake` and the `Component Manager`
 
 This turned out to be one of the most time-consuming constraints to pin down, precisely because it is not documented as a unified rule anywhere and only becomes obvious when each mechanism is tested in isolation:
-  
-- **`EXTRA_COMPONENT_DIRS` + `REQUIRES`**: purely filesystem-based. CMake scans the listed directories and registers each component **under the exact name of the folder that contains it** — case-sensitive and with no fallback. During local development, using `PascalCase` or `UPPERCASE` (e.g., a folder named `Foo` required via REQUIRES `Foo`) works perfectly fine and poses no strict architectural compatibility issues on your local machine.
 
-- **`idf_component.yml`** (via the Component Manager, either through `override_path` during development or via the Registry): resolves the component's identity from the `name:` field **inside the manifest itself**. As with `EXTRA_COMPONENT_DIRS`, keeping the `name:` value identical to the component folder name avoids resolution inconsistencies across dependency mechanisms. **Unlike CMake, the Component Manager enforces strict lowercase naming rules for the `name:` field even during local development, creating an immediate mismatch if your local filesystem folder uses uppercase.**
+- **`EXTRA_COMPONENT_DIRS` + `REQUIRES`**: purely `CMake`-*based*. Components are registered under the exact name of the folder that contains them, and `REQUIRES` must reference that name exactly. In this workflow, the component's identity comes entirely from the filesystem.
 
-In short, while local development allows for custom filesystem names, **the ESP Component Registry strictly requires lowercase component and component folder name.** Ensuring this condition from day one is a prerequisite for behavior across local development, dependency resolution, and package distribution.
+- **`idf_component.yml`** (via the **Component Manager**, either through `override_path` during development or via the `Registry`): introduces a second source of identity. The Component Manager reads the component's `name:` directly from the manifest and validates it **according to Registry rules**. Unlike a plain CMake-based workflow, the `name:` field must follow the Registry naming convention **containing only lowercase letters, numbers, and underscores**.
+
+**The practical rule of thumb is simple:** keep the component folder name and the manifest `name:` identical, using lowercase for both. This satisfies `CMake`'s filesystem-based resolution, the `Component Manager`'s validation rules, and so the `ESP Component Registry`'s publication requirements, with a single convention.
 
 ### Component metadata is taken from the published package version, not from the current repository state
 
@@ -88,22 +92,24 @@ Dependencies are declared in `library.json` and resolved through the PlatformIO 
 
 Comparing these three ecosystems reveals that the true challenge of a cross-ecosystem library is not managing different APIs, but harmonizing conflicting toolchain assumptions about source discovery, identity, and metadata immutability:
 
-| Environment | Source layout expected | Name resolved from | Case-sensitive? |
-| :--- | :--- | :--- | :--- |
-| **Arduino** (IDE / PlatformIO) | Everything under `src/`, compiled recursively | `name` field in `library.properties` / `library.json` | No practical constraint observed |
-| **ESP-IDF**: `EXTRA_COMPONENT_DIRS` + `REQUIRES` | Component folder, referenced directly | `REQUIRES name` in CMake & local folder *name* | **Yes** — must match exactly |
-| **ESP-IDF**: `idf_component.yml` | Self-contained component folder | `name:` field inside the manifest & local folder *name* | **Yes** — must match exactly |
-| **PlatformIO**: `lib_deps` alone (`espidf`) | Whatever the fetched package contains | PlatformIO's own package name | No — bypasses IDF's native resolver entirely |
+| Ecosystem | Primary structural constraint | Identity constraint |
+| :--- | :--- | :--- |
+| **Arduino** | All compilable sources **must** live under `src/` | Library identity is independent of the local folder name |
+| **ESP-IDF** (`EXTRA_COMPONENT_DIRS` + `REQUIRES`) | Components may organize sources freely, but dependencies are resolved from the component folder structure | Component name comes from the *folder* name |
+| **ESP-IDF** (`idf_component.yml` - Component Manager) | **Published components must be self-contained** within the packaged component root | `name:` must satisfy Registry naming rules (lowercase letters, numbers, underscores) |
+| **PlatformIO** | Introduces no additional structural constraints beyond those of the selected framework | Package identity comes from `library.json` |
 
-The root conflict lies in these non-negotiable rules:
+The root conflict lies in just two non-negotiable rules:
 
-- **Arduino** demands that all source code live under `src/` and automatically compiles everything it finds there without a manifest.
+- **Arduino** expects the library's implementation to live under `src/`, automatically compiling every `.cpp` file found there.
 
-- **ESP-IDF** requires published components to be strictly self-contained within their manifest directory, so that meaning `CMakeLists.txt` cannot reference files outside via relative paths (like `../../src/`) without breaking once packaged and downloaded standalone.
+- **ESP-IDF** expects published components to be self-contained and imposes stricter naming requirements when the Component Manager and Registry are involved.
 
-- **Component Identity & Metadata** are handled independently by each toolchain. ESP-IDF's local filesystem resolution depends strictly on case-sensitive folder names, while package registry resolutions rely on immutable manifest metadata captured at release time.
+Fortunately, ESP-IDF places very few restrictions on where source files physically reside inside a component. This flexibility makes it possible to keep Arduino's `src/` tree as the single source of truth while still satisfying ESP-IDF's packaging requirements.
 
-The layout that satisfies all three simultaneously — used throughout this guide — places the IDF component manifest **at the repository root** (not nested under a `components/<name>/` folder pointing back out with `../..`), with `src/core/` as the single, self-contained source of truth. [Chapter 2 - Repository structure](02-repo-structure.md) covers why that specific placement, and what breaks if the component manifest lives anywhere else.
+**Component Identity & Metadata** are handled independently by each toolchain. ESP-IDF's local filesystem resolution depends strictly on case-sensitive folder names, while package registry resolutions rely on immutable manifest metadata captured at release time (see [Chapter 5 - Publishing](05-publishing.md)).
+
+The layout used throughout this guide exploits exactly that: the ESP-IDF manifest is placed at the repository root, making the repository itself the component boundary, while `src/` remains the single source of truth for the implementation. [Chapter 2 - Repository structure](02-repo-structure.md) explains why this specific arrangement works and why alternative layouts fail once publication enters the picture.
 
 ---
 
