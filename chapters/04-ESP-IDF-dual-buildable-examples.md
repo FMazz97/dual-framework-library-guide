@@ -1,10 +1,21 @@
-# Chapter 4 — Examples Buildable from a Single Source Tree, via Either `idf.py` or PlatformIO
+# Chapter 4 — Example Conventions and Single-Source ESP-IDF Integration
 
 With the `src/` directory fully framework-agnostic [(Chapter 3 - Agnostic Core & HAL Architecture)](03-agnostic-core_hal-architecture.md) the focus shifts to structuring `examples/`.
 
-While **Arduino** example layout is straightforward and strictly constrained, as detailed in [Arduino example convention](01-ecosystem-constraints.md#examples-follow-a-strict-namenameino-convention), both the Arduino IDE and PlatformIO expect projects organized as `examples/<ExampleName>/<ExampleName>.ino`, where the sketch name must match its parent directory with optional levels of nesting can be used to organize examples into categories. So, no more explain is needed.
+## Arduino's examples follow a strict `Name/Name.ino` convention
 
-For **ESP-IDF**, native `CMake` projects and PlatformIO’s `framework = espidf` integration follow different structural conventions — a distinction worth exploring in detail. However, the actual differences are minimal: with a small configuration tweak, a single example folder can satisfy both toolchains seamlessly.
+The Arduino IDE (and PlatformIO's example browser for `.ino` projects; see Section 5.x) expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`. The sketch name must match its parent directory. Additional levels of nesting can be used to organize examples into categories `examples/<Category>/<ExampleName>/<ExampleName>.ino` and do not affect discovery, provided this naming convention is preserved.
+
+Driven entirely by this simple layout, no further setup or explanation is needed.
+
+## ESP-IDF Examples as Standalone Projects
+
+Unlike Arduino sketches, ESP-IDF examples are complete
+, self-contained projects. Each example comes with its own build scripts, configuration, and source directory structure.
+
+ESP-IDF examples are slightly more interesting because native `idf.py` projects and PlatformIO's `framework = espidf` integration expect different project layouts — a difference worth looking at closely.
+
+Fortunately, those differences are largely superficial. With a small amount of configuration, a single example can be built unchanged by both toolchains.
 
 ---
 
@@ -107,6 +118,6 @@ idf.py fullclean # or manually remove the build/ directory
 - [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
 - [Chapter 2 - Repository structure](02-repo-structure.md)
 - [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
-- [Chapter 4 - ESP-IDF dual buildable examples](04-ESP-IDF-dual-buildable-examples.md)
+- [Chapter 4 - Example conventions](04-examples.md)
 - [Chapter 5 - Publishing](05-publishing.md)
 - [Chapter 6 - Bonus: Yield & Watchdog - Naming Convention](06-bonus_yield-watchdog_naming-convention.md)
