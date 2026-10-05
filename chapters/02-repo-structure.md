@@ -113,7 +113,7 @@ Placing `idf_component.yml` at the repository root is what allows both requireme
 
 ## 2.3 Local folder name vs. GitHub repository name: independent, and only the local one matters
 
-A related trap, once the [case-sensitivity constraints for ESP-IDF framework](01-ecosystem-constraints.md#12-esp-idf-native) was understood, is the instinct to rename the GitHub repository itself to match the *lowercase* component name, especially for libraries that originated in the Arduino ecosystem with a *PascalCase* repository name.
+A related trap, once the [case-sensitivity constraints for ESP-IDF framework](01-ecosystem-constraints.md#component-identity-is-defined-differently-by-cmake-and-the-component-manager) was understood, is the instinct to rename the GitHub repository itself to match the *lowercase* component name, especially for libraries that originated in the Arduino ecosystem with a *PascalCase* repository name.
 
 **This isn't necessary.**
 
@@ -133,7 +133,7 @@ Renaming the GitHub repository solves nothing that a documented `git clone ... <
 
 The distinction becomes even more important once publication enters the picture: ***repository name, local folder name, and package name are three different things.*** The first two can usually be changed with little consequence; **the third often cannot.**
 
-[Chapter 6 - Publishing](06-publishing.md) covers this in detail, including why package names on the *Arduino Library Manager*, *PlatformIO Registry*, and *ESP Component Registry* should be treated as effectively **permanent** once published.
+[Chapter 5 - Publishing](05-publishing.md) covers this in detail, including why package names on the *Arduino Library Manager*, *PlatformIO Registry*, and *ESP Component Registry* should be treated as effectively **permanent** once published.
 
 With the repository structure established, [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md) focuses on how that layout is combined with a code organization that keeps the application logic shared across frameworks while isolating framework-specific hardware access.
 
