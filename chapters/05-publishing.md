@@ -4,12 +4,34 @@ Publishing to Arduino Library Manager, the PlatformIO Registry, and the ESP Comp
 
 ## Arduino Library Manager — automated, tag-driven, no manual review of content
 
+### Library metadata in `library.properties`is taken from the tagged release, not the default branch
+
+During publication, the *Arduino Library Manager* indexes the content associated with the Git tag being released. Updating `library.properties` after the tag already exists has no effect on that release. Likewise, publishing before incrementing the version field in `library.properties` typically results in the release being ignored or treated as a duplicate. The version declared in `library.properties` and the *GitHub release tag* must refer to the same release version.
+
+### Examples follow a strict `Name/Name.ino` convention
+
+The Arduino IDE (and PlatformIO's example browser for `.ino` projects; see Section 1.3) expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`. The sketch name must match its parent directory. Additional levels of nesting can be used to organize examples into categories and do not affect discovery, provided this naming convention is preserved.
+
+### Dependency resolution is supported, but remains library-centric
+
+Arduino libraries can declare dependencies using the `depends` field in `library.properties`, enabling automatic installation of required libraries by the Library Manager.
+
 Submission is a Pull Request against `arduino/library-registry`, adding the repository URL to a plain text list. A bot then runs the same checks `arduino-lint` performs locally — running it yourself first (`arduino-lint --library-manager submit`) catches structural issues before they cost a review round-trip. Two requirements are easy to overlook on a first attempt:
 
 - **At least one tagged GitHub Release must already exist**, with `library.properties`'s `version` field matching. The indexer reads the manifest **from the tagged commit**, not from the latest commit on the default branch — a release created before a version bump was committed will silently index the *old* version, appearing to "not update" with no error at all.
 - **After acceptance, updates are fully automatic**: publishing a new tagged Release with a bumped `version` is the entire update process. No second Pull Request is needed.
 
 ## PlatformIO Registry — self-service via CLI, immutable once published
+
+### Package metadata is taken from the published package version, not from the current repository state
+
+Once a version is published to PlatformIO Registry, the corresponding manifest `library.json` and associated metadata are immutable from the consumer's perspective. Updating the repository's default branch has no effect on already-published versions; a new version must be released for changes to become visible. Consequently, early naming decisions are permanent, making it best practice to adopt the strictest convention — such as ESP-IDF's lowercase style — from day one.
+
+### Dependency management is package-based
+
+Dependencies are declared in `library.json` and resolved through the PlatformIO Registry, allowing PlatformIO to automatically fetch and install the required packages.
+
+### Publishing pkg
 
 ```bash
 pio pkg publish
@@ -18,6 +40,16 @@ pio pkg publish
 No review step — the package is live as soon as the command succeeds. This also means the immutability constraint has no safety net: **a given `name@version` combination can never be republished**, even if deleted. Verify the manifest's `version` field is correct before running the command, not after.
 
 ## ESP Component Registry — self-service via `compote`, same immutability rule
+
+### Component metadata is taken from the published package version, not from the current repository state
+
+Once a version is published to the Component Registry, the corresponding `idf_component.yml` and associated metadata are immutable from the consumer's perspective. Updating the manifest on the default branch has no effect on already-published versions; a new version must be released for dependency or metadata changes to become visible.
+
+### Dependency management is component-based
+
+Components declare their dependencies through mechanisms such as `REQUIRES`, `PRIV_REQUIRES`, or `idf_component.yml`, allowing ESP-IDF to construct an explicit dependency graph at build time.
+
+### Publishing compote
 
 ```bash
 compote component validate   # catches manifest issues before an upload attempt

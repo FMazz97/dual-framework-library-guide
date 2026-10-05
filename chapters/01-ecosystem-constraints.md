@@ -12,33 +12,15 @@ Everything described in this chapter was verified empirically through real build
 
 ## 1.1 Arduino
 
-### Source discovery is primarily structure
+### Source discovery is primarily structural
 
-The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`**. There is no manifest that explicitly lists compilation units: if a source file exists under `src/`, it gets compiled. Because the *Arduino Library Manager* expects libraries to follow this standardized layout, reorganizing sources outside of `src/` is **not permetted**.
+The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`**. There is no manifest that explicitly lists compilation units: if a source file exists under `src/`, it gets compiled. Because the Arduino library specification is built around this standardized layout, placing implementation files outside of `src/` is **not permitted**.
 
-### Arduino has no meaningful folder-name identity constraint
-
-Library discovery is driven primarily by the library's structure and public headers within the **Arduino libraries directory**, not by the exact name of the local folder. As long as the expected public include (e.g. `#include <Foo.h>`) is available, the library continues to function regardless of how the folder is named on disk.
-
-### Library metadata in `library.properties`is taken from the tagged release, not the default branch
-
-During publication, the *Arduino Library Manager* indexes the content associated with the Git tag being released. Updating `library.properties` after the tag already exists has no effect on that release. Likewise, publishing before incrementing the version field in `library.properties` typically results in the release being ignored or treated as a duplicate. The version declared in `library.properties` and the *GitHub release tag* must refer to the same release version.
-
-### Examples follow a strict `Name/Name.ino` convention
-
-The Arduino IDE (and PlatformIO's example browser for `.ino` projects; see Section 1.3) expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`. The sketch name must match its parent directory. Additional levels of nesting can be used to organize examples into categories and do not affect discovery, provided this naming convention is preserved.
-
-### Dependency resolution is supported, but remains library-centric
-
-Arduino libraries can declare dependencies using the `depends` field in `library.properties`, enabling automatic installation of required libraries by the Library Manager.
+**Library identity is driven by public headers**, not folder names. As long as the expected public include (e.g. `#include <Foo.h>`) is available under `src/`, the library continues to function regardless of how its directory is named on disk.
 
 ---
 
 ## 1.2 ESP-IDF (native)
-
-### A published component must be self-contained
-
-The IDF Component Registry packages **only the folder containing `idf_component.yml`**. Any `CMakeLists.txt` that references source files *outside* that folder via relative paths (e.g. `../../src/core/foo.cpp`) works fine during local development, but breaks as soon as the component is published and downloaded standalone: those paths simply do not exist in the extracted package.
 
 ### Header visibility is explicit
 
@@ -52,15 +34,13 @@ This turned out to be one of the most time-consuming constraints to pin down, pr
 
 - **`idf_component.yml`** (via the **Component Manager**, either through `override_path` during development or via the `Registry`): introduces a second source of identity. The Component Manager reads the component's `name:` directly from the manifest and validates it **according to Registry rules**. Unlike a plain CMake-based workflow, the `name:` field must follow the Registry naming convention **containing only lowercase letters, numbers, and underscores**.
 
-**The practical rule of thumb is simple:** keep the component folder name and the manifest `name:` identical, using lowercase for both. This satisfies `CMake`'s filesystem-based resolution, the `Component Manager`'s validation rules, and so the `ESP Component Registry`'s publication requirements, with a single convention.
+### A *published* component must be self-contained
 
-### Component metadata is taken from the published package version, not from the current repository state
+While local development imposes few restrictions on component layout, publication introduces an additional constraint: the component must be self-contained.
 
-Once a version is published to the Component Registry, the corresponding `idf_component.yml` and associated metadata are immutable from the consumer's perspective. Updating the manifest on the default branch has no effect on already-published versions; a new version must be released for dependency or metadata changes to become visible.
+The IDF Component Registry packages **only the folder containing `idf_component.yml`**. Any `CMakeLists.txt` that references source files *outside* that folder via relative paths (e.g. `../../src/core/foo.cpp`) works fine during local development, but breaks as soon as the component is published and downloaded standalone: those paths simply do not exist in the extracted package.
 
-### Dependency management is component-based
-
-Components declare their dependencies through mechanisms such as `REQUIRES`, `PRIV_REQUIRES`, or `idf_component.yml`, allowing ESP-IDF to construct an explicit dependency graph at build time.
+**The practical rule of thumb is simple:** keep the component folder name and the manifest `name:` identical, using **lowercase** for both. This satisfies **CMake**'s filesystem-based resolution, the **Component Manager**'s validation rules, and the **ESP Component Registry**'s publication requirements with a single convention.
 
 ---
 
@@ -78,14 +58,6 @@ Source discovery remains based on Arduino's recursive `src/` compilation model, 
 
 Here PlatformIO doesn't just wrap `idf.py` — it generates its **own** project scaffolding, driven by `platformio.ini` rather than IDF's native `CMakeLists.txt`/`project()` flow. The convention shifts from IDF's `main/` folder to PlatformIO's own `src_dir` (default `src/`). A project can still use a hand-written, IDF-native `CMakeLists.txt`/`main/` layout under PlatformIO, but only by explicitly pointing `src_dir` at that folder.
 
-### Package metadata is taken from the published package version, not from the current repository state
-
-Once a version is published to PlatformIO Registry, the corresponding manifest `library.json` and associated metadata are immutable from the consumer's perspective. Updating the repository's default branch has no effect on already-published versions; a new version must be released for changes to become visible. Consequently, early naming decisions are permanent, making it best practice to adopt the strictest convention — such as ESP-IDF's lowercase style — from day one.
-
-### Dependency management is package-based
-
-Dependencies are declared in `library.json` and resolved through the PlatformIO Registry, allowing PlatformIO to automatically fetch and install the required packages.
-
 ---
 <!--questa parte va sistemata sulla base dell'aggiornamente fatto al case sensitve di esp-idf (differenze tra cmake e idf_componente.yml)-->
 ## 1.4 Where the constraints collide
@@ -95,9 +67,8 @@ Comparing these three ecosystems reveals that the true challenge of a cross-ecos
 | Ecosystem | Primary structural constraint | Identity constraint |
 | :--- | :--- | :--- |
 | **Arduino** | All compilable sources **must** live under `src/` | Library identity is independent of the local folder name |
-| **ESP-IDF** (`EXTRA_COMPONENT_DIRS` + `REQUIRES`) | Components may organize sources freely, but dependencies are resolved from the component folder structure | Component name comes from the *folder* name |
-| **ESP-IDF** (`idf_component.yml` - Component Manager) | **Published components must be self-contained** within the packaged component root | `name:` must satisfy Registry naming rules (lowercase letters, numbers, underscores) |
-| **PlatformIO** | Introduces no additional structural constraints beyond those of the selected framework | Package identity comes from `library.json` |
+| **ESP-IDF** | Published components **must** be self-contained | Component identity depends on the mechanism in use; *Registry-compatible* components require **lowercase** `name:` values |
+| **PlatformIO** | Introduces no additional structural constraints beyond the selected framework | Package identity comes from `library.json` |
 
 The root conflict lies in just two non-negotiable rules:
 
@@ -105,9 +76,7 @@ The root conflict lies in just two non-negotiable rules:
 
 - **ESP-IDF** expects published components to be self-contained and imposes stricter naming requirements when the Component Manager and Registry are involved.
 
-Fortunately, ESP-IDF places very few restrictions on where source files physically reside inside a component. This flexibility makes it possible to keep Arduino's `src/` tree as the single source of truth while still satisfying ESP-IDF's packaging requirements.
-
-**Component Identity & Metadata** are handled independently by each toolchain. ESP-IDF's local filesystem resolution depends strictly on case-sensitive folder names, while package registry resolutions rely on immutable manifest metadata captured at release time (see [Chapter 5 - Publishing](05-publishing.md)).
+Fortunately, **Arduino's source-discovery** requirements and **ESP-IDF's publication** requirements are not inherently incompatible. The challenge is simply finding a repository layout that satisfies both simultaneously.
 
 The layout used throughout this guide exploits exactly that: the ESP-IDF manifest is placed at the repository root, making the repository itself the component boundary, while `src/` remains the single source of truth for the implementation. [Chapter 2 - Repository structure](02-repo-structure.md) explains why this specific arrangement works and why alternative layouts fail once publication enters the picture.
 
