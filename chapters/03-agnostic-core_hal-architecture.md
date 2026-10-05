@@ -18,7 +18,21 @@ resolved at compile time through:
 #elif defined(ESP_PLATFORM)
 ```
 
-The **core** (styled in `snake_case`, following **C++** and **ESP-IDF** standard) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect forwarding every public method: `bool classMethod() { return _core.class_method(); }`.
+The **core** (styled in `snake_case`, following **C++** and **ESP-IDF** standard) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect.
+
+Its entire job is **forwarding** every public method:
+
+```cpp
+class Foo {
+  private:
+    foo _core;
+
+  public:
+    bool classMethod(int param) { return _core.class_method(param); }
+};
+```
+
+No logic lives inside the facade itself.
 
 *By isolating framework selection within the HAL, the same protocol implementation runs natively on both Arduino and ESP-IDF using their respective hardware access paths.*
 
@@ -41,7 +55,7 @@ repo/
 └── examples/
 ```
 
-So, *the protocol implementation exists exactly **once***, while each framework retains its own **native hardware implementation**.
+So, **the protocol implementation exists exactly once, while each framework retains its own native hardware implementation**.
 
 ---
 
@@ -61,7 +75,7 @@ virtual void digitalWrite(...) = 0;
 };
 ```
 
-While clean, this approach introduces runtime indirection into the hottest part of the codebase. In tight bit-banging loops or high-frequency register transactions, clock and data lines are toggled repeatedly within strict microsecond-level timing budgets.
+While clean, this approach introduces runtime indirection into the hottest part of the codebase. In tight bit-banging loops or high-frequency protocol transactions, clock and data lines are toggled repeatedly within strict microsecond-level timing budgets.
 
 A virtual call's indirection (a few extra cycles per invocation) is negligible in high-level software, but when multiplied across every single bit operation on hardware where standard GPIO functions are already a bottleneck, it is an unnecessary performance tax. More importantly, it solves a **non-existent problem**: the target framework is fixed at build time, so paying a performance penalty for runtime flexibility provides zero benefit.
 
@@ -76,7 +90,7 @@ class Driver {
 };
 ```
 
-From a performance perspective, this is optimal but the drawback is API *complexity* becouse templates rapidly propagate through the public API.
+From a performance perspective, this is optimal but the drawback is API *complexity* because templates rapidly propagate through the public API.
 
 Users would either need to:
 
@@ -98,7 +112,7 @@ Because the target platform is *known before compilation begins*, preprocessor m
 #endif
 ```
 
-This approach allows each hardware macro (such as `HARDWARE_SET_HIGH()`) to expand directly into the platform's fastest *primitive* — direct register access, a native framework API, or a standard I/O function.
+This approach allows each hardware macro (such as `HARDWARE_SET_HIGH()`) to expand directly into the platform's fastest *primitive*, whether that is a native framework API, direct hardware access, or a standard I/O function.
 
 The trade-off is clear: macros are unscoped, global, and lack language-level type safety across boundaries. However, since the target platform never changes at runtime, sacrificing dynamic flexibility yields a zero-cost abstraction: no vtables, no complex template syntax, and zero runtime overhead.
 
@@ -159,7 +173,9 @@ The *core* never call **Arduino** or **ESP-IDF** APIs directly.
 
 With the architecture defined and the `src/` directory fully framework-agnostic, **the library source code is complete.**
 
-While Arduino examples require no special setup (PlatformIO handles them natively just like the Arduino Library Manager) sharing **ESP-IDF examples** across toolchains requires a specific layout. The next step explores how to apply single-source principles to these shared projects in [Chapter 4 - ESP-IDF dual buildable examples](04-ESP-IDF-dual-buildable-examples.md)
+The remaining challenge is no longer the source code, but the examples that demonstrate it. While Arduino examples work naturally across Arduino IDE and PlatformIO, ESP-IDF examples require additional structure to remain buildable across both native ESP-IDF and PlatformIO workflows.
+
+That shared example layout is the subject of [Chapter 4 - ESP-IDF dual buildable examples](04-ESP-IDF-dual-buildable-examples.md).
 
 ---
 
