@@ -31,7 +31,7 @@ In fact, it works perfectly during *local development*.
 
 When the repository is added through `EXTRA_COMPONENT_DIRS`, the entire project is available on disk. The relative path resolves correctly, idf.py compiles without complaint, and nothing suggests that the architecture is flawed.
 
-The problem only appears when the component is **published**.
+The problem only appears after **publication**.
 
 The ESP Component Registry packages only the directory that contains `idf_component.yml`, making the component self-contained from the consumer's perspective. Everything outside that directory is excluded from the published artifact. As a result, a user installing the component through `idf.py add-dependency` (or through PlatformIO's resolution of the same manifest) receives only the contents of `components/foo/`.
 
@@ -98,7 +98,7 @@ The same path resolves correctly in every scenario:
 
 - local development through `EXTRA_COMPONENT_DIRS`;
 - installation through `idf.py` add-dependency;
-- handled through **PlatformIO's Component Manager** integration.
+- handled through **PlatformIO's ESP-IDF** integration.
 
 Arduino remains equally satisfied. Its source-discovery model still finds everything under src/, exactly where it expects it to be, and the presence of ESP-IDF-specific metadata at the repository root does not interfere with Arduino Library Manager or PlatformIO's Arduino framework.
 
@@ -117,7 +117,7 @@ A related trap, once the [case-sensitivity constraints for ESP-IDF framework](01
 
 **This isn't necessary.**
 
-The key observation is that `EXTRA_COMPONENT_DIRS` and the Component Manager operate on **what exists locally on disk at build time**. They do not care what the repository is called on GitHub.
+The key observation is that `EXTRA_COMPONENT_DIRS` and the *Component Manager* operate on **what exists locally on disk at build time**. They do not care what the repository is called on GitHub.
 
 Using:
 
