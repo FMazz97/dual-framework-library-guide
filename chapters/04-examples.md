@@ -33,9 +33,11 @@ examples/my_example/
   └── main.cpp
 ```
 
-### ESP IDF (native)
+### ESP-IDF (native)
 
 When built through `idf.py`, the example behaves like any other native **ESP-IDF project**. The build process is driven entirely by the project's CMake files and Component Manager configuration:
+
+<!--AGGIUNGERE QUI IL SISTEMA DI RICHIAMO DI CMAKE E IDF_COMPONENTE.YML-->
 
 - The root `CMakeLists.txt` is a standard, native IDF project file — nothing PlatformIO-specific:
 
@@ -74,7 +76,7 @@ With `src_dir = main`, PlatformIO builds the same hand-written, IDF-native proje
 
 As a result, the same `main.cpp` builds unchanged whether the project is compiled through `idf.py build` or PlatformIO's **Build button**.
 
-But, *which build system is responsible for resolving external dependencies?*
+At that point, an important question remains: *which system is responsible for resolving external dependencies?*
 
 ---
 
