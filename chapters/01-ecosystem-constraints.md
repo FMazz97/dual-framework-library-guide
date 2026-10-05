@@ -22,9 +22,18 @@ The Arduino build system (and PlatformIO's Arduino framework support, which foll
 
 ## 1.2 ESP-IDF (native)
 
-### Header visibility is explicit
+### Header and source visibility is explicit
 
-ESP-IDF exposes only the include directories explicitly declared through `INCLUDE_DIRS` in `idf_component_register()` on `CMakeLists.txt`. A header is part of the component's public interface only if it is intentionally exported. This makes the API boundary explicit, but also means the component structure must be designed deliberately from the start.
+ESP-IDF requires every component to explicitly declare its source files and public include directories using `SRCS` and `INCLUDE_DIRS` inside `idf_component_register()` within `CMakeLists.txt`. A header or source file is only visible to the rest of the project if it is intentionally declared. This makes the API boundary completely explicit, but also means the component structure must be designed deliberately from the start:
+
+```CMake
+idf_component_register(
+    SRCS
+        "src/foo.cpp"
+    INCLUDE_DIRS
+        "src"
+)
+```
 
 ### Component identity is defined differently by `CMake` and the `Component Manager`
 

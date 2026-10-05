@@ -2,7 +2,7 @@
 
 [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md) examined each ecosystem in isolation and identified the rules that cannot be ignored. Taken individually, none of those constraints is particularly difficult to satisfy. The challenge begins when both ecosystems are expected to coexist within the same repository.
 
-This chapter documents how those requirements were reconciled into a single folder structure that can be consumed simultaneously by `Arduino Library Manager`, `ESP Component Registry`, and also by `PlatformIO Registry` without maintaining separate branches or framework-specific distributions.
+This chapter documents how those requirements were reconciled into a single folder structure that can be consumed simultaneously by [Arduino Library Manager](https://docs.arduino.cc/software/ide-v1/tutorials/installing-libraries/), [ESP Component Registry](https://components.espressif.com/), and also by [PlatformIO Registry](https://registry.platformio.org/) without maintaining separate branches or framework-specific distributions.
 
 It also covers an architectural dead end that initially appeared to satisfy every requirement on paper, yet failed when subjected to real publication and validation workflows. That failure is worth documenting precisely because it is difficult to predict from the official documentation alone and only becomes apparent when the repository is exercised across all three ecosystems.
 
