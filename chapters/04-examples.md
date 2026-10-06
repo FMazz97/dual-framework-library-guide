@@ -98,7 +98,7 @@ Both workflows ultimately converge at the same endpoint:
 idf_component_register(...)
 ```
 
-This macro remains the **sole mechanism that tells ESP-IDF which source files, include directories, and compile-time requirements belong to the component.**The structural difference lies entirely in how the component is discovered, named, and validated before it reaches the compiler.
+This macro remains the **sole mechanism that tells ESP-IDF which source files, include directories, and compile-time requirements belong to the component.** The structural difference lies entirely in how the component is discovered, named, and validated before it reaches the compiler.
 
 ---
 
