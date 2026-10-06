@@ -45,9 +45,9 @@ This turned out to be one of the most time-consuming constraints to pin down, pr
 
 ### A *published* component must be self-contained
 
-While local development imposes few restrictions on component layout, publication introduces an additional constraint: the component must be self-contained.
+While local development imposes few restrictions on component layout, publication introduces an additional constraint: the component must be self-contained. A component intended only for local use may be organized anywhere in the repository (for example under `components/<name>/`) and may freely reference sources outside its own directory, provided those paths exist on the local filesystem.
 
-The IDF Component Registry packages **only the folder containing `idf_component.yml`**. Any `CMakeLists.txt` that references source files *outside* that folder via relative paths (e.g. `../../src/core/foo.cpp`) works fine during local development, but breaks as soon as the component is published and downloaded standalone: those paths simply do not exist in the extracted package.
+But, the ESP Component Registry packages **only the folder containing `idf_component.yml`**. Any `CMakeLists.txt` that references source files *outside* that folder via relative paths (e.g. `../../src/core/foo.cpp`) works fine during local development, but breaks as soon as the component is published and downloaded standalone: those paths simply do not exist in the extracted package.
 
 **The practical rule of thumb is simple:** keep the component folder name and the manifest `name:` identical, using **lowercase** for both. This satisfies **CMake**'s filesystem-based resolution, the **Component Manager**'s validation rules, and the **ESP Component Registry**'s publication requirements with a single convention.
 
