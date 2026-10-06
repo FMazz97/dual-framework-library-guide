@@ -35,16 +35,19 @@ ESP-IDF scans the specified directories, finds each component's `CMakeLists.txt`
 
 ```text
 Project
-└── EXTRA_COMPONENT_DIRS
-              ↓
-        components/foo/
-              ↓
-        CMakeLists.txt
-              ↓
-    idf_component_register(...)
+│
+└── CMakeLists.txt
+          ↓
+  EXTRA_COMPONENT_DIRS
+          ↓
+    components/foo/
+          ↓
+    CMakeLists.txt
+          ↓
+idf_component_register(...)
 ```
 
-In this workflow, `idf_component.yml` is completely ignored. The component builds successfully even if no manifest exists, because **discovery and naming are handled entirely by CMake based on the filesystem structure.**
+In this workflow, component's `idf_component.yml` is completely ignored. The component builds successfully even if no manifest exists, because **discovery and naming are handled entirely by CMake based on the filesystem structure.**
 
 ### Component resolution through `idf_component.yml`
 
@@ -72,17 +75,17 @@ Only after this validation sequence is successful does CMake take over.
 ```text
 Project
 │
-├── idf_component.yml
-│          ↓
-│   Component Manager
-│          ↓
-│    components/foo/
-│          ↓
-│   idf_component.yml (validation)
-│          ↓
-└── CMakeLists.txt
-           ↓
-idf_component_register(...)
+└── idf_component.yml
+            ↓
+      override_path
+            ↓
+      components/foo/
+            ↓
+    idf_component.yml (validation)
+            ↓
+     CMakeLists.txt
+            ↓
+  idf_component_register(...)
 ```
 
 This explains why naming rules become strict when using the **Component Manager**. Unlike the pure `EXTRA_COMPONENT_DIRS` workflow, the component must first pass manifest identity validation before CMake ever processes its directory.
@@ -95,7 +98,7 @@ Both workflows ultimately converge at the same endpoint:
 idf_component_register(...)
 ```
 
-This macro remains the sole mechanism that tells ESP-IDF which source files, include directories, and compile-time requirements belong to the component.The structural difference lies entirely in how the component is discovered, named, and validated before it reaches the compiler.
+This macro remains the **sole mechanism that tells ESP-IDF which source files, include directories, and compile-time requirements belong to the component.**The structural difference lies entirely in how the component is discovered, named, and validated before it reaches the compiler.
 
 ---
 
