@@ -36,7 +36,7 @@ The `arduino-esp32` is itself a layer built on top of ESP-IDF, not an independen
 
 ## 🔄 Compatibility layers solve portability
 
-The [`Arduino as an ESP-IDF component`](https://docs.espressif.com/projects/arduino-esp32/en/latest/esp-idf_component.html) compatibility layer isn't free. It lets you run an existing Arduino sketch inside an IDF project with minimal effort and preserves compatibility with a vast amount of existing code, but it doesn't eliminate the double layer of abstraction — it just relocates it.
+The [Arduino as an ESP-IDF component](https://docs.espressif.com/projects/arduino-esp32/en/latest/esp-idf_component.html) compatibility layer isn't free. It lets you run an existing Arduino sketch inside an IDF project with minimal effort and preserves compatibility with a vast amount of existing code, but it doesn't eliminate the double layer of abstraction — it just relocates it.
 
 Application code still goes through the same *Arduino APIs* such as `digitalWrite`, `pinMode`, etc., which are then translated into **ESP-IDF** calls. It's a valid trade-off for reusing existing code without rewriting it, but it's not a zero-cost solution: the back-and-forth path between the two layers remains, with its corresponding overhead and architectural constraints.
 
