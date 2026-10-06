@@ -2,7 +2,7 @@
 
 [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md) examined each ecosystem in isolation and identified the rules that cannot be ignored. Taken individually, none of those constraints is particularly difficult to satisfy. The challenge begins when both ecosystems are expected to coexist within the same repository.
 
-This chapter documents how those requirements were reconciled into a single folder structure that can be consumed simultaneously by [Arduino Library Manager](https://docs.arduino.cc/software/ide-v1/tutorials/installing-libraries/), [ESP Component Registry](https://components.espressif.com/), and also by [PlatformIO Registry](https://registry.platformio.org/) without maintaining separate branches or framework-specific distributions.
+This chapter documents how those requirements were reconciled into a single folder structure that can be consumed simultaneously by [Arduino Library Manager](https://docs.arduino.cc/libraries/), [ESP Component Registry](https://components.espressif.com/), and also by [PlatformIO Registry](https://registry.platformio.org/) without maintaining separate branches or framework-specific distributions.
 
 ---
 
@@ -28,10 +28,10 @@ The absence of a traditional ESP-IDF `include/` directory is intentional. Since 
 
 As a result, the same source tree works unchanged for:
 
-- local development through `EXTRA_COMPONENT_DIRS`;
-- installation through `idf.py` add-dependency;
-- PlatformIO's ESP-IDF integration;
 - Arduino Library Manager.
+- local development via `EXTRA_COMPONENT_DIRS` and `idf_component.yml`.
+- ESP Component Registry installation via `idf.py` add-dependency.
+- PlatformIO Registry across both **Arduino** and **ESP-IDF** frameworks.
 
 ---
 

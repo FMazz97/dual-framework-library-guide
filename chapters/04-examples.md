@@ -1,6 +1,6 @@
 # Chapter 4 — Example Conventions and Single-Source ESP-IDF Integration
 
-With the `src/` directory fully framework-agnostic [(Chapter 3 - Agnostic Core & HAL Architecture)](03-agnostic-core_hal-architecture.md) the focus shifts to structuring `examples/`.
+With the `src/` directory fully framework-agnostic ([Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)) the focus shifts to structuring `examples/`.
 
 ## Arduino's examples follow a strict `Name/Name.ino` convention
 
@@ -8,14 +8,17 @@ The Arduino IDE (and PlatformIO's example browser for `.ino` projects; see Secti
 
 Driven entirely by this simple layout, no further setup or explanation is needed.
 
+For more details, see `Library Examples` section on [Layout of folders and files](https://docs.arduino.cc/arduino-cli/library-specification/#layout-of-folders-and-files).
+
 ## ESP-IDF Examples as Standalone Projects
 
-Unlike Arduino sketches, ESP-IDF examples are complete
-, self-contained projects. Each example comes with its own build scripts, configuration, and source directory structure.
+Unlike Arduino sketches, ESP-IDF examples are complete, self-contained projects. Each example comes with its own build scripts, configuration, and source directory structure.
 
 ESP-IDF examples are slightly more interesting because native `idf.py` projects and PlatformIO's `framework = espidf` integration expect different project layouts — a difference worth looking at closely.
 
 Fortunately, those differences are largely superficial. With a small amount of configuration, a single example can be built unchanged by both toolchains.
+
+For more details, see how to [Reference](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/index.html) an ESP Component.
 
 ---
 
@@ -139,7 +142,7 @@ When built through `idf.py`, the example behaves like any other native **ESP-IDF
 
 ### PlatformIO
 
-By default, PlatformIO expects application source code to reside in a `src/` directory at the project root. Rather than creating a redundant `src/` folder alongside ESP-IDF's native layout, PlatformIO can be configured to point directly to the existing `main/` directory instead.
+By default, PlatformIO expects application source code to reside in a `src/` directory at the project root. Rather than creating a redundant `src/` folder alongside ESP-IDF's native layout, PlatformIO can be configured to point directly to the existing `main/` directory instead ([See: PlatformIO ESP-IDF Project Structure](https://docs.platformio.org/en/latest/frameworks/espidf.html#project-structure)).
 
 This requires only a single additional setting in `platformio.ini` beyond the usual board and platform configuration:
 

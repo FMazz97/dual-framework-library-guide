@@ -14,9 +14,11 @@ Everything described in this chapter was verified empirically through real build
 
 ### Source discovery is primarily structural
 
-The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`**. There is no manifest that explicitly lists compilation units: if a source file exists under `src/`, it gets compiled. Because the Arduino library specification is built around this standardized layout, placing implementation files outside of `src/` is **not permitted**.
+The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`** ([See: Library specification - Layout of folders and files](https://docs.arduino.cc/arduino-cli/library-specification/#layout-of-folders-and-files)). There is no manifest that explicitly lists compilation units: if a source file exists under `src/`, it gets compiled. Because the Arduino library specification is built around this standardized layout, placing implementation files outside of `src/` is **not permitted**.
 
 **Library identity is driven by public headers**, not folder names. As long as the expected public include (e.g. `#include <Foo.h>`) is available under `src/`, the library continues to function regardless of how its directory is named on disk.
+
+For more details, see [Arduino Library Specification](https://docs.arduino.cc/arduino-cli/library-specification/).
 
 ---
 
@@ -43,6 +45,8 @@ This turned out to be one of the most time-consuming constraints to pin down, pr
 
 - **`idf_component.yml`** (via the **Component Manager**, either through `override_path` during development or via the `Registry`): introduces a second source of identity. The Component Manager reads the component's `name:` directly from the manifest and validates it **according to Registry rules**. Unlike a plain CMake-based workflow, the `name:` field must follow the Registry naming convention **containing only lowercase letters, numbers, and underscores**.
 
+See [Section 4.1 - IDF dependency resolution](04-examples.md#41-esp-idf-dependency-resolution-cmake-and-component-manager-are-different-layers) for how these two mechanisms discover, validate, and build a component.
+
 ### A *published* component must be self-contained
 
 While local development imposes few restrictions on component layout, publication introduces an additional constraint: the component must be self-contained. A component intended only for local use may be organized anywhere in the repository (for example under `components/<name>/`) and may freely reference sources outside its own directory, provided those paths exist on the local filesystem.
@@ -50,6 +54,8 @@ While local development imposes few restrictions on component layout, publicatio
 But, the ESP Component Registry packages **only the folder containing `idf_component.yml`**. Any `CMakeLists.txt` that references source files *outside* that folder via relative paths (e.g. `../../src/core/foo.cpp`) works fine during local development, but breaks as soon as the component is published and downloaded standalone: those paths simply do not exist in the extracted package.
 
 **The practical rule of thumb is simple:** keep the component folder name and the manifest `name:` identical, using **lowercase** for both. This satisfies **CMake**'s filesystem-based resolution, the **Component Manager**'s validation rules, and the **ESP Component Registry**'s publication requirements with a single convention.
+
+For more details, see [IDF Component Manager](https://docs.espressif.com/projects/idf-component-manager/).
 
 ---
 
@@ -67,8 +73,10 @@ Source discovery remains based on Arduino's recursive `src/` compilation model, 
 
 Here PlatformIO doesn't just wrap `idf.py` — it generates its **own** project scaffolding, driven by `platformio.ini` rather than IDF's native `CMakeLists.txt`/`project()` flow. The convention shifts from IDF's `main/` folder to PlatformIO's own `src_dir` (default `src/`). A project can still use a hand-written, IDF-native `CMakeLists.txt`/`main/` layout under PlatformIO, but only by explicitly pointing `src_dir` at that folder.
 
+For more details, see [PlatformIO Library Management](https://docs.platformio.org/en/latest/librarymanager/).
+
 ---
-<!--questa parte va sistemata sulla base dell'aggiornamente fatto al case sensitve di esp-idf (differenze tra cmake e idf_componente.yml)-->
+
 ## 1.4 Where the constraints collide
 
 Comparing these three ecosystems reveals that the true challenge of a cross-ecosystem library is not managing different APIs, but harmonizing conflicting toolchain assumptions about source discovery, identity, and metadata immutability:

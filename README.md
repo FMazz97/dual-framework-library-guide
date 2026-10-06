@@ -58,9 +58,9 @@ This guide documents the architecture, constraints, and practical decisions requ
 
 It covers everything from the non-negotiable requirements of each ecosystem, to repository organization, build integration, and publication across all major distribution channels:
 
-* Arduino Library Manager
-* ESP Component Registry
-* PlatformIO Registry
+* [Arduino Library Manager](https://docs.arduino.cc/libraries/)
+* [ESP Component Registry](https://components.espressif.com/)
+* [PlatformIO Registry](https://registry.platformio.org/)
 
 More importantly, the conclusions presented here are not theoretical deductions from documentation alone. Every design decision and every claim has been validated empirically on real hardware and through the development of the **CS123x** library:
 👉 [https://github.com/FMazz97/CS123x](https://github.com/FMazz97/CS123x)
