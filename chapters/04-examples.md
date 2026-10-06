@@ -19,7 +19,87 @@ Fortunately, those differences are largely superficial. With a small amount of c
 
 ---
 
-## 4.1 The layout that makes one example buildable by both toolchains
+## 4.1 ESP-IDF dependency resolution: CMake and Component Manager are different layers
+
+### Component resolution through `EXTRA_COMPONENT_DIRS`
+
+In a pure **CMake** workflow, component discovery is entirely filesystem-driven.
+
+When the project's `CMakeLists.txt` contains:
+
+```cmake
+set(EXTRA_COMPONENT_DIRS "../path/to/<component>")
+  ```
+
+ESP-IDF scans the specified directories, finds each component's `CMakeLists.txt`, and registers the component under the exact **name** of the folder that contains it.
+
+```text
+Project
+└── EXTRA_COMPONENT_DIRS
+              ↓
+        components/foo/
+              ↓
+        CMakeLists.txt
+              ↓
+    idf_component_register(...)
+```
+
+In this workflow, `idf_component.yml` is completely ignored. The component builds successfully even if no manifest exists, because **discovery and naming are handled entirely by CMake based on the filesystem structure.**
+
+### Component resolution through `idf_component.yml`
+
+The flow changes when the project uses the **Component Manager**:
+
+```yaml
+dependencies:
+  foo:
+    version: "*"
+    override_path: "../components/foo"
+```
+
+Here, the first actor is no longer CMake, but the **Espressif Component Manager** extension.
+
+The Component Manager performs the following sequential steps:
+
+- reads the project's `idf_component.yml`;
+- locates the local dependency through `override_path`;
+- loads the component's own `idf_component.yml`;
+- validates the component's `name:` field (enforcing strict lowercase validation rules);
+- injects validated component into the **CMake** build system environment.
+
+Only after this validation sequence is successful does CMake take over.
+
+```text
+Project
+│
+├── idf_component.yml
+│          ↓
+│   Component Manager
+│          ↓
+│    components/foo/
+│          ↓
+│   idf_component.yml (validation)
+│          ↓
+└── CMakeLists.txt
+           ↓
+idf_component_register(...)
+```
+
+This explains why naming rules become strict when using the **Component Manager**. Unlike the pure `EXTRA_COMPONENT_DIRS` workflow, the component must first pass manifest identity validation before CMake ever processes its directory.
+
+### The common ground
+
+Both workflows ultimately converge at the same endpoint:
+
+```cmake
+idf_component_register(...)
+```
+
+This macro remains the sole mechanism that tells ESP-IDF which source files, include directories, and compile-time requirements belong to the component.The structural difference lies entirely in how the component is discovered, named, and validated before it reaches the compiler.
+
+---
+
+## 4.2 The layout that makes one example buildable by both toolchains
 
 Simply add the `platfomrio.ini` in the ESP-IDF's examples:
 
@@ -36,8 +116,6 @@ examples/my_example/
 ### ESP-IDF (native)
 
 When built through `idf.py`, the example behaves like any other native **ESP-IDF project**. The build process is driven entirely by the project's CMake files and Component Manager configuration:
-
-<!--AGGIUNGERE QUI IL SISTEMA DI RICHIAMO DI CMAKE E IDF_COMPONENTE.YML-->
 
 - The root `CMakeLists.txt` is a standard, native IDF project file — nothing PlatformIO-specific:
 
@@ -80,7 +158,7 @@ At that point, an important question remains: *which system is responsible for r
 
 ---
 
-## 4.2 Dependency-*fetching* and component-*registration* are separate concepts
+## 4.3 Dependency-*fetching* and component-*registration* are separate concepts
 
 This distinction is easy to miss, because PlatformIO exposes both behind a seemingly unified experience (everything lands in `.pio/libdeps/`, regardless of framework).
 
@@ -102,7 +180,7 @@ The same separation of responsibilities extends beyond build systems and into pa
 
 How those manifests are structured is covered in [Chapter 5 - Publishing](05-publishing.md).
 
-## 4.3 Note: Unidirectional build conflict (`idf.py` → `PlatformIO`)
+## 4.4 Note: Unidirectional build conflict (`idf.py` → `PlatformIO`)
 
 While **PlatformIO** places its output isolated in `.pio/build/<env>`, native `idf.py` builds directly into `build/` at the project root.
 
