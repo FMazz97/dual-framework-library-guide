@@ -1,12 +1,10 @@
 # Chapter 1 — The Two Ecosystems and Their Non-Negotiable Constraints
 
-Before discussing abstraction layers, repository layouts, or build integration, it's important to understand a fundamental reality: **the hardest part of a cross-ecosystem library is rarely the code itself**.
+Before discussing repository layouts, abstraction layers, or build integration, it's worth identifying the small set of rules that actually drive the entire architecture.
 
-Each ecosystem comes with its own assumptions about project structure, source discovery, dependency management, examples, packaging, and publication. **These are not conventions that can be bent or negotiated**: they are hard requirements enforced by the tooling. Ignore them, and the build breaks, the library fails validation, or the package never gets published.
+Fortunately, the constraints imposed by Arduino and ESP-IDF are neither numerous nor particularly complex. Most of the design decisions presented throughout this guide are simply the result of satisfying those constraints simultaneously within a single repository.
 
-The challenge, therefore, is not simply making Arduino and ESP-IDF compile the same code. It is designing a repository that simultaneously satisfies two independent ecosystems (and the cross-platform toolchains like PlatformIO) each with its own rules, directory structures, and developer expectations.
-
-Everything described in this chapter was verified empirically through real builds, real hardware testing, and real publication attempts. Several assumptions that seemed perfectly reasonable when reading the documentation turned out to be incorrect once exercised in practice.
+This chapter summarizes those rules and the practical consequences they have on library structure, component identity, and source organization.
 
 ---
 

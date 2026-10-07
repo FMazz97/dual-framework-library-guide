@@ -1,6 +1,6 @@
 # Why build a library that's native to both Arduino & ESP-IDF ecosystems
 
-Before diving into the technical constraints, it's worth answering a more fundamental question: **why accept the complexity of supporting both Arduino and ESP-IDF natively at all?** Why not simply choose one ecosystem, or rely on Arduino-as-a-component as a compatibility layer?
+Before diving into the technical constraints, it's worth answering a more fundamental question: **why accept the complexity of supporting both Arduino and ESP-IDF natively at all? Why not simply choose one ecosystem, or rely on Arduino-as-a-component as a compatibility layer?**
 
 >**Spoiler:** the final solution is far less complicated than this guide might suggest. Most of the discussion that follows is not about complexity, but about explaining the constraints, trade-offs, and reasoning that led to each architectural choice.
 
@@ -8,9 +8,9 @@ Before diving into the technical constraints, it's worth answering a more fundam
 
 ## 🚪 Arduino is still the front door
 
-**Arduino remains, and will remain for a long time, the primary entry point into embedded development.**
+**Arduino is, and will remain for a long time, the primary entry point into embedded development.**
 
-**Its greatest strength is not raw technical capability, but accessibility.** Projects can be initialized in seconds, the API is intentionally approachable, and compiling and flashing firmware is often reduced to a single click. For beginners, hobbyists, educators, and even experienced developers building quick prototypes, **this reduction in friction is not a secondary advantage**: it is the very reason the platform became dominant and continues to attract the largest community in the embedded world.
+Its greatest strength is not raw technical capability, but **accessibility.** Projects can be initialized in seconds, the API is intentionally approachable, and compiling and flashing firmware is often reduced to a single click. For beginners, hobbyists, educators, and even experienced developers building quick prototypes, **this reduction in friction is not a secondary advantage**: it is the very reason the platform became dominant and continues to attract the largest community in the embedded world.
 
 **Ignoring Arduino means ignoring where most users begin.**
 
@@ -23,13 +23,14 @@ At the same time, ESP-IDF is increasingly establishing itself as a reference pla
 A concrete signal is [ESPHome's migration toward ESP-IDF](https://esphome.io/guides/esp32_arduino_to_idf) where a project born and grown within the Arduino ecosystem chose to move its engine onto native IDF.
 
 There is also a technical reality that is often underestimated:
+
 <!-- markdownlint-disable MD033 -->
 <p align="center">
   <i><b>when you write for Arduino code for an ESP32 board, you're already running on top of ESP-IDF.</b></i>
 </p>
 <!-- markdownlint-disable MD033 -->
 
-The `arduino-esp32` is itself a layer built on top of ESP-IDF, not an independent alternative. The question isn't "Arduino or IDF?" but rather:
+The `arduino-esp32` is itself a layer built on top of ESP-IDF as a componet, not an independent alternative. The question isn't "Arduino or IDF?" but rather:
 ***Do you want to interact directly with the platform's engine, or through an additional translation layer?***
 
 ---
