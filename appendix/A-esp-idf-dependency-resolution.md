@@ -124,3 +124,17 @@ idf_component_register(...)
 ```
 
 This macro remains the **sole mechanism that tells ESP-IDF which source files, include directories, and compile-time requirements belong to the component.** The structural difference lies entirely in how the component is discovered, named, and validated before it reaches the compiler.
+
+---
+
+## Table of Contents
+
+- [Introduction](../README.md)
+- [Chapter 1 - Ecosystem Constraints](../chapters/01-ecosystem-constraints.md)
+- [Chapter 2 - Repository structure](../chapters/02-repo-structure.md)
+- [Chapter 3 - Agnostic Core & HAL Architecture](../chapters/03-agnostic-core_hal-architecture.md)
+- [Chapter 4 - Example conventions](../chapters/04-examples.md)
+- [Chapter 5 - Publishing](../chapters/05-publishing.md)
+- [Appendix A - IDF dependency resolution](A-esp-idf-dependency-resolution.md)
+- [Appendix B - Yield & Watchdog](B-yield-watchdog.md)
+- [Appendix C - Naming Convention](C-naming-convention.md)
