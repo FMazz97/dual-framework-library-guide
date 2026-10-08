@@ -187,4 +187,6 @@ That shared example layout is the subject of [Chapter 4 - Example conventions](0
 - [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
 - [Chapter 4 - Example conventions](04-examples.md)
 - [Chapter 5 - Publishing](05-publishing.md)
-- [Chapter 6 - Bonus: Yield & Watchdog - Naming Convention](06-bonus_yield-watchdog_naming-convention.md)
+- [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md)
+- [Appendix B - Yield & Watchdog](../appendix/B-yield-watchdog.md)
+- [Appendix C - Naming Convention](../appendix/C-naming-convention.md)

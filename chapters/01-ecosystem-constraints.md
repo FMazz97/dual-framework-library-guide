@@ -43,7 +43,7 @@ This turned out to be one of the most time-consuming constraints to pin down, pr
 
 - **`idf_component.yml`** (via the **Component Manager**, either through `override_path` during development or via the `Registry`): introduces a second source of identity. The Component Manager reads the component's `name:` directly from the manifest and validates it **according to Registry rules**. Unlike a plain CMake-based workflow, the `name:` field must follow the Registry naming convention **containing only lowercase letters, numbers, and underscores**.
 
-See [Section 4.1 - IDF dependency resolution](04-examples.md#41-esp-idf-dependency-resolution-cmake-and-component-manager-are-different-layers) for how these two mechanisms discover, validate, and build a component.
+See [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md) for how these two mechanisms discover, validate, and build a component.
 
 ### A *published* component must be self-contained
 
@@ -105,4 +105,6 @@ The layout used throughout this guide exploits exactly that: the ESP-IDF manifes
 - [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
 - [Chapter 4 - Example conventions](04-examples.md)
 - [Chapter 5 - Publishing](05-publishing.md)
-- [Chapter 6 - Bonus: Yield & Watchdog - Naming Convention](06-bonus_yield-watchdog_naming-convention.md)
+- [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md)
+- [Appendix B - Yield & Watchdog](../appendix/B-yield-watchdog.md)
+- [Appendix C - Naming Convention](../appendix/C-naming-convention.md)

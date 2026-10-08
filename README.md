@@ -59,9 +59,9 @@ This guide documents the architecture, constraints, and practical decisions requ
 
 It covers everything from the non-negotiable requirements of each ecosystem, to repository organization, build integration, and publication across all major distribution channels:
 
-* [Arduino Library Manager](https://docs.arduino.cc/libraries/)
-* [ESP Component Registry](https://components.espressif.com/)
-* [PlatformIO Registry](https://registry.platformio.org/)
+- [Arduino Library Manager](https://docs.arduino.cc/libraries/)
+- [ESP Component Registry](https://components.espressif.com/)
+- [PlatformIO Registry](https://registry.platformio.org/)
 
 More importantly, the conclusions presented here are not theoretical deductions from documentation alone. Every design decision and every claim has been validated empirically on real hardware and through the development of the **CS123x** library:
 👉 [https://github.com/FMazz97/CS123x](https://github.com/FMazz97/CS123x)
@@ -70,10 +70,12 @@ More importantly, the conclusions presented here are not theoretical deductions 
 
 ## Table of Contents
 
-* [Introduction](README.md)
-* [Chapter 1 - Ecosystem Constraints](chapters/01-ecosystem-constraints.md)
-* [Chapter 2 - Repository structure](chapters/02-repo-structure.md)
-* [Chapter 3 - Agnostic Core & HAL Architecture](chapters/03-agnostic-core_hal-architecture.md)
-* [Chapter 4 - Example conventions](chapters/04-examples.md)
-* [Chapter 5 - Publishing](chapters/05-publishing.md)
-* [Chapter 6 - Bonus: Yield & Watchdog - Naming Convention](chapters/06-bonus_yield-watchdog_naming-convention.md)
+- [Introduction](README.md)
+- [Chapter 1 - Ecosystem Constraints](chapters/01-ecosystem-constraints.md)
+- [Chapter 2 - Repository structure](chapters/02-repo-structure.md)
+- [Chapter 3 - Agnostic Core & HAL Architecture](chapters/03-agnostic-core_hal-architecture.md)
+- [Chapter 4 - Example conventions](chapters/04-examples.md)
+- [Chapter 5 - Publishing](chapters/05-publishing.md)
+- [Appendix A - IDF dependency resolution](appendix/A-esp-idf-dependency-resolution.md)
+- [Appendix B - Yield & Watchdog](appendix/B-yield-watchdog.md)
+- [Appendix C - Naming Convention](appendix/C-naming-convention.md)

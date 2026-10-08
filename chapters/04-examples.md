@@ -24,33 +24,74 @@ For more details, see how to [Reference](https://docs.espressif.com/projects/idf
 
 ## 4.1 ESP-IDF dependency resolution: CMake and Component Manager are different layers
 
+Regardless of how dependencies are resolved, every **ESP-IDF standalone project** needs a minimal set of **CMake** files:
+
+- A root `CMakeLists.txt` defining the project name and importing ESP-IDF build logic:
+
+  ```cmake
+  cmake_minimum_required(VERSION 3.16)
+  include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+  project(my_example)
+  ```
+
+- A `main/` directory containing the entry point (e.g., `main.cpp`) and its own `main/CMakeLists.txt`:
+
+  ```cmake
+  idf_component_register(
+    SRCS "main.cpp"
+    INCLUDE_DIRS "."
+  )
+  ```
+
+The choice between pure CMake and the Component Manager simply dictates **how** the project links to your library component.
+
+---
+
 ### Component resolution through `EXTRA_COMPONENT_DIRS`
 
 In a pure **CMake** workflow, component discovery is entirely filesystem-driven.
 
-When the project's `CMakeLists.txt` contains:
+- Register the requred component's path in the project's root `CMakeLists.txt`:
 
-```cmake
-set(EXTRA_COMPONENT_DIRS "../path/to/<component>")
+  ```cmake
+  list(APPEND EXTRA_COMPONENT_DIRS "${CMAKE_CURRENT_LIST_DIR}/../path/to/<component>")
+  # set(EXTRA_COMPONENT_DIRS "../path/to/<component>")
   ```
 
-ESP-IDF scans the specified directories, finds each component's `CMakeLists.txt`, and registers the component under the exact **name** of the folder that contains it.
+  ESP-IDF scans the specified directories, finds each component's `CMakeLists.txt`, and registers the component under the exact **name** of the folder that contains it.
+
+  > Prefer `list(APPEND EXTRA_COMPONENT_DIRS)` with `${CMAKE_CURRENT_LIST_DIR}` over `set(EXTRA_COMPONENT_DIRS)` to avoid overwriting existing paths and to ensure robust, absolute path resolution.
+
+- Declare the dependency in `main/CMakeLists.txt` to make public headers and symbols accessible:
+
+  ```cmake
+  idf_component_register(
+    SRCS "main.cpp"
+    INCLUDE_DIRS "."
+    REQUIRES <component>
+  )
+  ```
+
+  Notice that the value passed to `REQUIRES` must match the exact **folder name** of the component registered in the previous step.
+
+The complete resolution chain for a pure **CMake** setup is therefore structured as follows:
 
 ```text
 Project
 │
-└── CMakeLists.txt
-          ↓
-  EXTRA_COMPONENT_DIRS
-          ↓
-    components/foo/
-          ↓
-    CMakeLists.txt
-          ↓
-idf_component_register(...)
+├── CMakeLists.txt (list(APPEND EXTRA_COMPONENT_DIRS ...))
+│         ↓
+│   components/foo/
+│         ↓
+│   CMakeLists.txt → idf_component_register(...)
+│
+└── main/
+    └── CMakeLists.txt (idf_component_register(... REQUIRES foo))
 ```
 
-In this workflow, component's `idf_component.yml` is completely ignored. The component builds successfully even if no manifest exists, because **discovery and naming are handled entirely by CMake based on the filesystem structure.**
+In this workflow, component's `idf_component.yml` is completely ignored. The component builds successfully even if no manifest exists, because **discovery and naming are handled entirely by CMake based on the filesystem structure and explicit `REQUIRES` statements.**
+
+---
 
 ### Component resolution through `idf_component.yml`
 
@@ -63,7 +104,7 @@ dependencies:
     override_path: "../components/foo"
 ```
 
-Here, the first actor is no longer CMake, but the **Espressif Component Manager** extension.
+Here, the first actor is no longer CMake, but the **Espressif Component Manager**, while the `CMakeLists.txt` files remain minimal and unchanged.
 
 The Component Manager performs the following sequential steps:
 
@@ -78,24 +119,24 @@ Only after this validation sequence is successful does CMake take over.
 ```text
 Project
 │
-└── idf_component.yml
-            ↓
-      override_path
-            ↓
-      components/foo/
-            ↓
-    idf_component.yml (validation)
-            ↓
-     CMakeLists.txt
-            ↓
-  idf_component_register(...)
+├── CMakeLists.txt (standard / minimal)
+│
+└── main/
+    │
+    └── idf_component.yml (override_path: "../path/to/foo")
+              ↓
+        components/foo/
+              ↓
+        idf_component.yml (manifest name validation)
+              ↓
+        CMakeLists.txt → idf_component_register(...)
 ```
 
 This explains why naming rules become strict when using the **Component Manager**. Unlike the pure `EXTRA_COMPONENT_DIRS` workflow, the component must first pass manifest identity validation before CMake ever processes its directory.
 
 ### The common ground
 
-Both workflows ultimately converge at the same endpoint:
+Both workflows ultimately converge at the same endpoint in the component `CMakeLists.txt`:
 
 ```cmake
 idf_component_register(...)
@@ -105,40 +146,14 @@ This macro remains the **sole mechanism that tells ESP-IDF which source files, i
 
 ---
 
-## 4.2 The layout that makes one example buildable by both toolchains
+## ESP-IDF (native)
 
-Simply add the `platfomrio.ini` in the ESP-IDF's examples:
+When built natively through `idf.py`, an example operates as a self-contained project. Based on the resolution mechanics detailed in [Section 4.1](#41-esp-idf-dependency-resolution-cmake-and-component-manager-are-different-layers), you simply choose the workflow that best fits your development cycle:
 
-```text
-examples/my_example/
-├── CMakeLists.txt        ← idf.py entry point (project-level)
-├── platformio.ini        ← PlatformIO entry point
-└── main/
-  ├── CMakeLists.txt      ← idf_component_register(...)
-  ├── idf_component.yml   ← dependency, via override_path for in-repo development
-  └── main.cpp
-```
+- **Pure CMake Workflow (`EXTRA_COMPONENT_DIRS` + `REQUIRES`):** Ideal for quick local prototyping where no manifest validation is required. The root `CMakeLists.txt` appends the component directory, and `main/CMakeLists.txt` declares `REQUIRES <component>`.
+- **Component Manager Workflow (`idf_component.yml`):** The recommended approach for registry readiness and production-like environments. The CMake files remain completely standard, while `main/idf_component.yml` uses `override_path` to resolve the local repository during development.
 
-### ESP-IDF (native)
-
-When built through `idf.py`, the example behaves like any other native **ESP-IDF project**. The build process is driven entirely by the project's CMake files and Component Manager configuration:
-
-- The root `CMakeLists.txt` is a standard, native IDF project file — nothing PlatformIO-specific:
-
-  ```cmake
-  cmake_minimum_required(VERSION 3.16)
-  include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-  project(my_example)
-  ```
-
-- `main/idf_component.yml` declares the dependency once, resolved consistently regardless of which toolchain triggers the build:
-
-  ```yaml
-  dependencies:
-    foo:
-      version: "*"
-      override_path: "../../../"   # repo root, for in-tree development
-  ```
+---
 
 ### PlatformIO
 
@@ -202,6 +217,20 @@ The practical recommendation is to use a single authoritative dependency-resolut
 2. **ESP-IDF Component Manager (`idf_component.yml`)** when working with *ESP-IDF components and registries*.
 3. **CMake (`EXTRA_COMPONENT_DIRS` + `REQUIRES`)** for local, *filesystem-based component* development.
 
+## 4.4 The layout that makes one example buildable by both toolchains
+
+Simply add the `platfomrio.ini` in the ESP-IDF's examples:
+
+```text
+examples/my_example/
+├── CMakeLists.txt        ← idf.py entry point (project-level)
+├── platformio.ini        ← PlatformIO entry point
+└── main/
+  ├── CMakeLists.txt      ← idf_component_register(...)
+  ├── idf_component.yml   ← dependency, via override_path for in-repo development
+  └── main.cpp
+```
+
 The same separation of responsibilities extends beyond build systems and into package registries themselves. Through their respective manifests (`library.json` and `idf_component.yml`).
 
 How those manifests are structured is covered in [Chapter 5 - Publishing](05-publishing.md).
@@ -227,4 +256,6 @@ idf.py fullclean
 - [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
 - [Chapter 4 - Example conventions](04-examples.md)
 - [Chapter 5 - Publishing](05-publishing.md)
-- [Chapter 6 - Bonus: Yield & Watchdog - Naming Convention](06-bonus_yield-watchdog_naming-convention.md)
+- [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md)
+- [Appendix B - Yield & Watchdog](../appendix/B-yield-watchdog.md)
+- [Appendix C - Naming Convention](../appendix/C-naming-convention.md)
