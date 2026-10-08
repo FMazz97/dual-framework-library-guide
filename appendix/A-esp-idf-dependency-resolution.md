@@ -33,7 +33,7 @@ In a pure **CMake** workflow, component discovery is entirely filesystem-driven.
 - Register the requred component's path in the project's root `CMakeLists.txt`:
 
   ```cmake
-  list(APPEND EXTRA_COMPONENT_DIRS "${CMAKE_CURRENT_LIST_DIR}/../path/to/<component>")
+  list(APPEND EXTRA_COMPONENT_DIRS "${CMAKE_CURRENT_LIST_DIR}/../path/to/foo")
   # set(EXTRA_COMPONENT_DIRS "../path/to/<component>")
   ```
 
@@ -80,7 +80,7 @@ The flow changes when the project uses the **Component Manager**:
 dependencies:
   foo:
     version: "*"
-    override_path: "../components/foo"
+    override_path: "../path/to/foo"
 ```
 
 Here, the first actor is no longer CMake, but the **Espressif Component Manager**, while the `CMakeLists.txt` files remain minimal and unchanged.
