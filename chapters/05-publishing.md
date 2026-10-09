@@ -1,24 +1,55 @@
-# Chapter 5 — Publishing on All Three Registries, and the Case-Sensitivity Trap That Follows You Everywhere
+# Chapter 5 — Publishing Across Ecosystems and Package Registry Mechanics
 
-Publishing to Arduino Library Manager, the PlatformIO Registry, and the ESP Component Registry are three independent processes, with three independent review models. But the same case-sensitivity constraint from Chapter 1 resurfaces at publish time in a way that isn't obvious until it's hit directly — and, in this case, it wasn't caught until after a first publication had already happened under the "wrong" case.
+Publishing a framework-agnostic C++ library requires interacting with three independent package registries: the [Arduino Library Manager](https://docs.arduino.cc/libraries/), the [ESP Component Registry](https://components.espressif.com/), and the [PlatformIO Registry](https://registry.platformio.org/). Each ecosystem uses its own manifest format, indexing pipeline, and rule set for package immutability and naming.
 
-## Arduino Library Manager — automated, tag-driven, no manual review of content
+Rather than treating publishing as a single monolithic step, this chapter breaks down the publication mechanics for each registry individually, covering metadata definition, file filtering, local pre-validation, release workflows, and lifecycle maintenance.
 
-### Library metadata in `library.properties`is taken from the tagged release, not the default branch
+---
 
-During publication, the *Arduino Library Manager* indexes the content associated with the Git tag being released. Updating `library.properties` after the tag already exists has no effect on that release. Likewise, publishing before incrementing the version field in `library.properties` typically results in the release being ignored or treated as a duplicate. The version declared in `library.properties` and the *GitHub release tag* must refer to the same release version.
+## 5.1 Arduino Library Manager
 
-### Examples follow a strict `Name/Name.ino` convention
+The Arduino Library Manager uses an automated, tag-driven indexing model. Rather than hosting binary archives or accepting direct uploads via CLI, the registry periodically scans registered Git repositories.
 
-The Arduino IDE (and PlatformIO's example browser for `.ino` projects; see Section 1.3) expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`. The sketch name must match its parent directory. Additional levels of nesting can be used to organize examples into categories and do not affect discovery, provided this naming convention is preserved.
+### Manifest and Metadata
 
-### Dependency resolution is supported, but remains library-centric
+The single source of truth for Arduino library metadata is the `library.properties` file located at the repository root.
 
-Arduino libraries can declare dependencies using the `depends` field in `library.properties`, enabling automatic installation of required libraries by the Library Manager.
+- **Version Indexing:** Arduino's indexer relies strictly on Git tags (e.g., `v1.0.0` or `1.0.0`). The `version` field in `library.properties` **must match the Git tag name exactly**. The indexer reads the manifest from the commit attached to the tag, not from the default branch. Updating `library.properties` on `main` after creating a release tag will not update the published release.
 
-Submission is a Pull Request against `arduino/library-registry`, adding the repository URL to a plain text list. A bot then runs the same checks `arduino-lint` performs locally — running it yourself first (`arduino-lint --library-manager submit`) catches structural issues before they cost a review round-trip. Two requirements are easy to overlook on a first attempt:
+- **Dependency Declaration:** Dependencies resolution is supported, but remains library-centric. Refer to other Arduino libraries using the `depends` field in `library.properties` (see `depends` point in Arduino [library format](https://docs.arduino.cc/arduino-cli/library-specification/#library-metadata) section).
 
-- **At least one tagged GitHub Release must already exist**, with `library.properties`'s `version` field matching. The indexer reads the manifest **from the tagged commit**, not from the latest commit on the default branch — a release created before a version bump was committed will silently index the *old* version, appearing to "not update" with no error at all.
+- **Example File Exclusions:** not allow.
+
+For more details, see [Arduino Library Specification](https://docs.arduino.cc/arduino-cli/library-specification/).
+
+### Local Pre-Verification
+
+Before submitting a library to the Arduino Registry, validate the layout and metadata locally using `arduino-lint`:
+
+```Bash
+arduino-lint --library-manager submit
+```
+
+This command runs the exact same automated checks that the Arduino indexing bot performs, catching missing fields, incorrect directory structures, or invalid dependency declarations before initiating a review.
+
+For more details, see [Arduino Lint](https://arduino.github.io/arduino-lint/latest/).
+
+### Initial Publication
+
+Initial inclusion is a Pull Request against [arduino/library-registry](https://github.com/arduino/library-registry), adding the repository URL to a plain text list. A bot then runs the same checks `arduino-lint` performs locally. Two requirements are easy to overlook on a first attempt:
+
+- **At least one tagged GitHub Release must already exist**, with `library.properties`'s `version` field matching.
+
+### Subsequent Updates and Immutability
+
+Once the initial Pull Request is merged, updates are completely automatic. To publish a new release:
+
+1. Update `version` in `library.properties`.
+
+2. Create and push a matching Git tag (and corresponding GitHub Release).
+
+The Arduino indexer automatically detects the new tag and updates the library within a few hours.
+
 - **After acceptance, updates are fully automatic**: publishing a new tagged Release with a bumped `version` is the entire update process. No second Pull Request is needed.
 
 ## PlatformIO Registry — self-service via CLI, immutable once published
