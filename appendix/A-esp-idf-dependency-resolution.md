@@ -22,7 +22,7 @@ Regardless of how dependencies are resolved, every **ESP-IDF standalone project*
   )
   ```
 
-The choice between pure *CMake* and the *Component Manager* simply dictates **how** the project links to your library component.
+The choice between pure *CMake* and the *Component Manager* simply dictates **how** the project discovers and resolves the library component before it is ultimately built by **CMake**.
 
 ---
 
@@ -39,7 +39,7 @@ In a pure **CMake** workflow, component discovery is entirely filesystem-driven.
 
   ESP-IDF scans the specified directories, finds each component's `CMakeLists.txt`, and registers the component under the exact **name** of the folder that contains it.
 
-  > Prefer `list(APPEND EXTRA_COMPONENT_DIRS)` with `${CMAKE_CURRENT_LIST_DIR}` over `set(EXTRA_COMPONENT_DIRS)` to avoid overwriting existing paths and to ensure robust, absolute path resolution.
+  > Note: prefer `list(APPEND EXTRA_COMPONENT_DIRS ...)` together with `${CMAKE_CURRENT_LIST_DIR}` rather than overwriting the variable through `set(...)`, as this avoids accidentally discarding existing component paths and provides robust path resolution.
 
 - Declare the dependency in `main/CMakeLists.txt` to make public headers and symbols accessible:
 
@@ -90,7 +90,7 @@ The Component Manager performs the following sequential steps:
 - reads the project's `idf_component.yml`;
 - locates the local dependency through `override_path`;
 - loads the component's own `idf_component.yml`;
-- validates the component's `name:` field (enforcing strict lowercase validation rules);
+- - validates the component's `name:` field according to Component Registry naming rules (only `lowercase`/`number`/`_`);
 - injects validated component into the **CMake** build system environment.
 
 Only after this validation sequence is successful does CMake take over.
@@ -124,6 +124,8 @@ idf_component_register(...)
 ```
 
 This macro remains the **sole mechanism that tells ESP-IDF which source files, include directories, and compile-time requirements belong to the component.** The structural difference lies entirely in how the component is discovered, named, and validated before it reaches the compiler.
+
+This is why a component can be discovered through different mechanisms (`EXTRA_COMPONENT_DIRS` or `idf_component.yml`) while still being built exactly the same way once it reaches `idf_component_register()`.
 
 ---
 

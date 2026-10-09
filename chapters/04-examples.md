@@ -41,7 +41,7 @@ mirrors the exact resolution and manifest validation rules enforced by the **ESP
 
 ## 4.2 PlatformIO
 
-By default, PlatformIO expects application source code to reside in a `src/` directory at the project root. Rather than creating a redundant `src/` folder alongside ESP-IDF's native layout, PlatformIO can be configured to point directly to the existing `main/` directory instead ([See: PlatformIO ESP-IDF Project Structure](https://docs.platformio.org/en/latest/frameworks/espidf.html#project-structure)).
+By default, PlatformIO expects application source code to reside in a `src/` directory at the project root. Rather than creating a redundant `src/` folder alongside ESP-IDF's native layout, PlatformIO can be configured to point directly to the existing `main/` directory instead (See: [PlatformIO ESP-IDF Project Structure](https://docs.platformio.org/en/latest/frameworks/espidf.html#project-structure)).
 
 This requires only a single additional setting in `platformio.ini` beyond the usual board and platform configuration:
 
@@ -109,16 +109,18 @@ To achieve full dual-toolchain compatibility, an ESP-IDF example simply places a
 ```text
 examples/my_example/
 ├── CMakeLists.txt        ← idf.py entry point (project-level)
-├── platformio.ini        ← PlatformIO entry point
+├── platformio.ini        ← PlatformIO entry point with lib_deps
 └── main/
   ├── CMakeLists.txt      ← example component registration
   ├── idf_component.yml   ← dependency via Component Manager
   └── main.cpp
 ```
 
-Adopting the **Component Manager** workflow as the primary resolution mechanism inside the example ensures that the layout remains idiomatic for native ESP-IDF while remaining fully buildable under PlatformIO.
-
 > Note: Optional configuration files (such as `sdkconfig.defaults`, custom partition tables `partitions.csv`, or application-level `Kconfig.projbuild`) can be placed directly in the example's root or `main/` directory as needed. For complete guidelines on project customization files, see the [Example Project](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html#example-project) section on official [ESP-IDF Build System](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html) Documentation.
+
+Adopting the **ESP-IDF Component Manager** through `idf_component.yml` as the primary dependency-resolution mechanism keeps the example aligned with Espressif's recommended workflow while remaining fully compatible with PlatformIO's ESP-IDF integration.
+
+Although the dependency can also be declared in `platformio.ini` via `lib_deps` for convenience, having both manifests in place allows each toolchain to resolve dependencies using its own native system.
 
 This dual-nature layout also sets up a clean boundary for publication. When registering and publishing packages to the respective ecosystems, each toolchain's manifest allows excluding files irrelevant to its registry:
 
@@ -129,6 +131,8 @@ This dual-nature layout also sets up a clean boundary for publication. When regi
 This reciprocal exclusion keeps the distributed packages clean and native to each ecosystem, without compromising the unified source layout during development.
 
 How those manifests are structured is covered in [Chapter 5 - Publishing](05-publishing.md).
+
+---
 
 ## 4.5 Note: Unidirectional build conflict (`idf.py` → `PlatformIO`)
 
