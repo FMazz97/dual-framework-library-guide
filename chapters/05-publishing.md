@@ -36,21 +36,20 @@ For more details, see [Arduino Lint](https://arduino.github.io/arduino-lint/late
 
 ### Initial Publication
 
-Initial inclusion is a Pull Request against [arduino/library-registry](https://github.com/arduino/library-registry), adding the repository URL to a plain text list. A bot then runs the same checks `arduino-lint` performs locally. Two requirements are easy to overlook on a first attempt:
+Initial inclusion requires a Pull Request against [arduino/library-registry](https://github.com/arduino/library-registry), adding the library repository URL to the registry list. The submission is then validated automatically through the same checks performed by `arduino-lint`.
 
-- **At least one tagged GitHub Release must already exist**, with `library.properties`'s `version` field matching.
+Before submitting, **at least one GitHub Release must already exist, and the release version must match the `version` field declared in `library.properties`.**
 
-### Subsequent Updates and Immutability
+### Updates
 
-Once the initial Pull Request is merged, updates are completely automatic. To publish a new release:
+After acceptance, updates are fully automatic. To publish a new release:
 
-1. Update `version` in `library.properties`.
+1. Bump the `version` field in `library.properties`.
+2. Create and publish a matching Git tag (and corresponding GitHub Release).
 
-2. Create and push a matching Git tag (and corresponding GitHub Release).
+The Arduino indexer detects the new release and updates the library. No additional Pull Requests are required.
 
-The Arduino indexer automatically detects the new tag and updates the library within a few hours.
-
-- **After acceptance, updates are fully automatic**: publishing a new tagged Release with a bumped `version` is the entire update process. No second Pull Request is needed.
+---
 
 ## PlatformIO Registry — self-service via CLI, immutable once published
 
