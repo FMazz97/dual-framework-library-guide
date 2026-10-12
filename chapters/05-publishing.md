@@ -10,7 +10,7 @@ Rather than treating publishing as a single monolithic step, this chapter breaks
 
 The Arduino Library Manager uses an automated, tag-driven indexing model. Rather than hosting binary archives or accepting direct uploads via CLI, the registry periodically scans registered Git repositories.
 
-### Manifest and Metadata
+### 5.1.1 Manifest and Metadata
 
 The single source of truth for Arduino library metadata is the `library.properties` file located at the repository root.
 
@@ -18,11 +18,11 @@ The single source of truth for Arduino library metadata is the `library.properti
 
 - **Dependency Declaration:** Dependencies resolution is supported, but remains library-centric. Refer to other Arduino libraries using the `depends` field in `library.properties` (see `depends` point in Arduino [library format](https://docs.arduino.cc/arduino-cli/library-specification/#library-metadata) section).
 
-- **Example File Exclusions:** not allow.
+- **File Management:** not allow.
 
 For more details, see [Arduino Library Specification](https://docs.arduino.cc/arduino-cli/library-specification/).
 
-### Local Pre-Verification
+### 5.1.2 Local Pre-Verification
 
 Before submitting a library to the Arduino Registry, validate the layout and metadata locally using `arduino-lint`:
 
@@ -34,20 +34,96 @@ This command runs the exact same automated checks that the Arduino indexing bot 
 
 For more details, see [Arduino Lint](https://arduino.github.io/arduino-lint/latest/).
 
-### Initial Publication
+### 5.1.3 Initial Publication
 
 Initial inclusion requires a Pull Request against [arduino/library-registry](https://github.com/arduino/library-registry), adding the library repository URL to the registry list. The submission is then validated automatically through the same checks performed by `arduino-lint`.
 
 Before submitting, **at least one GitHub Release must already exist, and the release version must match the `version` field declared in `library.properties`.**
 
-### Updates
+### 5.1.4 Updates
 
 After acceptance, updates are fully automatic. To publish a new release:
 
-1. Bump the `version` field in `library.properties`.
-2. Create and publish a matching Git tag (and corresponding GitHub Release).
+- Bump the `version` field in `library.properties`.
+- Create and publish a matching Git tag (and corresponding GitHub Release).
 
 The Arduino indexer detects the new release and updates the library. No additional Pull Requests are required.
+
+---
+
+## 5.2 ESP Component Registry
+
+The ESP Component Registry is Espressif's official package manager for ESP-IDF components. It operates under a self-service, push-based model.
+
+### 5.2.1 Manifest and Metadata
+
+An ESP-IDF component's metadata is defined in `idf_component.yml` inside the component directory
+
+- **Version Indexing:** Versioning is driven explicitly by the version: field inside `idf_component.yml` following Semantic Versioning (SemVer).
+
+- **Dependency Declaration:** External component dependencies are listed in the `dependencies:` section:
+
+  ```yaml
+  dependencies:
+    <autor>/<component>: "^1.0.0"
+  ```
+
+- **File Management:** To ensure the published component package remains clean of foreign toolchain files, use the `files.exclude` key in `idf_component.yml`:
+
+  ```yaml
+    files:
+        exclude:
+            - "platformio.ini"
+            - "examples/*/*.ino"
+            - "examples/*/platformio.ini"
+            - ".github/"
+            - ".mignore"
+  ```
+
+<!-- parti precedenti da controllare se riprendere qualcosa 
+### Component metadata is taken from the published package version, not from the current repository state
+
+Once a version is published to the Component Registry, the corresponding `idf_component.yml` and associated metadata are immutable from the consumer's perspective. Updating the manifest on the default branch has no effect on already-published versions; a new version must be released for dependency or metadata changes to become visible.
+
+### Dependency management is component-based
+
+Components declare their dependencies through mechanisms such as `REQUIRES`, `PRIV_REQUIRES`, or `idf_component.yml`, allowing ESP-IDF to construct an explicit dependency graph at build time.
+-->
+
+For more details, see [idf_component.yml Manifest File](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/manifest_file.html).
+
+### 5.2.2 Local Pre-Verification
+
+Before uploading to the Espressif Component Registry, validate the manifest and simulate the archive creation using `compote` (Espressif's Component Manager CLI):
+
+```bash
+compote component upload --name <component_name> --dry-run
+```
+
+This command parses `idf_component.yml`, checks SemVer compliance, verifies exclusion rules, and confirms that the archive package builds correctly without actually uploading it to the server.
+
+### 5.2.3 Initial Publication
+
+Publishing is performed directly via the CLI:
+<!-- dopo aver creato un toke su esp component registry ed essersi registrati con tale toke tramite:
+```bash
+$env:IDF_COMPONENT_API_TOKEN="<token>"
+```
+-->
+
+```bash
+compote component upload --name <component_name> --namespace <your_user_name>
+```
+
+For more details, see [Compote CLI](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/compote_cli.html).
+
+### 5.2.4 Updates
+
+Published versions (`namespace/name^version`) on the ESP Component Registry are permanent and immutable. Once a version is uploaded, Espressif's backend prevents re-uploading or modifying that exact version string. To publish bug fixes or changes, you must increment `version:` in `idf_component.yml` and run again:
+
+```bash
+compote component upload --name <component_name> --namespace <your_user_name>
+```
 
 ---
 
@@ -69,24 +145,7 @@ pio pkg publish
 
 No review step — the package is live as soon as the command succeeds. This also means the immutability constraint has no safety net: **a given `name@version` combination can never be republished**, even if deleted. Verify the manifest's `version` field is correct before running the command, not after.
 
-## ESP Component Registry — self-service via `compote`, same immutability rule
-
-### Component metadata is taken from the published package version, not from the current repository state
-
-Once a version is published to the Component Registry, the corresponding `idf_component.yml` and associated metadata are immutable from the consumer's perspective. Updating the manifest on the default branch has no effect on already-published versions; a new version must be released for dependency or metadata changes to become visible.
-
-### Dependency management is component-based
-
-Components declare their dependencies through mechanisms such as `REQUIRES`, `PRIV_REQUIRES`, or `idf_component.yml`, allowing ESP-IDF to construct an explicit dependency graph at build time.
-
-### Publishing compote
-
-```bash
-compote component validate   # catches manifest issues before an upload attempt
-compote component upload --name <component-name>
-```
-
-Functionally the same shape as PlatformIO's flow — CLI-driven, no human review, and the same "once published, that exact name+version is permanent" rule applies here too.
+---
 
 ## The case-sensitivity trap: it follows the package name, not just the source folder
 
