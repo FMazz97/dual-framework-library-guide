@@ -20,7 +20,7 @@ The single source of truth for Arduino library metadata is the `library.properti
 
 - **File Management:** not allow.
 
-For more details, see [Arduino Library Specification](https://docs.arduino.cc/arduino-cli/library-specification/).
+For more details, see [Arduino Library Specification](https://docs.arduino.cc/arduino-cli/library-specification/) official documentation.
 
 ### 5.1.2 Local Pre-Verification
 
@@ -32,7 +32,7 @@ arduino-lint --library-manager submit
 
 This command runs the exact same automated checks that the Arduino indexing bot performs, catching missing fields, incorrect directory structures, or invalid dependency declarations before initiating a review.
 
-For more details, see [Arduino Lint](https://arduino.github.io/arduino-lint/latest/).
+For more details, see [Arduino Lint](https://arduino.github.io/arduino-lint/latest/) official documentation.
 
 ### 5.1.3 Initial Publication
 
@@ -59,13 +59,13 @@ The ESP Component Registry is Espressif's official package manager for ESP-IDF c
 
 An ESP-IDF component's metadata is defined in `idf_component.yml` inside the component directory
 
-- **Version Indexing:** Versioning is driven explicitly by the version: field inside `idf_component.yml` following Semantic Versioning (SemVer).
+- **Version Indexing:** Versioning is driven explicitly by the `version:` field inside `idf_component.yml` following Semantic Versioning (SemVer).
 
 - **Dependency Declaration:** External component dependencies are listed in the `dependencies:` section:
 
   ```yaml
   dependencies:
-    <autor>/<component>: "^1.0.0"
+    <autor>/<component>: "^<version>"
   ```
 
 - **File Management:** To ensure the published component package remains clean of foreign toolchain files, use the `files.exclude` key in `idf_component.yml`:
@@ -90,15 +90,11 @@ Once a version is published to the Component Registry, the corresponding `idf_co
 Components declare their dependencies through mechanisms such as `REQUIRES`, `PRIV_REQUIRES`, or `idf_component.yml`, allowing ESP-IDF to construct an explicit dependency graph at build time.
 -->
 
-For more details, see [idf_component.yml Manifest File](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/manifest_file.html).
+For more details, see IDF Component Manager [idf_component.yml Manifest File](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/manifest_file.html) official documentation.
 
 ### 5.2.2 Local Pre-Verification
 
-Before uploading to the Espressif Component Registry, validate the manifest and simulate the archive creation using `compote` (Espressif's Component Manager CLI):
-
-```bash
-compote component upload --name <component_name> --dry-run
-```
+Before uploading to the Espressif Component Registry, validate the manifest and simulate the archive creation using `compote` on Espressif's Component Manager CLI:
 
 This command parses `idf_component.yml`, checks SemVer compliance, verifies exclusion rules, and confirms that the archive package builds correctly without actually uploading it to the server.
 
@@ -115,11 +111,13 @@ $env:IDF_COMPONENT_API_TOKEN="<token>"
 compote component upload --name <component_name> --namespace <your_user_name>
 ```
 
-For more details, see [Compote CLI](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/compote_cli.html).
+The package becomes live immediately upon command completion.
+
+For more details, see IDF Component Manager [Compote CLI](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/compote_cli.html) official documentation.
 
 ### 5.2.4 Updates
 
-Published versions (`namespace/name^version`) on the ESP Component Registry are permanent and immutable. Once a version is uploaded, Espressif's backend prevents re-uploading or modifying that exact version string. To publish bug fixes or changes, you must increment `version:` in `idf_component.yml` and run again:
+Published versions (`<namespace>/<name>^<version>`) on the ESP Component Registry are permanent and immutable. Once a version is uploaded, Espressif's backend prevents re-uploading or modifying that exact version string. To publish bug fixes or changes, you must increment `version:` in `idf_component.yml` and run again:
 
 ```bash
 compote component upload --name <component_name> --namespace <your_user_name>
@@ -127,8 +125,42 @@ compote component upload --name <component_name> --namespace <your_user_name>
 
 ---
 
-## PlatformIO Registry — self-service via CLI, immutable once published
+## 5.3 PlatformIO Registry
 
+The PlatformIO Registry is a self-service, CLI-driven package registry supporting Arduino, ESP-IDF, and other embedded frameworks.
+
+### 5.3.1 Manifest and Metadata
+
+PlatformIO package metadata is declared in `library.json` at the root of the project.
+
+- **Version Indexing:** Versioning is controlled by the `"version":` string inside `library.json`.
+
+- **Dependency Declaration:** Package dependencies are declared inside the `"dependencies"` object:
+
+  ```json
+  "dependencies": {
+    "<owner>/<name>": "^<version>"
+  }
+  ```
+
+- **File Management:** Use the `"export":` `{ "exclude": [...] }` block in `library.json` to omit ESP-IDF component manifests, internal build scripts, or temporary build artifacts:
+
+  ```json
+  {
+  "export": {
+      "exclude": [
+      "main/idf_component.yml",
+      "examples/*/main/idf_component.yml",
+      "sdkconfig*",
+      ".github/"
+      ]
+    }
+  }
+  ```
+
+For more details, see PlatformIO [library.json](https://docs.platformio.org/en/latest/manifests/library-json/index.html) official documentation.
+
+<!-- parti precedenti da controllare se riprendere qualcosa 
 ### Package metadata is taken from the published package version, not from the current repository state
 
 Once a version is published to PlatformIO Registry, the corresponding manifest `library.json` and associated metadata are immutable from the consumer's perspective. Updating the repository's default branch has no effect on already-published versions; a new version must be released for changes to become visible. Consequently, early naming decisions are permanent, making it best practice to adopt the strictest convention — such as ESP-IDF's lowercase style — from day one.
@@ -144,10 +176,53 @@ pio pkg publish
 ```
 
 No review step — the package is live as soon as the command succeeds. This also means the immutability constraint has no safety net: **a given `name@version` combination can never be republished**, even if deleted. Verify the manifest's `version` field is correct before running the command, not after.
+-->
+
+### 5.3.2 Local Pre-Verification
+
+To verify which files will be included in the published package, generate a local package archive using the PlatformIO Core CLI:
+
+```bash
+pio pkg pack
+```
+
+This creates a `.tar.gz` archive in the project root. Inspecting its contents allows you to confirm that `export.exclude` rules functioned properly and that no unwanted build files or manifests were included.
+
+### 5.3.3 Initial Publication
+
+<!-- fare il loging con l'account platformio su VS Code, poi -->
+To publish the package to the PlatformIO Registry, execute:
+
+```bash
+pio pkg publish
+```
+
+The package becomes live immediately upon command completion.
+
+For more details, see PlatformIO [Package Management CLI](https://docs.platformio.org/en/latest/core/userguide/pkg/index.html) official documentation.
+
+### 5.3.4 Updates
+
+Published versions (`<owner>/<name> @ ^<version>`) on PlatformIO Registry are permanent and immutable. Once a version is uploaded, PlatformIO core backend prevents re-uploading or modifying that exact version string. To publish bug fixes or changes, you must increment `"version":` string inside `library.json` and run again:
+
+```bash
+pio pkg publish
+```
 
 ---
 
-## The case-sensitivity trap: it follows the package name, not just the source folder
+<!-- parti precedenti da controllare se riprendere qualcosa 
+### 5.4 The Renaming Trap
+
+PlatformIO binds the internal package identity (`pkg_id`) to the name specified during the initial publish command. If you publish a package as `Foo`, like Arduino first pubblished package, and later attempt to change `library.json`'s `"name"` field to `foo`, `pio pkg publish` will fail with a database mismatch error:
+
+```text
+Manifest name='foo' <> DB name='Foo' and pkg_id is not passed
+```
+
+Because the PlatformIO CLI exposes no self-service mechanism or flag to rename an existing package, renaming a published package requires either deleting the package (losing all download history and breaking existing downstream `platformio.ini` references, not tested) or contacting PlatformIO support to request an in-place backend rename (they help me with my [CS123x library](https://github.com/FMazz97/CS123x)).
+-->
+## 5.4 The case-sensitivity trap: it follows the package name, not just the source folder
 
 Chapter 1 established that ESP-IDF's native dependency resolvers are case-sensitive. What's easy to miss is that **this doesn't stop being true once a package is registered** — the name recorded at publish time becomes another case-sensitive identity that every subsequent `REQUIRES`/`idf.py add-dependency` reference has to match exactly, just like the local folder name did before publishing existed at all.
 
@@ -164,6 +239,38 @@ The registry backend had recorded the original case as the package's identity �
 
 The ESP Component Registry side never hit this problem, for a simple reason worth generalizing: it was the *first* publication of that component under any name — there was nothing to rename, only something to name correctly from the start.
 
-## The generalizable rule
+---
 
+## 5.5 The Generalizable Naming Rule
+
+To avoid cross-toolchain friction and registry traps, establish a coherent naming strategy across all environments before your first public release:
+
+### 1. Local Development Directory & ESP-IDF Component
+
+Keep the local component folder and the name in `idf_component.yml` strictly lowercase (e.g., `foo`). This adheres to ESP-IDF's filesystem constraints, `EXTRA_COMPONENT_DIRS` behavior, and ESP Component Registry requirements established in [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md).
+
+### 2. Online Repository & Arduino Library
+
+Name the GitHub repository and `library.properties` using **PascalCase** or **CamelCase** (e.g., `Foo`). This aligns with the Arduino community standard where library names match their primary C++ facade class name (e.g., `#include <Foo.h>`, as introduced in [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)).
+
+### 3. PlatformIO Registry
+
+PlatformIO allows flexibility in package naming and can resolve dependencies across casing styles without breaking. However, **recommending the same lowercase name as ESP-IDF** (`foo`) is best practice to prevent subtle cross-ecosystem naming conflicts and avoid the PlatformIO backend package rename trap.
+
+<!-- parti precedenti da controllare se riprendere qualcosa 
 **Decide the published package's name — in every registry it will live in — before the first publish, not after.** A rename mid-lifecycle isn't just an inconvenience; on registries with immutable versioning, it's either destructive (delete and lose history) or dependent on a support team's willingness to intervene manually, since the tooling itself provides no self-service path for it. The lowercase-everywhere convention this guide has used throughout Chapters 1–3 isn't only about satisfying `EXTRA_COMPONENT_DIRS`'s local-folder constraint — it's the same choice that, made early, avoids this exact registry-level trap entirely.
+-->
+
+---
+
+## Table of Contents
+
+- [Introduction](../README.md)
+- [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
+- [Chapter 2 - Repository structure](02-repo-structure.md)
+- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
+- [Chapter 4 - Example conventions](04-examples.md)
+- [Chapter 5 - Publishing](05-publishing.md)
+- [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md)
+- [Appendix B - Yield & Watchdog](../appendix/B-yield-watchdog.md)
+- [Appendix C - Naming Convention](../appendix/C-naming-convention.md)
