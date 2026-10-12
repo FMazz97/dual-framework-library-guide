@@ -251,7 +251,7 @@ Keep the local component folder and the name in `idf_component.yml` strictly low
 
 ### 2. Online Repository & Arduino Library
 
-Name the GitHub repository and `library.properties` using **PascalCase** or **CamelCase** (e.g., `Foo`). This aligns with the Arduino community standard where library names match their primary C++ facade class name (e.g., `#include <Foo.h>`, as introduced in [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)).
+Name the GitHub repository and `library.properties` using **PascalCase** or **CamelCase** (e.g., `Foo`). This aligns with the Arduino community standard where library names match their primary C++ facade class name (e.g., `#include <Foo.h>`, as introduced in [Chapter 2 - Repository structure](02-repo-structure.md)).
 
 ### 3. PlatformIO Registry
 
