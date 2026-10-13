@@ -68,16 +68,22 @@ The single source of truth for ESP-IDF component metadata is `idf_component.yml`
     <autor>/<component>: "^<version>"
   ```
 
-- **File Management:** To ensure the published component package remains clean of foreign toolchain files, use the `files.exclude` key in `idf_component.yml`:
+- **File Management & Example Inclusion:** To ensure the published component package remains clean of foreign toolchain files and explicitly selects which examples to package, combine `examples` with the `files.exclude` key in `idf_component.yml`:
 
   ```yaml
-    files:
-        exclude:
-            - "platformio.ini"
-            - "examples/*/*.ino"
-            - "examples/*/platformio.ini"
-            - ".github/"
-            - ".mignore"
+  examples:
+    - path: ./examples/basic_example
+  
+  files:
+    exclude:
+      - "library.properties"          # Arduino's manifest
+      - "library.json"                # PlatformIO's manifest
+      - "src/Foo.h"                   # Arduino's facade
+      - "src/hal/foo_hal_arduino.h"   # Arduino's hal 
+      - "examples/*/*.ino"            # Arduino's examples
+      - "examples/*/platformio.ini"   # ESP-IDF PlatformIO's examples configuration
+      - "assets/**"                   # other documentation
+      # add aslo other element that doesn't matter for ESP-IDF component
   ```
 
 For more details, see IDF Component Manager [idf_component.yml Manifest File](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/manifest_file.html) official documentation.
@@ -128,7 +134,7 @@ The PlatformIO Registry is a self-service, CLI-driven package registry supportin
 
 ### 5.3.1 Manifest and Metadata
 
-PlatformIO package metadata is declared in `library.json` at the root of the project. The registry always indexes the metadata associated with the published version, not the current state of the repository.
+PlatformIO package metadata is declared in `library.json` at the root of the project. The registry always indexes the metadata associated with the published version, not the current state of the repository. Remember to add both `"arduino"` and `"espidf"` framework on supported `"framework":` field.
 
 - **Version Indexing:** Versioning is controlled by the `"version":` string inside `library.json`.
 
@@ -140,16 +146,31 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   }
   ```
 
-- **File Management:** Use the `"export":` `{ "exclude": [...] }` block in `library.json` to omit ESP-IDF component manifests, internal build scripts, or temporary build artifacts:
+- **File Management:** To omit ESP-IDF component manifests or `asset/` folder from the PlatformIO package archive, use the `"export": { "exclude": [...] }` block in `library.json`:
+
+- **File Management & Example Inclusion:** To omit ESP-IDF component manifests or `asset/` folder and explicitly declare which example structures and files will package for PlatformIO registry, use the `"export"` exclusion block alongside the `"examples"` configuration in `library.json`:
 
   ```json
   {
+  "examples": [
+      {
+        "name": "Basic Example",
+        "base": "examples/basic_example",
+        "files": [
+          "main/main.cpp",
+          "main/CMakeLists.txt",
+          "CMakeLists.txt",
+          "platformio.ini",
+          "README.md"
+        ]
+      }
+    ]
   "export": {
       "exclude": [
-      "main/idf_component.yml",
-      "examples/*/main/idf_component.yml",
-      "sdkconfig*",
-      ".github/"
+        "assets",
+        "library.properties"
+        "idf_component.yml",
+        "examples/*/main/idf_component.yml"
       ]
     }
   }
