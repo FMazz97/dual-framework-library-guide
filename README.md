@@ -63,8 +63,7 @@ It covers everything from the non-negotiable requirements of each ecosystem, to 
 - [ESP Component Registry](https://components.espressif.com/)
 - [PlatformIO Registry](https://registry.platformio.org/)
 
-More importantly, the conclusions presented here are not theoretical deductions from documentation alone. Every design decision and every claim has been validated empirically on real hardware and through the development of the **CS123x** library:
-👉 [github.com/FMazz97/CS123x](https://github.com/FMazz97/CS123x)
+This guide is not built on theoretical deductions from documentation alone. It was born directly out of the practical experience of developing the **CS123x** library. The library itself strictly adheres to all the patterns, layouts, and configurations described throughout these chapters, serving as a concrete, end-to-end reference implementation: 👉 [github.com/FMazz97/CS123x](https://github.com/FMazz97/CS123x)
 
 ---
 
