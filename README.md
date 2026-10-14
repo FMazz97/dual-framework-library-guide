@@ -28,7 +28,7 @@ There is also a technical reality that is often underestimated:
 <p align="center">
   <i><b>when you write for Arduino code for an ESP32 board, you're already running on top of ESP-IDF.</b></i>
 </p>
-<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-enable MD033 -->
 
 The `arduino-esp32` is itself a layer built on top of ESP-IDF as a componet, not an independent alternative. The question isn't "Arduino or IDF?" but rather:
 ***Do you want to interact directly with the platform's engine, or through an additional translation layer?***
