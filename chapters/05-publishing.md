@@ -36,7 +36,7 @@ For more details, see [Arduino Lint](https://arduino.github.io/arduino-lint/late
 
 ### 5.1.3 Initial Publication
 
-Initial inclusion requires a Pull Request against [arduino/library-registry](https://github.com/arduino/library-registry), adding the library repository URL to the registry list. The submission is then validated automatically through the same checks performed by `arduino-lint`.
+Initial inclusion requires a Pull Request against [arduino/library-registry](https://github.com/arduino/library-registry) GitHub repository, adding the library repository URL to the registry list. The submission is then validated automatically through the same checks performed by `arduino-lint`.
 
 Before submitting, **at least one GitHub Release must already exist, and the release version must match the `version` field declared in `library.properties`.**
 
@@ -86,7 +86,7 @@ The single source of truth for ESP-IDF component metadata is `idf_component.yml`
       # add aslo other element that doesn't matter for ESP-IDF component
   ```
 
-For more details, see IDF Component Manager [idf_component.yml Manifest File](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/manifest_file.html) official documentation.
+For more details, see IDF Component Manager [`idf_component.yml` Manifest File](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/manifest_file.html) official documentation.
 
 ### 5.2.2 Local Pre-Verification
 
@@ -275,9 +275,9 @@ While this guide focused heavily on bridging Arduino, ESP-IDF and PlatformIO, th
 
 Before diving into your own multi-ecosystem implementations, be sure to explore and contribute to the appendices for deeper technical insights:
 
-- **[Appendix A: ESP-IDF Dependency Resolution](appendix/A-esp-idf-dependency-resolution.md)** — A deep dive into how ESP-IDF resolves complex dependency graphs.
-- **[Appendix B: Yield & Watchdog Conventions](appendix/B-yield-watchdog.md)** — Guidelines on task yields and watchdog handling in long-running<!-- or multi-threaded environments-->.
-- **[Appendix C: Naming Conventions](appendix/C-naming-convention.md)** — A comprehensive recap class methods naming rules.
+- **[Appendix A: ESP-IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)** — A deep dive into how ESP-IDF resolves complex dependency graphs.
+- **[Appendix B: Yield & Watchdog Conventions](../appendix/B-yield-watchdog.md)** — Guidelines on task yields and watchdog handling in long-running<!-- or multi-threaded environments-->.
+- **[Appendix C: Naming Conventions](../appendix/C-naming-convention.md)** — A comprehensive recap class methods naming rules.
 
 The embedded landscape is constantly evolving, and toolchains like Zephyr, new microcontrollers, or alternative build systems continue to emerge. If you are looking to extend this framework-agnostic approach to other platforms, refine the appendices, or share your own experiences, contributions and pull requests are always welcome.
 

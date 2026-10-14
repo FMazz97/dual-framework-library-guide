@@ -1,10 +1,13 @@
 # Cooperating with the Scheduler: Yield and Watchdogs Across Four Environments
 
-`yield()` looks like the most portable, boring function in embedded C — call it, and whatever's supposed to happen behind the scenes happens. It isn't. Across the four environments this library targets, `yield()` (or its closest equivalent) means four genuinely different things, and treating it as interchangeable produced a real hardware crash before the difference was understood.
+`yield()` looks like the most portable, boring function in embedded C. It isn't.
+
+While developing the [CS123x](https://github.com/FMazz97/CS123x) library across Arduino and ESP-IDF, a seemingly trivial translation of `yield()` ultimately caused a real watchdog reset on hardware. Investigating that failure revealed a broader lesson: across the four environments considered in this guide, `yield()` (or its closest equivalent) means four genuinely different things.
 
 ## Why it matters here specifically
 
-Every blocking wait in this library (`wait_ready()`, polling for the chip's DRDY signal) is a tight loop bounded by a timeout. Left completely unchecked, a tight polling loop starves whatever else the MCU needs to do in the background — on some platforms that's cosmetic (nothing bad happens, just impolite); on others, it's fatal (a watchdog resets the whole device). The fix has to be *specific* to what each environment actually needs, not a single call assumed to behave the same everywhere.
+Many embedded drivers contain blocking wait loops: polling a ready signal, waiting for a conversion to complete, or waiting for a peripheral state change. Left completely unchecked, these loops can monopolize the CPU for extended periods, starves whatever else the MCU needs to do in the background.
+On some platforms that's cosmetic (nothing bad happens, just impolite to see); on others, it's fatal (a watchdog resets the whole device). The fix has to be *specific* to what each environment actually needs, not a single call assumed to behave the same everywhere.
 
 ## The four environments, and what "yielding" actually does in each
 

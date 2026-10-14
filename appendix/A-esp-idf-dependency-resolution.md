@@ -1,6 +1,8 @@
 
 # ESP-IDF dependency resolution: CMake and Component Manager are different layers
 
+ESP-IDF dependency management operates across two distinct yet tightly integrated layers: the **CMake-based build system** (responsible for local component discovery and linking) and the **Component Manager** (which handles remote package resolution and downloading via manifests). Understanding the separation between these two layers is essential to avoid build errors and ensure correct project configuration.
+
 ## Baseline ESP-IDF Project Structure
 
 Regardless of how dependencies are resolved, every **ESP-IDF standalone project** needs a minimal set of **CMake** files:
