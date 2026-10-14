@@ -154,7 +154,15 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   {
   "examples": [
       {
-        "name": "Basic Example",
+        "name": "Arduino - BasicExample",
+        "base": "examples/BasicExample",
+        "files": [
+          "BasicExample",
+          "platformio.ini"
+        ]
+      },
+      {
+        "name": "ESP-IDF - basic_example",
         "base": "examples/basic_example",
         "files": [
           "main/main.cpp",
@@ -175,6 +183,9 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
     }
   }
   ```
+
+> ⚠️ **Note on PIO Home Example Rendering:**  
+> When declaring structured multi-file examples in `library.json` (using `name`, `base`, and `files`), you may notice that the **PIO Home GUI panel** in VS Code does not group files correctly. Instead of showing a single project entry labeled with `example.name`, PIO Home currently flattens the array, rendering each source file as an individual entry (e.g., separate items named `main`, `CMakeLists`, etc.) due to a known rendering limitation in the desktop interface (reported in [PlatformIO Issue #12672](https://github.com/platformio/platformio-home/issues/12672)). Rest assured that the metadata and structure are correct: the examples render and index properly on the online PlatformIO Registry website.
 
 For more details, see PlatformIO [library.json](https://docs.platformio.org/en/latest/manifests/library-json/index.html) official documentation.
 
