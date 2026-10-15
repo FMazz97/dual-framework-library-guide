@@ -1,6 +1,6 @@
 # Chapter 4 — Example Conventions and Single-Source ESP-IDF Integration
 
-With the `src/` directory fully framework-agnostic ([Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)) the focus shifts to structuring `examples/`.
+With the `src/` directory fully framework-agnostic ([Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)) the focus shifts to structuring `examples/`.
 
 ## Arduino's examples follow a strict `Name/Name.ino` convention
 
@@ -16,7 +16,7 @@ Unlike Arduino sketches, ESP-IDF examples are complete, self-contained projects.
 
 ESP-IDF examples are slightly more interesting because native `idf.py` projects and PlatformIO's `framework = espidf` integration expect different project layouts — a difference worth looking at closely.
 
-For more details, see the official Espressif documentation how to [Reference an ESP Component](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/index.html) or refer to [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md) for a deep dive into component resolution mechanisms.
+For more details, see the official Espressif documentation how to [Reference an ESP Component](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/index.html) or refer to [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for a deep dive into component resolution mechanisms.
 
 Fortunately, those differences are largely superficial. With a small amount of configuration, a single example can be built unchanged by both toolchains.
 
@@ -65,7 +65,7 @@ At that point, an important question remains: *which system is responsible for r
 
 ## 4.3 PlatformIO, Component Manager, and CMake are independent dependency-resolution systems
 
-[Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md) showed that ESP-IDF component discovery and component compilation are distinct stages of the build process. When **PlatformIO** is introduced, a third dependency-resolution mechanism enters the picture.
+[Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) showed that ESP-IDF component discovery and component compilation are distinct stages of the build process. When **PlatformIO** is introduced, a third dependency-resolution mechanism enters the picture.
 
 Under `framework = espidf`, three independent systems can participate in component resolution:
 
@@ -151,10 +151,10 @@ idf.py fullclean
 
 - [Introduction](../README.md)
 - [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
-- [Chapter 2 - Repository structure](02-repo-structure.md)
-- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
-- [Chapter 4 - Example conventions](04-examples.md)
+- [Chapter 2 - Repository Structure](02-repo-structure.md)
+- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)
+- [Chapter 4 - Example Conventions](04-examples.md)
 - [Chapter 5 - Publishing](05-publishing.md)
-- [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md)
+- [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)
 - [Appendix B - Yield & Watchdog](../appendix/B-yield-watchdog.md)
 - [Appendix C - Naming Convention](../appendix/C-naming-convention.md)

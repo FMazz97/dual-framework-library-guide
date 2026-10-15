@@ -1,6 +1,6 @@
 # Chapter 3 — The Agnostic Core, the HAL Layer, and the Arduino Facade
 
-With the repository structure established ([Chapter 2 - Repository structure](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing **Arduino** and **ESP-IDF** to use their own **native hardware APIs**?
+With the repository structure established ([Chapter 2 - Repository Structure](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing **Arduino** and **ESP-IDF** to use their own **native hardware APIs**?
 
 The resulting architecture separates responsibilities into three layers:
 
@@ -175,7 +175,7 @@ With the architecture defined and the `src/` directory fully framework-agnostic,
 
 The remaining challenge is no longer the source code, but the examples that demonstrate it. While Arduino examples work naturally across Arduino IDE and PlatformIO, ESP-IDF examples require additional structure to remain buildable across both native ESP-IDF and PlatformIO workflows.
 
-That shared example layout is the subject of [Chapter 4 - Example conventions](04-examples.md).
+That shared example layout is the subject of [Chapter 4 - Example Conventions](04-examples.md).
 
 ---
 
@@ -183,10 +183,10 @@ That shared example layout is the subject of [Chapter 4 - Example conventions](0
 
 - [Introduction](../README.md)
 - [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
-- [Chapter 2 - Repository structure](02-repo-structure.md)
-- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
-- [Chapter 4 - Example conventions](04-examples.md)
+- [Chapter 2 - Repository Structure](02-repo-structure.md)
+- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)
+- [Chapter 4 - Example Conventions](04-examples.md)
 - [Chapter 5 - Publishing](05-publishing.md)
-- [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md)
+- [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)
 - [Appendix B - Yield & Watchdog](../appendix/B-yield-watchdog.md)
 - [Appendix C - Naming Convention](../appendix/C-naming-convention.md)

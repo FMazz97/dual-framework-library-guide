@@ -43,7 +43,7 @@ This turned out to be one of the most time-consuming constraints to pin down, pr
 
 - **`idf_component.yml`** (via the **Component Manager**, either through `override_path` during development or via the `Registry`): introduces a second source of identity. The Component Manager reads the component's `name:` directly from the manifest and validates it **according to Registry rules**. Unlike a plain CMake-based workflow, the `name:` field must follow the Registry naming convention **containing only lowercase letters, numbers, and underscores**.
 
-See [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md) for how these two mechanisms discover, validate, and build a component.
+See [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for how these two mechanisms discover, validate, and build a component.
 
 ### A *published* component must be self-contained
 
@@ -93,7 +93,7 @@ The root conflict lies in just two non-negotiable rules:
 
 Fortunately, **Arduino's source-discovery** requirements and **ESP-IDF's publication** requirements are not inherently incompatible. The challenge is simply finding a repository layout that satisfies both simultaneously.
 
-The layout used throughout this guide exploits exactly that: the ESP-IDF manifest is placed at the repository root, making the repository itself the component boundary, while `src/` remains the single source of truth for the implementation. [Chapter 2 - Repository structure](02-repo-structure.md) explains why this specific arrangement works and why alternative layouts fail once publication enters the picture.
+The layout used throughout this guide exploits exactly that: the ESP-IDF manifest is placed at the repository root, making the repository itself the component boundary, while `src/` remains the single source of truth for the implementation. [Chapter 2 - Repository Structure](02-repo-structure.md) explains why this specific arrangement works and why alternative layouts fail once publication enters the picture.
 
 ---
 
@@ -101,10 +101,10 @@ The layout used throughout this guide exploits exactly that: the ESP-IDF manifes
 
 - [Introduction](../README.md)
 - [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
-- [Chapter 2 - Repository structure](02-repo-structure.md)
-- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
-- [Chapter 4 - Example conventions](04-examples.md)
+- [Chapter 2 - Repository Structure](02-repo-structure.md)
+- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)
+- [Chapter 4 - Example Conventions](04-examples.md)
 - [Chapter 5 - Publishing](05-publishing.md)
-- [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md)
+- [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)
 - [Appendix B - Yield & Watchdog](../appendix/B-yield-watchdog.md)
 - [Appendix C - Naming Convention](../appendix/C-naming-convention.md)

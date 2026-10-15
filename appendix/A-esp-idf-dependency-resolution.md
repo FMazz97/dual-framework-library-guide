@@ -1,5 +1,5 @@
 
-# ESP-IDF dependency resolution: CMake and Component Manager are different layers
+# ESP-IDF Dependency Resolution: CMake and Component Manager are Different Layers
 
 ESP-IDF dependency management operates across two distinct yet tightly integrated layers: the **CMake-based build system** (responsible for local component discovery and linking) and the **Component Manager** (which handles remote package resolution and downloading via manifests). Understanding the separation between these two layers is essential to avoid build errors and ensure correct project configuration.
 
@@ -135,10 +135,10 @@ This is why a component can be discovered through different mechanisms (`EXTRA_C
 
 - [Introduction](../README.md)
 - [Chapter 1 - Ecosystem Constraints](../chapters/01-ecosystem-constraints.md)
-- [Chapter 2 - Repository structure](../chapters/02-repo-structure.md)
-- [Chapter 3 - Agnostic Core & HAL Architecture](../chapters/03-agnostic-core_hal-architecture.md)
-- [Chapter 4 - Example conventions](../chapters/04-examples.md)
+- [Chapter 2 - Repository Structure](../chapters/02-repo-structure.md)
+- [Chapter 3 - Agnostic Core & HAL Architecture](../chapters/03-agnostic-core-hal-architecture.md)
+- [Chapter 4 - Example Conventions](../chapters/04-examples.md)
 - [Chapter 5 - Publishing](../chapters/05-publishing.md)
-- [Appendix A - IDF dependency resolution](A-esp-idf-dependency-resolution.md)
+- [Appendix A - IDF Dependency Resolution](A-esp-idf-dependency-resolution.md)
 - [Appendix B - Yield & Watchdog](B-yield-watchdog.md)
 - [Appendix C - Naming Convention](C-naming-convention.md)

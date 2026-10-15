@@ -2,7 +2,7 @@
 
 Publishing a framework-agnostic C++ library requires interacting with three independent package registries: the [Arduino Library Manager](https://docs.arduino.cc/libraries/), the [ESP Component Registry](https://components.espressif.com/), and the [PlatformIO Registry](https://registry.platformio.org/). Each ecosystem uses its own manifest format, indexing pipeline, and rule set for package immutability and naming.
 
-Rather than treating publishing as a single monolithic step, this chapter breaks down the publication mechanics for each registry individually. It details how each ecosystem's manifest enforces metadata and file filtering (as introcuced in [Chapter 4 - Example conventions](04-examples.md)), followed by local pre-validation, release workflows, and lifecycle maintenance.
+Rather than treating publishing as a single monolithic step, this chapter breaks down the publication mechanics for each registry individually. It details how each ecosystem's manifest enforces metadata and file filtering (as introcuced in [Chapter 4 - Example Conventions](04-examples.md)), followed by local pre-validation, release workflows, and lifecycle maintenance.
 
 ---
 
@@ -261,7 +261,7 @@ Keep the local component folder and the name in `idf_component.yml` strictly low
 
 ### 2. Online Repository & Arduino Library
 
-Name the GitHub repository and `library.properties` using **pascalCase** or **CamelCase** (e.g., `Foo`). This aligns with the Arduino community standard where library names match their primary C++ facade class name (e.g., `#include <Foo.h>`; `classMethod();`, as explain on [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)).
+Name the GitHub repository and `library.properties` using **pascalCase** or **CamelCase** (e.g., `Foo`). This aligns with the Arduino community standard where library names match their primary C++ facade class name (e.g., `#include <Foo.h>`; `classMethod();`, as explain on [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)).
 
 ### 3. PlatformIO Registry
 
@@ -289,10 +289,10 @@ Embedded development thrives on shared knowledge; feel free to open an issue, pr
 
 - [Introduction](../README.md)
 - [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
-- [Chapter 2 - Repository structure](02-repo-structure.md)
-- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core_hal-architecture.md)
-- [Chapter 4 - Example conventions](04-examples.md)
+- [Chapter 2 - Repository Structure](02-repo-structure.md)
+- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)
+- [Chapter 4 - Example Conventions](04-examples.md)
 - [Chapter 5 - Publishing](05-publishing.md)
-- [Appendix A - IDF dependency resolution](../appendix/A-esp-idf-dependency-resolution.md)
+- [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)
 - [Appendix B - Yield & Watchdog](../appendix/B-yield-watchdog.md)
 - [Appendix C - Naming Convention](../appendix/C-naming-convention.md)

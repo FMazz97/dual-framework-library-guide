@@ -18,28 +18,30 @@ Its greatest strength is not raw technical capability, but **accessibility.** Pr
 
 ## ⚙️ ESP-IDF is becoming the destination
 
-At the same time, ESP-IDF is increasingly establishing itself as a reference platform ESP32 development, not only for greenfield professional projects, but also for projects that originally grew within the Arduino ecosystem itself.
+At the same time, ESP-IDF is increasingly establishing itself as a reference platform for ESP32 development, not only for greenfield professional projects, but also for projects that originally grew within the Arduino ecosystem itself.
 
-A concrete signal is [ESPHome's migration toward ESP-IDF](https://esphome.io/guides/esp32_arduino_to_idf) where a project born and grown within the Arduino ecosystem chose to move its engine onto native IDF.
+A concrete signal is [ESPHome's migration toward ESP-IDF](https://esphome.io/guides/esp32_arduino_to_idf): a project born and grown within the Arduino ecosystem that chose to move its engine onto native ESP-IDF.
 
 There is also a technical reality that is often underestimated:
 
 <!-- markdownlint-disable MD033 -->
 <p align="center">
-  <i><b>when you write for Arduino code for an ESP32 board, you're already running on top of ESP-IDF.</b></i>
+  <i><b>when you write Arduino code for an ESP32 board, you're already running on top of ESP-IDF.</b></i>
 </p>
 <!-- markdownlint-enable MD033 -->
 
-The `arduino-esp32` is itself a layer built on top of ESP-IDF as a componet, not an independent alternative. The question isn't "Arduino or IDF?" but rather:
+`arduino-esp32` is itself a layer built on top of ESP-IDF as a component, not an independent alternative. The question isn't "Arduino or IDF?" but rather:
 ***Do you want to interact directly with the platform's engine, or through an additional translation layer?***
 
 ---
 
-## 🔄 Compatibility layers solve portability
+## 🔄 Compatibility layers solve portability, not overhead
 
 The [Arduino as an ESP-IDF component](https://docs.espressif.com/projects/arduino-esp32/en/latest/esp-idf_component.html) compatibility layer isn't free. It lets you run an existing Arduino sketch inside an IDF project with minimal effort and preserves compatibility with a vast amount of existing code, but it doesn't eliminate the double layer of abstraction — it just relocates it.
 
-Application code still goes through the same *Arduino APIs* such as `digitalWrite`, `pinMode`, etc., which are then translated into **ESP-IDF** calls. It's a valid trade-off for reusing existing code without rewriting it, but it's not a zero-cost solution: the back-and-forth path between the two layers remains, with its corresponding overhead and architectural constraints.
+Application code still goes through the same *Arduino APIs* such as `digitalWrite`, `pinMode`, etc., which are then translated into **ESP-IDF** calls. It's a valid trade-off for reusing existing code without rewriting it, but it's not a zero-cost solution: the back-and-forth path between the two layers remains, together with the associated abstraction overhead.
+
+Beyond per-call costs, the real price is architectural: a library tied to the Arduino core forces that entire framework into every native IDF project that uses it.
 
 ---
 
@@ -65,16 +67,18 @@ It covers everything from the non-negotiable requirements of each ecosystem, to 
 
 This guide is not built on theoretical deductions from documentation alone. It was born directly out of the practical experience of developing the **CS123x** library. The library itself strictly adheres to all the patterns, layouts, and configurations described throughout these chapters, serving as a concrete, end-to-end reference implementation: 👉 [github.com/FMazz97/CS123x](https://github.com/FMazz97/CS123x)
 
+> **Tested with:** ESP-IDF*v6.1 (native), PlatformIO `espressif32@6.4.0` (IDF 5.1.1), Arduino IDE 2.3.x. Registry/tool behavior observed in September 2026; it may change.
+
 ---
 
 ## Table of Contents
 
 - [Introduction](README.md)
 - [Chapter 1 - Ecosystem Constraints](chapters/01-ecosystem-constraints.md)
-- [Chapter 2 - Repository structure](chapters/02-repo-structure.md)
-- [Chapter 3 - Agnostic Core & HAL Architecture](chapters/03-agnostic-core_hal-architecture.md)
-- [Chapter 4 - Example conventions](chapters/04-examples.md)
+- [Chapter 2 - Repository Structure](chapters/02-repo-structure.md)
+- [Chapter 3 - Agnostic Core & HAL Architecture](chapters/03-agnostic-core-hal-architecture.md)
+- [Chapter 4 - Example Conventions](chapters/04-examples.md)
 - [Chapter 5 - Publishing](chapters/05-publishing.md)
-- [Appendix A - IDF dependency resolution](appendix/A-esp-idf-dependency-resolution.md)
+- [Appendix A - IDF Dependency Resolution](appendix/A-esp-idf-dependency-resolution.md)
 - [Appendix B - Yield & Watchdog](appendix/B-yield-watchdog.md)
 - [Appendix C - Naming Convention](appendix/C-naming-convention.md)
