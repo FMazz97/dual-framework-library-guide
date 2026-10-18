@@ -86,7 +86,7 @@ The single source of truth for ESP-IDF component metadata is `idf_component.yml`
       # add aslo other element that doesn't matter for ESP-IDF component
   ```
 
-For more details, see IDF Component Manager [`idf_component.yml` Manifest File](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/manifest_file.html) official documentation.
+For more details, see IDF Component Manager [`idf_component.yml` Manifest File](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/manifest_file.html) and [Packaging ESP-IDF Components](https://espressif-docs.readthedocs-hosted.com/projects/idf-component-manager/en/v1.3.2/guides/packaging_components.html) official documentation.
 
 ### 5.2.2 Local Pre-Verification
 

@@ -1,5 +1,7 @@
 # The naming convention (`get_`/`read_`/`set_`) — and why it only emerged by iterating
 
+<!--aggiungere convenzione snake_case/camelCase-->
+
 While refining the public API of the [CS123x](https://github.com/FMazz97/CS123x) library, a recurring pattern emerged: several method names were making promises their implementations didn't actually keep. What initially looked like a library-specific cleanup eventually turned into a more general naming convention that applies to many hardware drivers and communication libraries.
 
 ## The rule
