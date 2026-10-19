@@ -1,10 +1,10 @@
 # Chapter 4 — Example Conventions and Single-Source ESP-IDF Integration
 
-With the `src/` directory fully framework-agnostic ([Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)) the focus shifts to structuring `examples/`.
+With the core source code fully framework-agnostic and the HAL that interleave between framework and core (see: [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)), the focus shifts to structuring `examples/`.
 
 ## Arduino's examples follow a strict `Name/Name.ino` convention
 
-The Arduino IDE (and PlatformIO's example browser for `.ino` projects; see Section 5.x) expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`. The sketch name must match its parent directory. Additional levels of nesting can be used to organize examples into categories `examples/<Category>/<ExampleName>/<ExampleName>.ino` and do not affect discovery, provided this naming convention is preserved.
+The Arduino IDE (and PlatformIO's example browser for `.ino` projects) expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`. The sketch name must match its parent directory. Additional levels of nesting can be used to organize examples into categories `examples/<Category>/<ExampleName>/<ExampleName>.ino` and do not affect discovery, provided this naming convention is preserved. ESP-IDF example projects do not follow this convention and are therefore automatically omitted from the Arduino IDE's Examples menu.
 
 Driven entirely by this simple layout, no further setup or explanation is needed.
 
@@ -111,9 +111,9 @@ examples/my_example/
 ├── CMakeLists.txt        ← idf.py entry point (project-level)
 ├── platformio.ini        ← PlatformIO entry point with lib_deps
 └── main/
-  ├── CMakeLists.txt      ← example component registration
-  ├── idf_component.yml   ← dependency via Component Manager
-  └── main.cpp
+    ├── CMakeLists.txt      ← example component registration
+    ├── idf_component.yml   ← dependency via Component Manager
+    └── main.cpp
 ```
 
 > Note: Optional configuration files (such as `sdkconfig.defaults`, custom partition tables `partitions.csv`, or application-level `Kconfig.projbuild`) can be placed directly in the example's root or `main/` directory as needed. For complete guidelines on project customization files, see the [Example Project](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html#example-project) section on official [ESP-IDF Build System](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html) Documentation.
