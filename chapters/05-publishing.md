@@ -134,7 +134,7 @@ The PlatformIO Registry is a self-service, CLI-driven package registry supportin
 
 ### 5.3.1 Manifest and Metadata
 
-PlatformIO package metadata is declared in `library.json` at the root of the project. The registry always indexes the metadata associated with the published version, not the current state of the repository. Remember to add both `"arduino"` and `"espidf"` framework on supported `"framework":` field.
+PlatformIO package metadata is declared in `library.json` at the root of the project. The registry always indexes the metadata associated with the published version, not the current state of the repository. Declare both `"arduino"` and `"espidf"` in the `"frameworks":` field.
 
 - **Version Indexing:** Versioning is controlled by the `"version":` string inside `library.json`.
 
@@ -146,9 +146,7 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   }
   ```
 
-- **File Management:** To omit ESP-IDF component manifests or `asset/` folder from the PlatformIO package archive, use the `"export": { "exclude": [...] }` block in `library.json`:
-
-- **File Management & Example Inclusion:** To omit ESP-IDF component manifests or `asset/` folder and explicitly declare which example structures and files will package for PlatformIO registry, use the `"export"` exclusion block alongside the `"examples"` configuration in `library.json`:
+- **File Management & Example Inclusion:** To omit ESP-IDF component manifests or `assets/` folder and explicitly declare which example structures and files will package for PlatformIO registry, use the `"export"` exclusion block alongside the `"examples"` configuration in `library.json`:
 
   ```json
   {
@@ -156,10 +154,7 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
       {
         "name": "Arduino - BasicExample",
         "base": "examples/BasicExample",
-        "files": [
-          "BasicExample",
-          "platformio.ini"
-        ]
+        "files": ["BasicExample.ino", "platformio.ini"]
       },
       {
         "name": "ESP-IDF - basic_example",
@@ -172,11 +167,11 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
           "README.md"
         ]
       }
-    ]
+    ],
   "export": {
       "exclude": [
         "assets",
-        "library.properties"
+        "library.properties",
         "idf_component.yml",
         "examples/*/main/idf_component.yml"
       ]
@@ -197,7 +192,7 @@ To verify which files will be included in the published package, generate a loca
 pio pkg pack
 ```
 
-This creates a `.tar.gz` archive in the project root. Inspecting its contents allows you to confirm that `export.exclude` rules functioned properly and that no unwanted build files or manifests were included.
+This creates a `.tar.gz <archive>` in the project root validating `library.json` manifest. Inspecting its contents allows you to confirm that `export.exclude` rules functioned properly and that no unwanted build files or manifests were included.
 
 ### 5.3.3 Initial Publication
 
@@ -207,7 +202,7 @@ To publish the package to the PlatformIO Registry, execute:
 pio pkg publish
 ```
 
-The package becomes live immediately upon command completion.
+The package is processed server-side and the result is reported by email.
 
 > Note: The publish command requires an authenticated PlatformIO account. Ensure you are logged in locally before running `pio pkg publish`.
 
@@ -221,7 +216,7 @@ To publish bug fixes or changes, bump `"version":` in `library.json` and upload 
 pio pkg publish
 ```
 
-Published versions (`<owner>/<name> @ ^<version>`) on PlatformIO Registry are permanent and immutable. Once a version is uploaded, PlatformIO core backend prevents re-uploading or modifying that exact version string.
+Published versions (`<owner>/<name>@^<version>`) on PlatformIO Registry are permanent and immutable. Once a version is uploaded, PlatformIO core backend prevents re-uploading or modifying that exact version string.
 
 > Note: Updates use the same authentication mechanism as the initial publication. Ensure your PlatformIO account is authenticated before publishing a new version.
 
@@ -231,9 +226,9 @@ Published versions (`<owner>/<name> @ ^<version>`) on PlatformIO Registry are pe
 
 While Arduino and ESP-IDF handle their respective registries with straightforward rules, **PlatformIO** acts as a multi-framework bridge, making it the primary place where casing inconsistencies can trigger hidden registry traps.
 
-[Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md) established that ESP-IDF's native component-resolution mechanisms are case-sensitive. What's easy to miss is that PlatformIO's registry registry backend enforces a strict immutability binding on package names: **the name and casing recorded at the moment of your very first publish become a permanent backend identity (`pkg_id`).**
+[Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md) established that ESP-IDF's native component-resolution mechanisms are case-sensitive. What's easy to miss is that PlatformIO's registry backend enforces a strict immutability binding on package names: **the name and casing recorded at the moment of your very first publish stays bound to the package's internal ID (`pkg_id`) and can't be changed from the CLI.**
 
-This friction typically happens when a cross-framework library is published first to match Arduino conventions (e.g., using uppercase characters like `Foo`). Later, when native ESP-IDF support is added, you naturally want to align `library.json`'s `"name"` field to lowercase (`foo`) to match ESP-IDF component naming rules also if it is not needed becauses PlatformIO depandency resolution resolve ESP-IDF package case-insensitive.
+This friction typically happens when a cross-framework library is published first to match Arduino conventions (e.g., using uppercase characters like `Foo`). Later, when native ESP-IDF support is added, you naturally want to align `library.json`'s `"name"` field to lowercase (`foo`) to match ESP-IDF component naming rules, even if this is not strictly required, since PlatformIO resolves package names case-insensitively.
 
 When you update `library.json` and attempt to publish the new version, PlatformIO's registry rejects it with a database mismatch error:
 
@@ -251,19 +246,24 @@ Because the registry backend permanently bound the original case to the package'
 
 ## 5.5 The Generalizable Naming Rule
 
+As the previous sections showed, package renaming is not handled consistently across ecosystems. The Arduino Library Manager explicitly provides a dedicated *Library Name Change* procedure, while other ecosystems may provide different levels of support, guidance, or migration mechanisms. The safest approach is therefore to avoid renaming altogether by choosing a coherent naming strategy before the first public release.
+
 **Decide the published package's name — in every registry it will live in — before the first publish.**
 
 To avoid cross-toolchain friction and registry traps, establish a coherent naming strategy across all environments before your first public release:
 
-### 1. Local Development Directory & ESP-IDF Component
+### 5.5.1 Local Development Directory & ESP-IDF Component
 
-Keep the local component folder and the name in `idf_component.yml` strictly lowercase (e.g., `foo`). This adheres to ESP-IDF's filesystem constraints, `EXTRA_COMPONENT_DIRS` behavior, and ESP Component Registry requirements established in [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md).
+Keep the local component folder (and any `name:` you declare in the manifest) lowercase, using only `a-z`, `0-9`,
+`_` and `-` (e.g., `foo`). This adheres to ESP-IDF's filesystem constraints, `EXTRA_COMPONENT_DIRS` behavior, and ESP Component Registry conventions established in [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md).
+<!--This is a conservative convention, not a documented complete rule: uppercase names failed at build
+time in testing (see Chapter 1).-->
 
-### 2. Online Repository & Arduino Library
+### 5.5.2 Online Repository & Arduino Library
 
-Name the GitHub repository and `library.properties` using **pascalCase** or **CamelCase** (e.g., `Foo`). This aligns with the Arduino community standard where library names match their primary C++ facade class name (e.g., `#include <Foo.h>`; `classMethod();`, as explain on [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)).
+Name the GitHub repository and `library.properties` using **PascalCase** (e.g., `Foo`). This aligns with the Arduino community standard where library names match their primary C++ facade class name (see: [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)).
 
-### 3. PlatformIO Registry
+### 5.5.3 PlatformIO Registry
 
 PlatformIO allows flexibility in package naming and can resolve dependencies across casing styles without breaking. However, **recommending the same lowercase name as ESP-IDF** (`foo`) is best practice to prevent subtle cross-ecosystem naming conflicts and avoid the PlatformIO backend package rename trap.
 
@@ -271,15 +271,15 @@ PlatformIO allows flexibility in package naming and can resolve dependencies acr
 
 ## Beyond *Arduino* & *ESP-IDF*: Extending and Contributing
 
-While this guide focused heavily on bridging Arduino, ESP-IDF and PlatformIO, the underlying architectural patterns (unified source layouts, explicit dependency management, and reciprocal registry exclusions) are broadly applicable to the wider embedded ecosystem.
+While this guide focused heavily on bridging Arduino, ESP-IDF and PlatformIO, the underlying architectural patterns (unified source layouts, explicit dependency management, and reciprocal registry exclusions) are likely applicable to the wider embedded ecosystem.
 
 Before diving into your own multi-ecosystem implementations, be sure to explore and contribute to the appendices for deeper technical insights:
 
 - **[Appendix A: ESP-IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)** — A deep dive into how ESP-IDF resolves complex dependency graphs.
-- **[Appendix B: Yield & Watchdog Conventions](../appendix/B-yield-watchdog.md)** — Guidelines on task yields and watchdog handling in long-running<!-- or multi-threaded environments-->.
-- **[Appendix C: Naming Conventions](../appendix/C-naming-convention.md)** — A comprehensive recap class methods naming rules.
+- **[Appendix B: Yield & Watchdog Conventions](../appendix/B-yield-watchdog.md)** — Guidelines on yields and watchdogs across AVR, ESP8266 and FreeRTOS-based ESP32 targets.
+- **[Appendix C: Naming Conventions](../appendix/C-naming-convention.md)** — A recap of the class and method naming rules.
 
-The embedded landscape is constantly evolving, and toolchains like Zephyr, new microcontrollers, or alternative build systems continue to emerge. If you are looking to extend this framework-agnostic approach to other platforms, refine the appendices, or share your own experiences, contributions and pull requests are always welcome.
+The embedded landscape is constantly evolving, and platforms like Zephyr, new microcontrollers, or alternative build systems continue to emerge. If you are looking to extend this framework-agnostic approach to other platforms, refine the appendices, or share your own experiences, contributions and pull requests are always welcome.
 
 Embedded development thrives on shared knowledge; feel free to open an issue, propose improvements, or adapt these patterns to help make multi-ecosystem library maintenance smoother for everyone.
 
