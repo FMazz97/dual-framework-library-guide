@@ -146,18 +146,18 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   }
   ```
 
-- **File Management & Example Inclusion:** To omit ESP-IDF component manifests or `assets/` folder and explicitly declare which example structures and files will package for PlatformIO registry, use the `"export"` exclusion block alongside the `"examples"` configuration in `library.json`:
+- **File Management & Example Inclusion:** To omit ESP-IDF component manifests or `assets/` folder and explicitly declare which example structures and files will package and its name for PlatformIO registry, use the `"export"` exclusion block alongside the `"examples"` configuration in `library.json`:
 
   ```json
   {
   "examples": [
       {
-        "name": "Arduino - BasicExample",
+        "name": "Arduino_BasicExample",
         "base": "examples/BasicExample",
         "files": ["BasicExample.ino", "platformio.ini"]
       },
       {
-        "name": "ESP-IDF - basic_example",
+        "name": "ESP-IDF_basic_example",
         "base": "examples/basic_example",
         "files": [
           "main/main.cpp",
@@ -178,6 +178,9 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
     }
   }
   ```
+
+  For ESP-IDF examples, whitespace in the `"examples"` → `"name"` field is strictly prohibited: it causes the PlatformIO registry to generate a directory path containing spaces upon download, which will break the build.
+  For Arduino examples, PlatformIO does not require the `.ino` filename to match its parent folder name, so you can customize it as you prefer.
 
 > ⚠️ **Note on PIO Home Example Rendering:**  
 > When declaring structured multi-file examples in `library.json` (using `name`, `base`, and `files`), you may notice that the **PIO Home GUI panel** in VS Code does not group files correctly. Instead of showing a single project entry labeled with `example.name`, PIO Home currently flattens the array, rendering each source file as an individual entry (e.g., separate items named `main`, `CMakeLists`, etc.) due to a known rendering limitation in the desktop interface (reported in [PlatformIO Issue #12672](https://github.com/platformio/platformio-home/issues/12672)). Rest assured that the metadata and structure are correct: the examples render and index properly on the online PlatformIO Registry website.
