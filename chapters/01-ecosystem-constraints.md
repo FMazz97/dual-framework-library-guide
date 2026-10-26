@@ -10,7 +10,7 @@ This chapter summarizes those rules and the practical consequences they have on 
 
 ## 1.1 Arduino
 
-### Source discovery is primarily structural
+### Source discovery is structural
 
 The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`** ([See: Library specification - Layout of folders and files](https://docs.arduino.cc/arduino-cli/library-specification/#layout-of-folders-and-files)). There is no manifest that explicitly lists compilation units: if a source file exists under `src/`, it gets compiled. Because the Arduino library specification is built around this standardized layout, placing implementation files outside of `src/` **will not be compiled**.
 
@@ -20,38 +20,71 @@ For more details, see [Arduino Library Specification](https://docs.arduino.cc/ar
 
 ---
 
-## 1.2 ESP-IDF (native)
+## 1.2 ESP-IDF (CMake - V5.0 or higher)
 
-### Header and source visibility is explicit
+This guide targets the modern CMake-based ESP-IDF build system, which became the standard build system for ESP-IDF projects starting from ESP-IDF 4.x and later. Components are the fundamental building blocks of this architecture.
 
-ESP-IDF requires every component to explicitly declare its source files and public include directories using `SRCS` and `INCLUDE_DIRS` inside `idf_component_register()` within `CMakeLists.txt`. A header or source file is only visible to the rest of the project if it is intentionally declared. This makes the API boundary completely explicit, but also means the component structure must be designed deliberately from the start:
+Espressif deliberately uses the term component rather than library because components are designed to be self-contained units that can expose functionality, depend on other components, and participate directly in the build system.
+
+To understand the repository structure developed throughout this guide, three concepts must be distinguished:
+
+- **Component:** a reusable unit of source code registered through `idf_component_register()` within root's `CMakeLists.txt`. Its name come from the folder that contains it.
+- **Component Manager:** an optional dependency-resolution layer that can discover, validate, and download components before the build begins.
+- **Component Registry:** the online distribution service used to publish and retrieve components.
+
+See [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for how discover a component and official Espressif guide ["What is the ESP Component Registry?"](https://developer.espressif.com/blog/2024/10/what-is-the-esp-registry/)
+
+### Source discovery is explicit
+
+Unlike Arduino, ESP-IDF never discovers source files automatically based on directory conventions.
+
+Every component must explicitly declare its source files and public include directories using `SRCS` and `INCLUDE_DIRS`:
 
 ```CMake
 idf_component_register(
     SRCS
-        "src/foo.cpp"
+        "foo.c"
     INCLUDE_DIRS
-        "src"
+        "include"
 )
 ```
 
-### Component identity is defined differently by `CMake` and the `Component Manager`
+Only files declared through this mechanism participate in the build.
 
-This turned out to be one of the most time-consuming constraints to pin down, precisely because it is not documented as a unified rule anywhere and only becomes obvious when each mechanism is tested in isolation:
+### Publication imposes the conventions
 
-- **`EXTRA_COMPONENT_DIRS` + `REQUIRES`**: purely `CMake`-*based*. Components are registered under the exact name of the folder that contains them, and `REQUIRES` must reference that name exactly. In this workflow, the component's identity comes entirely from the filesystem.
+ESP-IDF itself places very few restrictions on how components are organized locally. As long as CMake can locate the component and `idf_component_register()` points to the correct files, all different layouts are technically valid.
 
-- **`idf_component.yml`** (via the **Component Manager**, either through `override_path` during development or via the `Registry`): introduces a second source of identity. The Component Manager reads the component's `name:` directly from the manifest and validates it **according to Registry rules**. Unlike a plain CMake-based workflow, the `name:` field must follow the Registry naming convention **containing only lowercase letters, numbers, and underscores**.
+Publication, however, introduces additional expectations for reproducible and reliable components.
 
-See [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for how these two mechanisms discover, validate, and build a component.
+#### Published components must be self-contained
 
-### A *published* component must be self-contained
+The ESP Component Registry packages only the component itself. Any source files referenced outside the component boundary will be unavailable once the component is downloaded independently.
 
-While local development imposes few restrictions on component layout, publication introduces an additional constraint: the component must be self-contained. A component intended only for local use may be organized anywhere in the repository (for example under `components/<name>/`) and may freely reference sources outside its own directory, provided those paths exist on the local filesystem.
+For this reason, publishable components should be structured as self-contained units, with their `CMakeLists.txt` located at the component root and all required sources residing within that package boundary.
 
-But, the ESP Component Registry packages **only the folder containing `idf_component.yml`**. Any `CMakeLists.txt` that references source files *outside* that folder via relative paths (e.g. `../../src/foo.cpp`) works fine during local development, but breaks as soon as the component is published and downloaded standalone: those paths simply do not exist in the extracted package.
+#### Naming portability
 
-**The practical rule of thumb is simple:** keep the component folder name and the manifest `name:` identical, using **lowercase** for both. This satisfies **CMake**'s filesystem-based resolution, the **Component Manager**'s validation rules, and the **ESP Component Registry**'s publication requirements with a single convention.
+Generally, the component name does not require any special attention during local development; it simply needs to be valid for the underlying file system. However, publication through the ESP Component Registry force an additional convention that is not visible in the official documentation.
+
+During `compote component upload`, the Component Manager validates the component name against the same rules used by the Registry. Inspection of the Component Manager source code reveals that the name is normalized to lowercase and checked against a restricted slug format, allowing only:
+
+- **lower-letters [`a-z`]**
+- **digit [`0-9`]**
+- **underscores [`_`]**
+- **hyphens [`-`]**
+
+while prohibiting invalid combinations or separators (eg. `-_`, `__`, ecc.)
+
+(see: [idf_component_manager/cli/validations.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_manager/cli/validations.py) and [idf_component_tools/manifest/constants.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_tools/manifest/constants.py))
+
+This behavior can be surprising because the requirement is enforced by the publication tooling rather than by ESP-IDF's CMake build system itself. The upload process silently converts the component name to lowercase before applying its validation rules, without reporting that normalization to the user.
+
+### The practical rule of thumb
+
+Name the component as if it were going to be published from day one. Use the same lowercase identifier for both the component folder and the manifest `name:` field, following the ESP Component Registry naming rules.
+
+This single convention remains valid across local CMake-based development, Component Manager workflows, and eventual publication, eliminating an entire class of avoidable naming problems later on.
 
 For more details, see [IDF Component Manager](https://docs.espressif.com/projects/idf-component-manager/).
 

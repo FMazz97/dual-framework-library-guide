@@ -35,7 +35,7 @@ In a pure **CMake** workflow, component discovery is entirely filesystem-driven.
 - Register the requred component's path in the project's root `CMakeLists.txt`:
 
   ```cmake
-  list(APPEND EXTRA_COMPONENT_DIRS "${CMAKE_CURRENT_LIST_DIR}/../path/to/foo")
+  list(APPEND EXTRA_COMPONENT_DIRS "${CMAKE_CURRENT_LIST_DIR}/../path/to/<component>")
   # set(EXTRA_COMPONENT_DIRS "../path/to/<component>")
   ```
 
