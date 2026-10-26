@@ -112,7 +112,7 @@ The archive is uploaded and then processed server-side; the version appears once
 
 > Note: The upload command requires authentication through an ESP Component Registry API token. Ensure the `IDF_COMPONENT_API_TOKEN` environment variable is set (`$env:IDF_COMPONENT_API_TOKEN="<token>"`/`export IDF_COMPONENT_API_TOKEN=<token>`) before running `compote component upload`. Then, the component can be published with `compote component upload`.
 
-For more details, see IDF Component Manager [Compote CLI](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/compote_cli.html) official documentation.
+For more details, see IDF Component Manager [Publish components](https://docs.espressif.com/projects/idf-component-manager/en/latest/publish/index.html) and [Compote CLI](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/compote_cli.html) official documentation.
 
 ### 5.2.4 Updates
 

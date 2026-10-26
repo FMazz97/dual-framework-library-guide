@@ -20,7 +20,7 @@ For more details, see [Arduino Library Specification](https://docs.arduino.cc/ar
 
 ---
 
-## 1.2 ESP-IDF (CMake - V5.0 or higher)
+## 1.2 ESP-IDF (CMake)
 
 This guide targets the modern CMake-based ESP-IDF build system, which became the standard build system for ESP-IDF projects starting from ESP-IDF 4.x and later. Components are the fundamental building blocks of this architecture.
 
@@ -32,7 +32,7 @@ To understand the repository structure developed throughout this guide, three co
 - **Component Manager:** an optional dependency-resolution layer that can discover, validate, and download components before the build begins.
 - **Component Registry:** the online distribution service used to publish and retrieve components.
 
-See [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for how discover a component and official Espressif guide ["What is the ESP Component Registry?"](https://developer.espressif.com/blog/2024/10/what-is-the-esp-registry/)
+For more details, see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for how discover a component and official Espressif guide ["What is the ESP Component Registry?"](https://developer.espressif.com/blog/2024/10/what-is-the-esp-registry/)
 
 ### Source discovery is explicit
 
@@ -51,42 +51,54 @@ idf_component_register(
 
 Only files declared through this mechanism participate in the build.
 
-### Publication imposes the conventions
+### *Publication* imposes the constraints
 
 ESP-IDF itself places very few restrictions on how components are organized locally. As long as CMake can locate the component and `idf_component_register()` points to the correct files, all different layouts are technically valid.
 
-Publication, however, introduces additional expectations for reproducible and reliable components.
+Publication, however, introduces additional expectations for **reproducible and reliable components**.
 
 #### Published components must be self-contained
 
-The ESP Component Registry packages only the component itself. Any source files referenced outside the component boundary will be unavailable once the component is downloaded independently.
+The **ESP Component Registry** packages only the component itself via `compote component pack`/`compote component upload` command given in the root of the component's folder. Any source files referenced outside the component boundary will be unavailable once the component is downloaded independently througt the registry.
 
 For this reason, publishable components should be structured as self-contained units, with their `CMakeLists.txt` located at the component root and all required sources residing within that package boundary.
 
-#### Naming portability
+#### Registry naming rules
 
-Generally, the component name does not require any special attention during local development; it simply needs to be valid for the underlying file system. However, publication through the ESP Component Registry force an additional convention that is not visible in the official documentation.
+Generally, component names require little attention during local development. As long as the component can be located by CMake and the underlying filesystem accepts the chosen name, ESP-IDF itself imposes very few restrictions.
 
-During `compote component upload`, the Component Manager validates the component name against the same rules used by the Registry. Inspection of the Component Manager source code reveals that the name is normalized to lowercase and checked against a restricted slug format, allowing only:
+Publication through the **ESP Component Registry**, however, introduces additional naming requirements enforced by the publication tooling.
 
-- **lower-letters [`a-z`]**
-- **digit [`0-9`]**
-- **underscores [`_`]**
-- **hyphens [`-`]**
+During `compote component pack` and `compote component upload`, inspection of the Component Manager source code reveals that component names are normalized to lowercase and validated against a restricted slug format before publication.
 
-while prohibiting invalid combinations or separators (eg. `-_`, `__`, ecc.)
+Specifically, published component names:
+
+- may contain letters (`a-z`);
+- may contain digits (`0-9`);
+- may contain underscores (`_`);
+- may contain hyphens (`-`);
+- cannot begin or end with `_` or `-`;
+- cannot contain consecutive separators such as `__`, `--`, `_-`, or `-_`.
 
 (see: [idf_component_manager/cli/validations.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_manager/cli/validations.py) and [idf_component_tools/manifest/constants.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_tools/manifest/constants.py))
 
-This behavior can be surprising because the requirement is enforced by the publication tooling rather than by ESP-IDF's CMake build system itself. The upload process silently converts the component name to lowercase before applying its validation rules, without reporting that normalization to the user.
+**This behavior can be surprising because these constraints are enforced by the publication tooling rather than by ESP-IDF's CMake build system itself.** The upload process silently normalizes names to lowercase before validation, without reporting that conversion to the user and it also not documented anywhere.
 
 ### The practical rule of thumb
 
-Name the component as if it were going to be published from day one. Use the same lowercase identifier for both the component folder and the manifest `name:` field, following the ESP Component Registry naming rules.
+When creating a component intended for reuse or publication, name it as if it were going to be published from day one.
 
-This single convention remains valid across local CMake-based development, Component Manager workflows, and eventual publication, eliminating an entire class of avoidable naming problems later on.
+To maintain total consistency across toolchains, use the **exact same lowercase identifier** in a 1-to-1 mapping across every layer:
 
-For more details, see [IDF Component Manager](https://docs.espressif.com/projects/idf-component-manager/).
+```text
+  Component folder name (<name>/)
+  └── Exposed component name (REQUIRES <name>)
+      └── Component Manager manifest (idf_component.yml → name: "<name>")
+```
+
+In practice, this unified identifier strictly aligns local development and registry publication from the start, preventing breaking renames and identity mismatches down the road.
+
+For more, see [IDF Component Manager](https://docs.espressif.com/projects/idf-component-manager/).
 
 ---
 
@@ -94,15 +106,15 @@ For more details, see [IDF Component Manager](https://docs.espressif.com/project
 
 PlatformIO introduces no additional structural constraints on the library itself. When used with Arduino, it follows Arduino's library conventions; when used with ESP-IDF, it follows ESP-IDF's component model. As a result, the repository layout established in the previous sections already satisfies PlatformIO without requiring any PlatformIO-specific source organization.
 
-The only area that typically requires additional attention is the example/project structure on the ESP-IDF side, where the same examples may need to remain buildable under both native ESP-IDF and PlatformIO's ESP-IDF integration.
+The only area that typically requires additional attention is the example/project structure on the ESP-IDF side, where the same examples may need to remain buildable under both native ESP-IDF and PlatformIO's ESP-IDF integration (see: [Chapter 4 - Example Conventions](04-examples.md)).
 
 ### `framework = arduino`
 
-Source discovery remains based on Arduino's recursive `src/` compilation model, and examples continue to follow Arduino's expectations. PlatformIO adds its own metadata layer through `library.json`, including the richer `examples` field, but this metadata is consumed by multiple internal PlatformIO surfaces whose behavior is similar, yet not entirely equivalent. Chapter 5 covers the resulting edge cases in detail.
+Source discovery relies on Arduino’s recursive `src/` compilation model, while examples are driven by PlatformIO’s `library.json` manifest, falling back to standard Arduino conventions when the manifest is absent. PlatformIO introduces its own metadata layer through `library.json` (including the structured `examples` field).
 
 ### `framework = espidf`
 
-Here PlatformIO doesn't just wrap `idf.py` — it generates its **own** project scaffolding, driven by `platformio.ini` rather than IDF's native `CMakeLists.txt`/`project()` flow. The convention shifts from IDF's `main/` folder to PlatformIO's own `src_dir` (default `src/`). A project can still use a hand-written, IDF-native `CMakeLists.txt`/`main/` layout under PlatformIO, but only by explicitly pointing `src_dir` at that folder.
+Here PlatformIO doesn't just wrap `idf.py` — it generates its **own** project scaffolding, driven by `platformio.ini` rather than IDF's native `CMakeLists.txt` flow. The convention shifts from IDF's `main/` folder to PlatformIO's own `src_dir` (default `src/`). A project can still use a hand-written, IDF-native `CMakeLists.txt`/`main/` layout under PlatformIO, but only by explicitly `src_dir = main`.
 
 For more details, see [PlatformIO Library Management](https://docs.platformio.org/en/latest/librarymanager/).
 
@@ -115,7 +127,7 @@ Comparing these three ecosystems reveals that the true challenge of a cross-ecos
 | Ecosystem | Primary structural constraint | Identity constraint |
 | :--- | :--- | :--- |
 | **Arduino** | All compilable sources **must** live under `src/` | Library identity is independent of the local folder name |
-| **ESP-IDF** | Published components **must** be self-contained | Component identity depends on the mechanism in use; *Registry-compatible* components require **lowercase** `name:` values |
+| **ESP-IDF** | Published components **must** be self-contained | Component identity depends on the mechanism in use; *Registry-compatible* components require **lowercase** `<name>` values |
 | **PlatformIO** | Introduces no additional structural constraints beyond the selected framework | Package identity comes from `library.json` |
 
 The root conflict lies in just two non-negotiable rules:
