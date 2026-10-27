@@ -10,7 +10,7 @@ This chapter summarizes those rules and their practical consequences on library 
 
 ### Source discovery is structural
 
-The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every `.cpp` file found recursively under `src/`** (see: [Library specification - Layout of folders and files](https://docs.arduino.cc/arduino-cli/library-specification/#layout-of-folders-and-files)). There is no manifest listing compilation units: structure alone decides what gets built, so implementation files placed outside `src/` **are never compiled**.
+The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every source file (`.cpp` / `.c` / `.s`) file found recursively under `src/`** (see: [Library specification - Layout of folders and files](https://docs.arduino.cc/arduino-cli/library-specification/#layout-of-folders-and-files)). There is no manifest listing compilation units: structure alone decides what gets built, so implementation files placed outside `src/` **are never compiled**.
 
 **Library identity is driven by public headers**, not folder names. As long as the expected public include (e.g. `#include <Foo.h>`) is available under `src/`, the library works regardless of how its directory is named on disk.
 
@@ -53,7 +53,7 @@ Publication, however, introduces additional expectations for **reproducible and 
 
 #### Published components must be self-contained
 
-The **ESP Component Registry** packages only the component itself: `compote component pack` and `compote component upload` are run from the component's root folder. Any source file referenced outside that boundary will be missing once the component is downloaded from the registry. Publishable components must therefore be self-contained, with `CMakeLists.txt` at the component root and every required source inside it.
+The **ESP Component Registry** packages only the component itself: `compote component pack` and `compote component upload` are run from the component's root folder. Any source file referenced outside that boundary will be missing once the component is downloaded from the registry. Publishable components must therefore be self-contained, with `CMakeLists.txt` in the component root (as Espressif's [Component Files](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/component_files.html) reference specifies) and every required source inside it.
 
 #### Registry naming rules
 
@@ -118,7 +118,7 @@ Comparing these three ecosystems reveals that the true challenge of a cross-ecos
 
 The root conflict comes down to just two non-negotiable rules: **Arduino's source discovery** (everything compiled lives under `src/`) and **ESP-IDF's publication requirements** (self-contained components with strict naming). They are not inherently incompatible: the challenge is simply finding a repository layout that satisfies both simultaneously.
 
-The layout used throughout this guide exploits exactly that: the ESP-IDF component files (`CMakeLists.txt` and `idf_component.yml`) are placed at the repository root, making the repository itself the component boundary, while `src/` remains the single source of truth for the implementation. [Chapter 2 - Repository Structure](02-repo-structure.md) explains why this specific arrangement works and why alternative layouts fail once publication enters the picture.
+The layout used throughout this guide exploits exactly that: the ESP-IDF component files (`CMakeLists.txt` and `idf_component.yml`) are placed at the repository root, making the repository itself the component boundary, while `src/` remains the single source of truth for the implementation. [Chapter 2 - Repository Structure](02-repo-structure.md) shows the resulting layout and explains why it works.
 
 ---
 
