@@ -11,7 +11,7 @@ This chapter documents how those requirements are reconciled into a single folde
 ```text
 repo/                    ← repository root = component root = component name
 ├── idf_component.yml    ← ESP-IDF component manifest
-├── CMakeLists.txt       ← SRCS "src/core/foo.cpp", INCLUDE_DIRS "src/core" "src/hal"
+├── CMakeLists.txt       ← SRCS "src/core/foo.cpp", INCLUDE_DIRS "src/core"
 ├── library.properties   ← Arduino
 ├── library.json         ← PlatformIO
 ├── src/

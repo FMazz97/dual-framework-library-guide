@@ -1,4 +1,4 @@
-# Chapter 3 — The Agnostic Core, the HAL Layer, and the Arduino Facade
+# Chapter 3 — Agnostic Core & HAL Architecture
 
 With the repository structure established ([Chapter 2 - Repository Structure](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing **Arduino** and **ESP-IDF** to use their own **native hardware APIs**?
 
@@ -20,7 +20,7 @@ resolved at compile time through:
 
 The **core** (styled in `snake_case`, following the **C++** standard library and **ESP-IDF** conventions; see [Appendix C - Naming Convention](../appendix/C-naming-convention.md)) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect.
 
-The facade's entire job is **forwarding** every public method:
+The facade's entire job is **forwarding** every public method, with no logic of its own:
 
 ```cpp
 #include "core/foo.h"
@@ -30,42 +30,32 @@ class Foo {
     foo _core;
 
   public:
-    Foo (int pin) : _core(pin){}
+    Foo(int pin) : _core(pin) {}
     bool classMethod(int param) { return _core.class_method(param); }
     // ...
 };
 ```
 
-No logic lives inside the facade itself.
-
-*By isolating framework selection within the HAL, the same protocol implementation runs natively on both Arduino and ESP-IDF using their respective hardware access paths.*
-
-The resulting repository layout becomes:
+The rest of the repository is unchanged from [Chapter 2](02-repo-structure.md#21-the-layout); only the content of `src/` is now fully defined:
 
 ```text
-repo/
-├── idf_component.yml    ← ESP-IDF
-├── CMakeLists.txt       ← ESP-IDF
-├── library.properties   ← Arduino
-├── library.json         ← PlatformIO
-├── src/
-│   ├── Foo.h            ← Arduino facade
-│   ├── core/            ← Framework-agnostic core
-│   │   ├── foo.h
-│   │   └── foo.cpp
-│   └── hal/             ← Hardware Abstraction Layer
-│       ├── foo_hal_arduino.h
-│       └── foo_hal_espidf.h
-└── examples/
+src/
+├── Foo.h                  ← Arduino facade
+├── core/                  ← Framework-agnostic core
+│   ├── foo.h
+│   └── foo.cpp
+└── hal/                   ← Hardware Abstraction Layer
+    ├── foo_hal_arduino.h
+    └── foo_hal_espidf.h
 ```
 
-So, **the protocol implementation exists exactly once, while each framework retains its own native hardware implementation**.
+By isolating framework selection within the HAL, **the protocol implementation exists exactly once, while each framework retains its own native hardware implementation**.
 
 ---
 
 ## 3.1 Why compile-time macros, not virtual dispatch or templates
 
-Before settling on compile-time macros, two standard abstraction mechanisms — *virtual interfaces* and *C++ templates* — were evaluated and rejected. The first one introduce overhead that cannot be justified in a low-level hardware-access layer designed to disappear at compile time and the second one add API complexity without adding any benefit here.
+Before settling on compile-time macros, two standard abstraction mechanisms, *virtual interfaces* and *C++ templates*, were evaluated and rejected: the first introduces overhead that cannot be justified in a low-level hardware-access layer designed to disappear at compile time, the second adds API complexity without any benefit here.
 
 ### Virtual dispatch
 
@@ -74,8 +64,8 @@ A classic object-oriented solution defines a HAL interface and provides separate
 ```cpp
 class IHal {
 public:
-virtual void pinMode(...) = 0;
-virtual void digitalWrite(...) = 0;
+  virtual void pinMode(...) = 0;
+  virtual void digitalWrite(...) = 0;
 };
 ```
 
@@ -94,33 +84,18 @@ class Driver {
 };
 ```
 
-From a performance perspective, this is optimal, but the drawback is API *complexity* because templates rapidly propagate through the public API.
+From a performance perspective, this is optimal, but the drawback is API *complexity*: templates rapidly propagate through the public API. Users would either need to:
 
-Users would either need to:
-
-- instantiate explicit template types, such as `Driver<ArduinoHal>`, introducing a syntax burden for a library whose audience-facing goal is simplicity.
-
-- rely on an additional wrapper layer whose sole purpose is hiding the template parameter, at which point the facade's responsibilities double for little practical benefit.
+- instantiate explicit template types, such as `Driver<ArduinoHal>`, introducing a syntax burden for a library whose audience-facing goal is simplicity;
+- or rely on an additional wrapper layer whose sole purpose is hiding the template parameter, at which point the facade's responsibilities double for little practical benefit.
 
 For a HAL consisting of just a *few low-level I/O primitives* (such as GPIO setting, timing and yielding), **the additional template machinery feels disproportionate to the value it provides**.
 
 ### Why macros won
 
-Because the target platform is *known before compilation begins*, preprocessor macros allow the HAL implementation to be selected entirely at **compile time**:
+Because the target platform is *known before compilation begins*, preprocessor macros allow the HAL implementation to be selected entirely at **compile time** (the selection itself is shown in [3.2](#32-integrating-the-hal-into-the-core)). Each hardware macro (such as `FOO_PIN_HIGH()`) expands directly into the platform's fastest *primitive*, whether that is a native framework API, direct hardware access, or a standard I/O function.
 
-```cpp
-#if defined(ARDUINO)
-  #include "../hal/foo_hal_arduino.h"
-#elif defined(ESP_PLATFORM)
-  #include "../hal/foo_hal_espidf.h"
-#endif
-```
-
-> **Note:** The order of these checks matters. When building for ESP32 using the Arduino framework, both `ARDUINO` and `ESP_PLATFORM` are defined. For this reason, `ARDUINO` must be tested first; otherwise Arduino builds would incorrectly select the ESP-IDF HAL implementation.
-
-This approach allows each hardware macro (such as `FOO_PIN_HIGH()`) to expand directly into the platform's fastest *primitive*, whether that is a native framework API, direct hardware access, or a standard I/O function.
-
-The trade-off is clear: macros are unscoped, global, and lack language-level type safety across boundaries. However, since the target platform never changes at runtime, sacrificing dynamic flexibility yields a zero-cost abstraction: no vtables, no complex template syntax, and zero runtime overhead.
+The trade-off is clear: macros are unscoped, global, and lack language-level type safety across boundaries. However, since the target platform never changes at runtime, sacrificing dynamic flexibility yields a zero-cost abstraction: no vtables and no template syntax leaking into the public API.
 
 *The hardware abstraction exists for the developer, but **disappears completely for the machine.***
 
@@ -128,9 +103,7 @@ The trade-off is clear: macros are unscoped, global, and lack language-level typ
 
 ## 3.2 Integrating the HAL into the Core
 
-Once the abstraction boundary is established, integration into the core is minimal.
-
-The core header selects the appropriate HAL at compile time:
+Once the abstraction boundary is established, integration into the core is minimal. The core header selects the appropriate HAL at compile time:
 
 ```cpp
 // foo.h
@@ -143,6 +116,8 @@ The core header selects the appropriate HAL at compile time:
 #endif
 ```
 
+> **Note:** The order of these checks matters. When building for ESP32 using the Arduino framework, both `ARDUINO` and `ESP_PLATFORM` are defined. For this reason, `ARDUINO` must be tested first; otherwise Arduino builds would incorrectly select the ESP-IDF HAL implementation.
+
 From that point onward, the implementation uses only **framework-neutral macros**:
 
 ```cpp
@@ -152,52 +127,28 @@ FOO_PIN_LOW();
 FOO_DELAY_US(us);
 ```
 
-Each HAL then provides the *platform-specific* implementation of those operations.
+Each HAL then provides the *platform-specific* implementation of those operations:
 
-- Arduino:
+```cpp
+// foo_hal_arduino.h
+#define FOO_PIN_HIGH()      digitalWrite(_pin, HIGH)
+#define FOO_PIN_LOW()       digitalWrite(_pin, LOW)
+#define FOO_DELAY_US(us)    delayMicroseconds(us)
+```
 
-  ```cpp
-  // foo_hal_arduino.h
-  #define FOO_PIN_HIGH()      digitalWrite(_pin, HIGH)
-  #define FOO_PIN_LOW()       digitalWrite(_pin, LOW)
-  #define FOO_DELAY_US(us)    delayMicroseconds(us)
-  ```
+```cpp
+// foo_hal_espidf.h
+#define FOO_PIN_HIGH()      gpio_set_level(static_cast<gpio_num_t>(_pin), 1)
+#define FOO_PIN_LOW()       gpio_set_level(static_cast<gpio_num_t>(_pin), 0)
+#define FOO_DELAY_US(us)    esp_rom_delay_us(us)
+```
 
-- ESP-IDF:
+From the core's perspective, there is no concept of Arduino `digitalWrite()`, ESP-IDF `gpio_set_level()`, or any other *framework-specific* API: **the only contract it knows is the set of HAL macros.** The protocol code can therefore focus exclusively on *device behavior*, *timing requirements*, *state management*, and *calculations*, while framework-specific code stays confined to a small number of HAL headers and the core implementation remains identical across every supported ecosystem.
 
-  ```cpp
-  // foo_hal_espidf.h
-  #define FOO_PIN_HIGH()      gpio_set_level(static_cast<gpio_num_t>(_pin), 1)
-  #define FOO_PIN_LOW()       gpio_set_level(static_cast<gpio_num_t>(_pin), 0)
-  #define FOO_DELAY_US(us)    esp_rom_delay_us(us)
-  ```
+> **Note:** Real implementations may occasionally require small leaks across that boundary. In [CS123x](https://github.com/FMazz97/CS123x), the library on which this guide is based, AVR-specific fast-I/O fields (register pointers and bit masks) remain declared in the core class under `#if defined(__AVR__)`, because the HAL macros expand directly inside the core methods. This does not change the architectural separation described above, but it is a practical exception worth documenting rather than pretending the abstraction is perfectly pure.
 
-From the core's perspective, there is no concept of **Arduino** `digitalWrite()` or **ESP-IDF** `gpio_set_level()`, or any other *framework-specific* API. **The only contract it knows is the set of HAL macros.**
-
-This separation has an important consequence: the protocol code can **focus exclusively** on *device behavior*, *timing requirements*, *state management*, and *calculations*, while the HAL remains responsible for translating those operations into the *platform's native hardware primitives*.
-
-> **Note:** Real implementations may occasionally require small leaks across that boundary.In [CS123x](https://github.com/FMazz97/CS123x), the library on which this guide is based, AVR-specific fast-I/O fields (register pointers and bit masks) remain declared in the core class under `#if defined(__AVR__)`, because the HAL macros expand directly inside the core methods. This does not change the architectural separation described above, but it is a practical exception worth documenting rather than pretending the abstraction is perfectly pure.
-
-As a result, framework-specific code is confined to a small number of HAL headers, while the core implementation remains identical across every supported ecosystem.
-
-The *core* never calls **Arduino** or **ESP-IDF** APIs directly.
-
-With the architecture defined under `src/` directory, **the library source code is complete.**
-
-The remaining challenge is no longer the source code, but the examples that demonstrate it. While Arduino examples work naturally across Arduino IDE and PlatformIO, ESP-IDF examples require additional structure to remain buildable across both native ESP-IDF and PlatformIO workflows.
-
-That shared example layout is the subject of [Chapter 4 - Example Conventions](04-examples.md).
+With the architecture defined under `src/`, **the library source code is complete.** What remains is the examples: Arduino examples work naturally across Arduino IDE and PlatformIO, while ESP-IDF examples need additional structure to stay buildable under both native ESP-IDF and PlatformIO. [Chapter 4 - Example Conventions](04-examples.md) covers that shared layout.
 
 ---
 
-## Table of Contents
-
-- [Introduction](../README.md)
-- [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
-- [Chapter 2 - Repository Structure](02-repo-structure.md)
-- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)
-- [Chapter 4 - Example Conventions](04-examples.md)
-- [Chapter 5 - Publishing](05-publishing.md)
-- [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)
-- [Appendix B - Yield & Watchdog](../appendix/B-yield-watchdog.md)
-- [Appendix C - Naming Convention](../appendix/C-naming-convention.md)
+**Previous:** [← Chapter 2 - Repository Structure](02-repo-structure.md) · **Next:** [Chapter 4 - Example Conventions →](04-examples.md)
