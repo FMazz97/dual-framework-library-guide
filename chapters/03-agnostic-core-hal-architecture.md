@@ -71,7 +71,7 @@ public:
 
 While clean, this approach introduces runtime indirection into the hottest part of the codebase. In tight bit-banging loops or high-frequency protocol transactions, clock and data lines are toggled repeatedly within strict microsecond-level timing budgets.
 
-A virtual call's indirection (a few extra cycles per invocation) is negligible in high-level software, but when multiplied across every single bit operation on hardware where standard GPIO functions are already a bottleneck, it is an unnecessary performance tax. More importantly, it solves a **non-existent problem**: the target framework is fixed at build time, so paying a performance penalty for runtime flexibility provides zero benefit.
+A virtual call's indirection (a few extra cycles per invocation) is negligible in high-level software, and would be an acceptable price if it bought something. Here it buys nothing: **the target framework is fixed at build time**, so paying even a small penalty, multiplied across every bit operation, for runtime flexibility that nobody needs solves a **non-existent problem**.
 
 ### Templates
 
