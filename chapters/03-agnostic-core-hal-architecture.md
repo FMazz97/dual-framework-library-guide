@@ -151,4 +151,10 @@ With the architecture defined under `src/`, **the library source code is complet
 
 ---
 
-**Previous:** [← Chapter 2 - Repository Structure](02-repo-structure.md) · **Next:** [Chapter 4 - Example Conventions →](04-examples.md)
+<!-- markdownlint-disable MD033 -->
+<div align="center">
+
+[⬅️ Chapter 2 - Repository Structure](02-repo-structure.md) — [Introduction](../README.md) — [Chapter 4 - Example Conventions ➡️](04-examples.md)
+
+</div>
+<!-- markdownlint-enable MD033 -->

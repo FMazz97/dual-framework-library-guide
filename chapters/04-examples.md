@@ -129,4 +129,10 @@ idf.py fullclean
 
 ---
 
-**Previous:** [← Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md) · **Next:** [Chapter 5 - Publishing →](05-publishing.md)
+<!-- markdownlint-disable MD033 -->
+<div align="center">
+
+[⬅️ Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md) — [Introduction](../README.md) — [Chapter 5 - Publishing ➡️](05-publishing.md)
+
+</div>
+<!-- markdownlint-enable MD033 -->

@@ -89,4 +89,10 @@ This guide documents the architecture, constraints, and practical decisions requ
 
 ---
 
-**Next:** [Chapter 1 - Ecosystem Constraints →](chapters/01-ecosystem-constraints.md)
+<!-- markdownlint-disable MD033 -->
+<div align="center">
+
+[Chapter 1 - Ecosystem Constraints ➡️](chapters/01-ecosystem-constraints.md)
+
+</div>
+<!-- markdownlint-enable MD033 -->

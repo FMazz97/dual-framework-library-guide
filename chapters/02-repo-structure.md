@@ -62,4 +62,10 @@ The distinction becomes even more important once publication enters the picture:
 
 ---
 
-**Previous:** [← Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md) · **Next:** [Chapter 3 - Agnostic Core & HAL Architecture →](03-agnostic-core-hal-architecture.md)
+<!-- markdownlint-disable MD033 -->
+<div align="center">
+
+[⬅️ Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md) — [Introduction](../README.md) — [Chapter 3 - Agnostic Core & HAL Architecture ➡️](03-agnostic-core-hal-architecture.md)
+
+</div>
+<!-- markdownlint-enable MD033 -->

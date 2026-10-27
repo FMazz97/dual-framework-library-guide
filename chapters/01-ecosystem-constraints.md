@@ -122,4 +122,10 @@ The layout used throughout this guide exploits exactly that: the ESP-IDF compone
 
 ---
 
-**Previous:** [← Introduction](../README.md) · **Next:** [Chapter 2 - Repository Structure →](02-repo-structure.md)
+<!-- markdownlint-disable MD033 -->
+<div align="center">
+
+[Introduction](../README.md) — [Chapter 2 - Repository Structure ➡️](02-repo-structure.md)
+
+</div>
+<!-- markdownlint-enable MD033 -->
