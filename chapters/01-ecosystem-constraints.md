@@ -70,7 +70,7 @@ Specifically, published component names:
 
 (see: [idf_component_manager/cli/validations.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_manager/cli/validations.py) and [idf_component_tools/manifest/constants.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_tools/manifest/constants.py))
 
-**This can be surprising: the rules are enforced by the publication tooling, not by ESP-IDF's CMake build system.** The upload process silently converts names to lowercase before validation, without notifying the user, and the behavior is not documented.
+**This can be surprising: the rules are enforced by the publication tooling, not by ESP-IDF's CMake build system.** The upload process silently converts names to lowercase before validation, without notifying the user, and at the time of writing, the behavior is not documented.
 
 ### The practical rule of thumb
 

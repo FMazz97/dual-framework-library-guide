@@ -4,6 +4,7 @@ A practical guide to architecture, repository layout, and publishing for ESP32 l
 
 **Who it's for:** developers comfortable with Arduino who want to write libraries that also work as native ESP-IDF components. Basic familiarity with Arduino libraries and, optionally, PlatformIO is assumed.
 
+> [!NOTE]
 > **Reference implementation:** this guide comes from the practical experience of developing [CS123x](https://github.com/FMazz97/CS123x), a driver for the Chipsea CS1237 and CS1238 24-bit differential ADCs, designed for load cells, weight scales, and bridge sensors. The library follows every pattern, layout, and configuration described in these chapters.
 >
 > **Tested with:** ESP-IDF v6.1 (native), PlatformIO `espressif32@6.4.0` (IDF 5.1.1), Arduino IDE 2.3.x. Registry/tool behavior observed in September 2026; it may change.

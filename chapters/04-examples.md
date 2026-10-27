@@ -100,10 +100,12 @@ examples/my_example/
     └── main.cpp
 ```
 
-> **Note:**
->
-> - "The esp-idf build system does not support spaces in the path to either esp-idf or to projects." (see: [Step 5. Start a Project](https://docs.espressif.com/projects/esp-idf/en/v3.3/get-started-cmake/index.html#step-5-start-a-project))
-> - Optional configuration files (such as `sdkconfig.defaults`, a custom partition table `partitions.csv`, or an application-level `Kconfig.projbuild`) can be placed directly in the example's root or `main/` directory as needed. For complete guidelines on project customization files, see the [Example Project](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html#example-project) section of the official [ESP-IDF Build System](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html) documentation.
+> [!WARNING]
+> "The esp-idf build system does not support spaces in the path to either esp-idf or to projects." (see: [Step 5. Start a Project](https://docs.espressif.com/projects/esp-idf/en/v3.3/get-started-cmake/index.html#step-5-start-a-project))
+<!-- markdownlint-disable MD028 -->
+<!-- markdownlint-enable MD028 -->
+> [!TIP]
+> Optional configuration files (such as `sdkconfig.defaults`, a custom partition table `partitions.csv`, or an application-level `Kconfig.projbuild`) can be placed directly in the example's root or `main/` directory as needed. For complete guidelines on project customization files, see the [Example Project](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html#example-project) section of the official [ESP-IDF Build System](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html) documentation.
 
 The example therefore carries one dependency declaration per toolchain, each authoritative in its own context: `idf_component.yml` for native `idf.py` builds, aligned with Espressif's recommended workflow, and `lib_deps` in `platformio.ini` for PlatformIO builds, so that **whenever PlatformIO is involved, it resolves dependencies through its own system**. Under PlatformIO both declarations are visible, which produces the redundancy described in [4.4](#44-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems); the combination still works, and it is the price of building one unchanged example with both toolchains.
 
