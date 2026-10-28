@@ -89,7 +89,7 @@ The single source of truth for ESP-IDF component metadata is `idf_component.yml`
 > [!TIP]
 > **`*`** If you want to support `Arduino as an ESP-IDF component`, leave them out of the exclusions so the Arduino facade and HAL stay in the package: the overhead is minimal.
 
-For more details, see the official [How to Package and Upload Examples](https://docs.espressif.com/projects/idf-component-manager/en/latest/publish/how_to_examples.html) documentation.
+For more details, see the official [How to Package and Upload Examples](https://docs.espressif.com/projects/idf-component-manager/en/latest/publish/how_to_examples.html) and [Component Files](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/component_files.html) documentation.
 
 ### 5.2.2 Pre-Verification
 
