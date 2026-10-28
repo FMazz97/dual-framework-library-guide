@@ -97,7 +97,7 @@ The only area that typically requires additional attention is the example/projec
 
 ### `framework = arduino`
 
-Source discovery follows Arduino's recursive `src/` compilation model. Metadata and examples are driven by PlatformIO's `library.json` manifest (including its structured `examples` field, falling back to standard Arduino conventions when  is missing).
+Source discovery follows Arduino's recursive `src/` compilation model. Metadata and examples are driven by PlatformIO's `library.json` manifest (including its structured `examples` field, see: [Arduino examples on PlatformIO](04-examples.md#arduino-examples-on-platformio)).
 
 ### `framework = espidf`
 

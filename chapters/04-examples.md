@@ -6,11 +6,30 @@ With the core fully framework-agnostic and the HAL sitting between it and the fr
 
 ## 4.1 Arduino
 
-The Arduino IDE expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`: the sketch name must match its parent directory. Additional levels of nesting can group examples into categories (`examples/<Category>/<ExampleName>/<ExampleName>.ino`) without affecting discovery, as long as this naming convention is preserved. PlatformIO's example browser falls back to the same convention when `library.json` doesn't define `examples` explicitly (see [5.3.1 Manifest and Metadata](05-publishing.md#531-manifest-and-metadata)).
+The Arduino IDE expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`: the sketch name must match its parent directory. Additional levels of nesting can group examples into categories (`examples/<Category>/<ExampleName>/<ExampleName>.ino`) without affecting discovery, as long as this naming convention is preserved.
 
 ESP-IDF example projects don't follow this convention and are therefore automatically omitted from the Arduino IDE's Examples menu. No further setup is needed.
 
 For more details, see the `Library Examples` section on [Layout of folders and files](https://docs.arduino.cc/arduino-cli/library-specification/#layout-of-folders-and-files).
+
+### Arduino examples on PlatformIO
+
+PlatformIO's example browser falls back to the same convention when `library.json` doesn't define `examples` explicitly. To make an Arduino example buildable as a PlatformIO project as well, it can carry its own `platformio.ini` next to the sketch:
+
+```text
+examples/BasicExample/
+├── BasicExample.ino    ← Arduino IDE sketch
+└── platformio.ini      ← PlatformIO project configuration
+```
+
+and simply adapt the source code from default `src/` folder to the example folder:
+
+```ini
+[platformio]
+src_dir = . ; tipical 
+```
+
+The `examples` field of `library.json` then declares which files make up each example in the published package (see: [PlatformIO Manifest and Metadata](05-publishing#531-manifest-and-metadata)).
 
 ---
 
@@ -27,7 +46,7 @@ dependencies:
     override_path: "../../.." # repository root = component root (local development)
 ```
 
-mirrors the resolution and manifest validation rules enforced by the **ESP Component Registry**.  <!--lla frase è un po' forte, non so se la validazione del cmponenete passa anche sulle dipendenze dei sui esempi--> This ensures that your examples test the exact same integration model that end users will experience once the library is published.
+relies on the same mechanism, the Component Manager, that end users will use to consume the library, so your examples exercise the same integration model (manifest, dependency resolution, and CMake configuration in the build process) they will experience once the library is published. `override_path` simply stands in for the registry download during local development.
 
 For more details, see Espressif's documentation on [How to Package and Upload Examples](https://docs.espressif.com/projects/idf-component-manager/en/latest/publish/how_to_examples.html), and [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for a deep dive into component resolution mechanisms.
 
@@ -102,14 +121,14 @@ examples/my_example/
 > [!TIP]
 > Optional configuration files (such as `sdkconfig.defaults`, a custom partition table `partitions.csv`, or an application-level `Kconfig.projbuild`) can be placed directly in the example's root or `main/` directory as needed. For complete guidelines on project customization files, see the [Example Project](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html#example-project) section of the official [ESP-IDF Build System](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html) documentation.
 
-The example therefore carries one dependency declaration per toolchain, each authoritative in its own context: `idf_component.yml` for native `idf.py` builds, aligned with Espressif's recommended workflow, and `lib_deps` in `platformio.ini` for PlatformIO builds, so that **whenever PlatformIO is involved, it resolves dependencies through its own system**. Under PlatformIO both declarations are visible, which produces the redundancy described in [4.4](#44-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems); the combination still works, and it is the price of building one unchanged example with both toolchains.
+The example therefore carries one dependency declaration per toolchain, each authoritative in its own context: `idf_component.yml` for native `idf.py` builds, aligned with Espressif's recommended workflow, and `lib_deps` in `platformio.ini` for PlatformIO builds, so that **whenever PlatformIO is involved, it resolves dependencies through its own system**. Within the repository, PlatformIO sees both declarations, which produces the redundancy described in [4.4](#44-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems); the combination still works, and it is the price of building one unchanged example with both toolchains.
 
 This layout also sets up a clean boundary for publication: each registry's manifest can exclude the files that belong to the other toolchain.
 
 - The component's `idf_component.yml` uses its `files.exclude` rules to ignore `platformio.ini` when published to the **ESP Component Registry**.
 - The library's `library.json` uses its `export.exclude` rules to ignore the project's `idf_component.yml` manifests when published to the **PlatformIO Registry**.
 
-This reciprocal exclusion keeps the distributed packages clean and native to each ecosystem, without compromising the unified source layout during development. How those manifests are structured is covered in [Chapter 5 - Publishing](05-publishing.md).
+This reciprocal exclusion keeps the distributed packages clean and native to each ecosystem, without compromising the unified source layout during development. How those manifests are structured, and what each package ends up containing, is covered in [Chapter 5 - Publishing](05-publishing.md).
 
 ---
 
