@@ -61,7 +61,8 @@ During local development, component names require little attention. Publication 
 
 Specifically, published component names:
 
-- may contain letters (`a-z`);
+- must be between **2 and 64 characters** long;
+- may contain letters (`a-Z`); however, names are normalized to lowercase before validation, so the effective character set is (`a-z`);
 - may contain digits (`0-9`);
 - may contain underscores (`_`);
 - may contain hyphens (`-`);

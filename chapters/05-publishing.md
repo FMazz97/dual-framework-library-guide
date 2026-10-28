@@ -22,7 +22,7 @@ The single source of truth for Arduino library metadata is the `library.properti
 
 For more details, see [Arduino Library Specification](https://docs.arduino.cc/arduino-cli/library-specification/) official documentation.
 
-### 5.1.2 Local Pre-Verification
+### 5.1.2 Pre-Verification
 
 Before submitting a library to the Arduino Library Manager, validate the layout and metadata locally using:
 
@@ -86,11 +86,12 @@ The single source of truth for ESP-IDF component metadata is `idf_component.yml`
       # add any other file that is irrelevant for an ESP-IDF component
   ```
 
-  > *Note: if you wont to use Arduino as an ESP-IDF component, leave Arduino's files in the component; the overhead is truly minimal.
+  > [!TIP]
+  > If you wont to use Arduino as an ESP-IDF component, leave Arduino's files in the component; the overhead is truly minimal.
 
-For more details, see IDF Component Manager [`idf_component.yml` Manifest File](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/manifest_file.html) and [Packaging ESP-IDF Components](https://espressif-docs.readthedocs-hosted.com/projects/idf-component-manager/en/v1.4.0/guides/packaging_components.html) official documentation.
+For more details, see [How to Package and Upload Examples](https://docs.espressif.com/projects/idf-component-manager/en/latest/publish/how_to_examples.html) official documentation.
 
-### 5.2.2 Local Pre-Verification
+### 5.2.2 Pre-Verification
 
 Before uploading to the Espressif Component Registry, validate the manifest and simulate the archive creation using `compote` on Espressif's Component Manager CLI:
 
@@ -110,7 +111,8 @@ compote component upload --name <component_name> --namespace <your_user_name>
 
 The archive is uploaded and then processed server-side; the version appears once processing completes.
 
-> Note: The upload command requires authentication through an ESP Component Registry API token. Ensure the `IDF_COMPONENT_API_TOKEN` environment variable is set (`$env:IDF_COMPONENT_API_TOKEN="<token>"`/`export IDF_COMPONENT_API_TOKEN=<token>`) before running `compote component upload`. Then, the component can be published with `compote component upload`.
+> [!TIP] **TOKEN AUTENTICATION**
+> The upload command requires authentication through an ESP Component Registry API token. Ensure the `IDF_COMPONENT_API_TOKEN` environment variable is set (`$env:IDF_COMPONENT_API_TOKEN="<token>"`/`export IDF_COMPONENT_API_TOKEN=<token>`) before running `compote component upload`. Then, the component can be published with `compote component upload`.
 
 For more details, see IDF Component Manager [Publish components](https://docs.espressif.com/projects/idf-component-manager/en/latest/publish/index.html) and [Compote CLI](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/compote_cli.html) official documentation.
 
@@ -124,7 +126,8 @@ compote component upload --name <component_name> --namespace <your_user_name>
 
 Published versions (`<namespace>/<component_name>^<version>`) on the ESP Component Registry are permanent and immutable. Once a version is uploaded, Espressif's backend prevents re-uploading or modifying that exact version string.
 
-> Note: Updates use the same authentication mechanism as the initial publication. Ensure a valid ESP Component Registry access token is configured before publishing a new version.
+> [!TIP] **TOKEN AUTENTICATION**
+> Updates use the same authentication mechanism as the initial publication. Ensure a valid ESP Component Registry access token is configured before publishing a new version.
 
 ---
 
@@ -182,12 +185,12 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   For ESP-IDF examples, whitespace in the `"examples"` → `"name"` field is strictly prohibited: it causes the PlatformIO registry to generate a directory path containing spaces upon download, which will break the build.
   For Arduino examples, PlatformIO does not require the `.ino` filename to match its parent folder name, so you can customize it as you prefer.
 
-  > ⚠️ **Note on PIO Home Example Rendering:**  
+  > [!WARNING] **PIO Home Example Rendering**  
   > When declaring structured multi-file examples in `library.json` (using `name`, `base`, and `files`), you may notice that the **PIO Home GUI panel** in VS Code does not group files correctly. Instead of showing a single project entry labeled with `example.name`, PIO Home currently flattens the array, rendering each source file as an individual entry (e.g., separate items named `main`, `CMakeLists`, etc.) due to a known rendering limitation in the desktop interface (reported in [PlatformIO Issue #12672](https://github.com/platformio/platformio-home/issues/12672)). Rest assured that the metadata and structure are correct: the examples render and index properly on the online PlatformIO Registry website.
 
 For more details, see PlatformIO [library.json](https://docs.platformio.org/en/latest/manifests/library-json/index.html) official documentation.
 
-### 5.3.2 Local Pre-Verification
+### 5.3.2 Pre-Verification
 
 To verify which files will be included in the published package, generate a local package archive using the PlatformIO Core CLI:
 
@@ -207,7 +210,8 @@ pio pkg publish
 
 The package is processed server-side and the result is reported by email.
 
-> Note: The publish command requires an authenticated PlatformIO account. Ensure you are logged in locally before running `pio pkg publish`.
+> [!TIP] **ACCOUNT AUTENTICATION**
+> The publish command requires an authenticated PlatformIO account. Ensure you are logged in locally before running `pio pkg publish`.
 
 For more details, see PlatformIO [Package Management CLI](https://docs.platformio.org/en/latest/core/userguide/pkg/index.html) official documentation.
 
@@ -221,7 +225,8 @@ pio pkg publish
 
 Published versions (`<owner>/<name>@^<version>`) on PlatformIO Registry are permanent and immutable. Once a version is uploaded, PlatformIO core backend prevents re-uploading or modifying that exact version string.
 
-> Note: Updates use the same authentication mechanism as the initial publication. Ensure your PlatformIO account is authenticated before publishing a new version.
+> [!TIP] **ACCOUNT AUTENTICATION**
+> Updates use the same authentication mechanism as the initial publication. Ensure your PlatformIO account is authenticated before publishing a new version.
 
 ---
 
@@ -270,6 +275,7 @@ Name the GitHub repository and `library.properties` using **PascalCase** (e.g., 
 
 PlatformIO allows flexibility in package naming and can resolve dependencies across casing styles without breaking. However, **recommending the same lowercase name as ESP-IDF** (`foo`) is best practice to prevent subtle cross-ecosystem naming conflicts and avoid the PlatformIO backend package rename trap.
 
+<!-- conclusion to be move in their chapter:
 ---
 
 ## Beyond *Arduino* & *ESP-IDF*: Extending and Contributing
@@ -285,17 +291,13 @@ Before diving into your own multi-ecosystem implementations, be sure to explore 
 The embedded landscape is constantly evolving, and platforms like Zephyr, new microcontrollers, or alternative build systems continue to emerge. If you are looking to extend this framework-agnostic approach to other platforms, refine the appendices, or share your own experiences, contributions and pull requests are always welcome.
 
 Embedded development thrives on shared knowledge; feel free to open an issue, propose improvements, or adapt these patterns to help make multi-ecosystem library maintenance smoother for everyone.
-
+-->
 ---
 
-## Table of Contents
+<!-- markdownlint-disable MD033 -->
+<div align="center">
 
-- [Introduction](../README.md)
-- [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md)
-- [Chapter 2 - Repository Structure](02-repo-structure.md)
-- [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)
-- [Chapter 4 - Example Conventions](04-examples.md)
-- [Chapter 5 - Publishing](05-publishing.md)
-- [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)
-- [Appendix B - Yield & Watchdog](../appendix/B-yield-watchdog.md)
-- [Appendix C - Naming Convention](../appendix/C-naming-convention.md)
+[⬅️ Chapter 4 - Example Conventions](04-examples.md) — [Introduction](../README.md) <!--— [Conclusion (to be write) ➡️](06-final-checklist.md)-->
+
+</div>
+<!-- markdownlint-enable MD033 -->

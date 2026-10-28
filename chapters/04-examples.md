@@ -6,7 +6,7 @@ With the core fully framework-agnostic and the HAL sitting between it and the fr
 
 ## 4.1 Arduino
 
-The Arduino IDE expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`: the sketch name must match its parent directory. Additional levels of nesting can group examples into categories (`examples/<Category>/<ExampleName>/<ExampleName>.ino`) without affecting discovery, as long as this naming convention is preserved. PlatformIO's example browser falls back to the same convention when `library.json` doesn't define `examples` explicitly (see [5.3.1 Manifest and Metadata](05-publishing.md#531-manifest-and-metadata)). <!--cambio di link alla pubblicazione-->
+The Arduino IDE expects examples to be organized as `examples/<ExampleName>/<ExampleName>.ino`: the sketch name must match its parent directory. Additional levels of nesting can group examples into categories (`examples/<Category>/<ExampleName>/<ExampleName>.ino`) without affecting discovery, as long as this naming convention is preserved. PlatformIO's example browser falls back to the same convention when `library.json` doesn't define `examples` explicitly (see [5.3.1 Manifest and Metadata](05-publishing.md#531-manifest-and-metadata)).
 
 ESP-IDF example projects don't follow this convention and are therefore automatically omitted from the Arduino IDE's Examples menu. No further setup is needed.
 
@@ -29,7 +29,7 @@ dependencies:
 
 mirrors the resolution and manifest validation rules enforced by the **ESP Component Registry**.  <!--lla frase è un po' forte, non so se la validazione del cmponenete passa anche sulle dipendenze dei sui esempi--> This ensures that your examples test the exact same integration model that end users will experience once the library is published.
 
-For more details, see Espressif's documentation on how to [Reference an ESP Component](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/index.html), and [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for a deep dive into component resolution mechanisms.
+For more details, see Espressif's documentation on [How to Package and Upload Examples](https://docs.espressif.com/projects/idf-component-manager/en/latest/publish/how_to_examples.html), and [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for a deep dive into component resolution mechanisms.
 
 ---
 
@@ -42,11 +42,6 @@ This requires only a single additional setting in `platformio.ini` beyond the us
 ```ini
 [platformio]
 src_dir = main
-
-[env:esp32dev]
-platform = espressif32
-framework = espidf
-board = esp32dev
 ```
 
 With `src_dir = main`, PlatformIO builds the same hand-written, IDF-native project used by `idf.py`, reusing the existing `CMakeLists.txt` and `idf_component.yml`. As a result, the same `main.cpp` builds unchanged whether the project is compiled through `idf.py build` or PlatformIO's **Build button**.
