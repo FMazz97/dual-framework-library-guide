@@ -74,8 +74,8 @@ In a **pure CMake** workflow, component discovery is entirely filesystem-driven:
 
   Each registered directory can be a component itself (it contains a `CMakeLists.txt`) or a parent whose subdirectories are components. ESP-IDF registers every component under the exact **name** of its folder.
 
-> [!NOTE]
-> `EXTRA_COMPONENT_DIRS` must be set after `cmake_minimum_required()` and **before** `include(.../project.cmake)`. Prefer `list(APPEND EXTRA_COMPONENT_DIRS ...)` with `${CMAKE_CURRENT_LIST_DIR}` over `set(...)`: it avoids discarding existing component paths and gives robust path resolution.
+  > [!NOTE]
+  > `EXTRA_COMPONENT_DIRS` must be set after `cmake_minimum_required()` and **before** `include(.../project.cmake)`. Prefer `list(APPEND EXTRA_COMPONENT_DIRS ...)` with `${CMAKE_CURRENT_LIST_DIR}` over `set(...)`: it avoids discarding existing component paths and gives robust path resolution.
 
 - Declare the dependency in the `CMakeLists.txt` of the component that uses it (here `main`) to make public headers and symbols accessible:
 
