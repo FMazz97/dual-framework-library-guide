@@ -44,9 +44,12 @@ The two workflows below only differ in **how the library component reaches the b
 
 | Role | Responsibility | How |
 | :--- | :--- | :--- |
-| **Discovery (CMake)** | decides which directories are components | scans `COMPONENT_DIRS`: `IDF_PATH/components`, the project's `components/` folder, and `EXTRA_COMPONENT_DIRS`; a component is named after its folder |
+| **Discovery (CMake)** | decides which directories are components | scans `COMPONENT_DIRS`: `IDF_PATH/components`, the project's `components/` folder, and `EXTRA_COMPONENT_DIRS` |
 | **Component Manager** | adds more components to that list | runs inside CMake's configuration step: reads manifests, solves dependencies, and downloads them into `managed_components`, which CMake then scans (local dependencies are used in place) |
 | **Requirements (CMake)** | connects components to each other | `REQUIRES` and `PRIV_REQUIRES` define include paths and linking between components already known to the build; in a project they are typically declared by `main`, the component that uses the library |
+
+> [!IMPORTANT]
+> A component is named as its folder. This is the name the build system knows, in both workflows described below.
 
 Whichever way a directory is found, it is presented to the build system together with its source. That source sets an **override order**, which can also be used on purpose: when two components share the same name, the one higher in this list replaces the others.
 
@@ -72,7 +75,7 @@ In a **pure CMake** workflow, component discovery is entirely filesystem-driven:
   project(my_example)
   ```
 
-  Each registered directory can be a component itself (it contains a `CMakeLists.txt`) or a parent whose subdirectories are components. ESP-IDF registers every component under the exact **name** of its folder.
+  Each registered directory can be a component itself (it contains a `CMakeLists.txt`) or a parent whose subdirectories are components.
 
 > [!NOTE]
 > `EXTRA_COMPONENT_DIRS` must be set after `cmake_minimum_required()` and **before** `include(.../project.cmake)`. Prefer `list(APPEND EXTRA_COMPONENT_DIRS ...)` with `${CMAKE_CURRENT_LIST_DIR}` over `set(...)`: it avoids discarding existing component paths and gives robust path resolution.
@@ -98,7 +101,7 @@ Project
 │         ↓
 │   build system component paths
 │   (ESP-IDF components + project + ../path/to/foo/)
-│         ↓  later, during the build
+│         ↓  then, still in the configuration step
 │   ../path/to/foo/CMakeLists.txt → idf_component_register(...)
 │
 └── main/
@@ -131,6 +134,8 @@ Here the component is not registered by the root `CMakeLists.txt`, but resolved 
 
 A local dependency like the one above is not downloaded: its folder path is passed directly to the build system, together with the base ESP-IDF components and the project's own components.
 
+A Registry dependency enters the build under its folder name, `<namespace>__<name>`. In tests, a `REQUIRES "<name>"` in the `CMakeLists.txt` of the component that uses it is accepted, while `REQUIRES "<namespace>__<name>"` is not resolved and produces an error.
+
 The Component Manager performs no name validation here: the component name still comes from the folder name, which for a local dependency must match the name declared in the manifest. Naming rules are only enforced at publication, by `compote component pack` and `compote component upload` (see [Chapter 1](../chapters/01-ecosystem-constraints.md#registry-naming-rules)).
 
 ```text
@@ -143,7 +148,7 @@ Project
               ↓  Component Manager (inside CMake's configuration step)
         build system component paths
         (ESP-IDF components + project + ../path/to/foo/)
-              ↓  later, during the build
+              ↓  then, still in the configuration step
         ../path/to/foo/CMakeLists.txt → idf_component_register(...)
 ```
 
@@ -171,7 +176,7 @@ For more details, see [IDF Component Manager](https://docs.espressif.com/project
 | :--- | :--- | :--- |
 | **Declared in** | the root `CMakeLists.txt` (`EXTRA_COMPONENT_DIRS`), or by placing the component in `components/` | the `idf_component.yml` of the consuming component |
 | **Component found by** | filesystem scan of the registered directories | dependency resolution (local path, registry, Git) |
-| **Name** | the folder name | the folder name; for a local dependency it must match the declared component name (rules enforced only at publication) |
+| **Name** | the folder name | `<namespace>__<name>` for a Registry dependency; for a local dependency it must match the declared component name (rules enforced only at publication) |
 | **Requirements** | explicit `REQUIRES` / `PRIV_REQUIRES` (optional in `main`) | added to the build system automatically from the manifest dependencies |
 | **Override level** | project components, or `EXTRA_COMPONENT_DIRS` | managed components (lower than both) |
 | **Side effects** | none | `managed_components` for downloaded dependencies |
