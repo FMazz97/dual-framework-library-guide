@@ -147,6 +147,10 @@ From the core's perspective, there is no concept of Arduino `digitalWrite()`, ES
 
 > [!NOTE]
 > Real implementations may occasionally require small leaks across that boundary. In [CS123x](https://github.com/FMazz97/CS123x), the library on which this guide is based, AVR-specific fast-I/O fields (register pointers and bit masks) remain declared in the core class under `#if defined(__AVR__)`, because the HAL macros expand directly inside the core methods. This does not change the architectural separation described above, but it is a practical exception worth documenting rather than pretending the abstraction is perfectly pure.
+<!-- markdownlint-disable MD028 -->
+<!-- markdownlint-enable MD028 -->
+> [!IMPORTANT]
+> **A premise discovered after the library.** In ESP-IDF, the dominant design choice for a component's public API is almost always a C API rather than a C++ one: even Espressif's [esp-idf-cxx](https://components.espressif.com/components/espressif/esp-idf-cxx) provides C++ classes as wrappers around ESP-IDF's components. The architecture in this chapter, a C++ core with an Arduino facade, was designed without that premise. A library aiming at both ecosystems could instead use a C core (`foo_t`) plus a C++ wrapper (`class Foo`), which would also settle the departures noted in [Appendix C](../appendix/C-naming-convention.md). The repository layout, the HAL, and the publishing steps are language-agnostic and would carry over, but the whole guide could be restructured around this premise. [CS123x](https://github.com/FMazz97/CS123x) itself keeps a C++ core, because the realization emerged while writing the guide, not the library.
 
 With the architecture defined under `src/`, **the library source code is complete.** What remains is the examples: Arduino examples work naturally across Arduino IDE and PlatformIO, while ESP-IDF examples need additional structure to stay buildable under both native ESP-IDF and PlatformIO. [Chapter 4 - Example Conventions](04-examples.md) covers that shared layout.
 
