@@ -72,12 +72,12 @@ The mapping is mechanical: drop the underscores and capitalise the next letter (
 
 | Reference | Functions and methods | Classes and structs | Enums and constants |
 | :--- | :--- | :--- | :--- |
-| **Arduino style guide** | `camelCase` | no indication | long ALL_CAPS names are hard to read: simplify them, without being terse |
-| **ESP-IDF style guide (C)** | `snake_case` | type definitions in `snake_case_t` | `typedef enum` with namespaced ALL_CAPS constants (`MODULE_FOO_ONE`) and a `module_foo_t` type |
+| **Arduino style guide** | `camelCase` | no indication | long ALL_CAPS names are hard to read; simplify where possible |
+| **ESP-IDF style guide (C)** | `snake_case` | type definitions in `snake_case_t` | namespaced ALL_CAPS constants (`MODULE_FOO_ONE`) and a `module_foo_t` type |
 | **ESP-IDF style guide (C++)** | `snake_case` methods and members | `CamelCase`, with an underscore allowed if readability suffers (`GPIO_Output`) | no indication |
-| **C++ Core Guidelines** | `underscore_style` (NL.10) | `underscore_style` (NL.10); capitalizing only type names is discouraged (NL.5) | ALL_CAPS for macros only (NL.9) |
+| **C++ Core Guidelines** | `underscore_style` (NL.10) | examples predominantly use `PascalCase` types | ALL_CAPS reserved for macros (NL.9) |
 
-The shared names land in between: `CS123X_Config` follows the ESP-IDF C++ pattern (`CamelCase`, with an underscore after an all-caps prefix, as in `GPIO_Output`), and `CS123X_GAIN_128` mirrors ESP-IDF's namespaced ALL_CAPS constants. The class itself is the one real departure: the core class `cs123x` follows the C++ standard library's `snake_case`, whereas ESP-IDF's C++ guide asks for `CamelCase` classes, which the facade class `CS123x` happens to satisfy for both ecosystems.
+The shared names land in between: `CS123X_Config` follows the ESP-IDF C++ pattern (`CamelCase`, with an underscore after an all-caps prefix, as in `GPIO_Output`), while `CS123X_GAIN_128` mirrors ESP-IDF's namespaced ALL_CAPS constants. The resulting API remains idiomatic in both Arduino and ESP-IDF environments without requiring different naming conventions for shared types.
 
 **Enumerations.** Avoid `enum class`: use plain enums whose enumerators carry the class prefix (`CS123X_GAIN_128`), which gives the same namespacing without the drawbacks. Scoped enumerators require qualification and explicit casts, which is hard on Arduino beginners used to plain constants like `HIGH` and `INPUT`, and `enum class` is C++-only, so it would not carry over to a C core (see the note in [Chapter 3](../chapters/03-agnostic-core-hal-architecture.md)).
 
@@ -99,7 +99,7 @@ The shared names land in between: `CS123X_Config` follows the ESP-IDF C++ patter
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Appendix B - Yield & Watchdog](B-yield-watchdog.md) — [Introduction](../README.md)
+[⬅️ Appendix B - Yield & Watchdog](B-yield-watchdog.md) — [Introduction](../README.md) — [Appendix D - Testing During Development ➡️](D-testing-during-development.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->
