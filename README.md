@@ -7,6 +7,8 @@ A practical guide to architecture, repository layout, and publishing for ESP32 l
 > [!NOTE]
 > **Reference implementation:** this guide comes from the practical experience of developing [CS123x](https://github.com/FMazz97/CS123x), a driver for the Chipsea CS1237 and CS1238 24-bit differential ADCs, designed for load cells, weight scales, and bridge sensors. The library follows every pattern, layout, and configuration described in these chapters.
 >
+> **Design note:** the CS123x core is written in C++. For ESP-IDF, a C core with a C++ wrapper may be the more idiomatic choice: see the note in [Chapter 3](chapters/03-agnostic-core-hal-architecture.md).
+>
 > **Tested with:** ESP-IDF v6.1 (native), PlatformIO `espressif32@6.4.0` (IDF 5.1.1), Arduino IDE 2.3.x. Registry/tool behavior observed in September 2026; it may change.
 
 ## Table of Contents
