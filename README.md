@@ -23,7 +23,7 @@ A practical guide to architecture, repository layout, and publishing for ESP32 l
 - [Appendix A - IDF Dependency Resolution](appendix/A-esp-idf-dependency-resolution.md)
 - [Appendix B - Yield & Watchdog](appendix/B-yield-watchdog.md)
 - [Appendix C - Naming Convention](appendix/C-naming-convention.md)
-- [Appendix D - Testing During Development](D-testing-during-development.md)
+- [Appendix D - Testing During Development](appendix/D-testing-during-development.md)
 
 ---
 
