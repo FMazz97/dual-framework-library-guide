@@ -52,6 +52,10 @@ The lesson: **a convention found by auditing a real API is often more reliable t
 > - [ESP-IDF style guide](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/contribute/style-guide.html)
 >
 > They don't always agree with each other: this appendix sets out compromises that try to align them all.
+<!-- markdownlint-disable MD028 -->
+<!-- markdownlint-enable MD028 -->
+> [!NOTE]
+> **Terminology.** The ESP-IDF guide says `CamelCase` but specifies "with a capital letter as beginning", which is `PascalCase`, while the Arduino guide's "camel case" means `camelCase`, with a lowercase initial. The same word covers two styles, so this guide always writes `camelCase` (`readNetCounts()`) and `PascalCase` (`CS123x`).
 
 | Item | Core / ESP-IDF | Arduino facade |
 | :--- | :--- | :--- |
@@ -62,7 +66,7 @@ The lesson: **a convention found by auditing a real API is often more reliable t
 | Shared types and constants | `CS123X_Config`, `CS123X_GAIN_128`: identical in both | |
 
 > [!WARNING]
-> The core class is shown in lowercase (`cs123x`), which violates ESP-IDF's C++ convention of `CamelCase` classes. See [Exceptions in CS123x](#exceptions-in-cs123x) below and the note in [Chapter 3](../chapters/03-agnostic-core-hal-architecture.md) on a possible C core, where this class would disappear.
+> The core class is shown in lowercase (`cs123x`), which departs from ESP-IDF's C++ convention of `PascalCase` classes. It is deliberate: it keeps the core's calls close to the C style, where a function usually written `foo_method()` reads as `foo.method()`.
 
 The mapping is mechanical: drop the underscores and capitalise the next letter (`get_timeout_ms()` → `getTimeoutMs()`), and the prefix semantics above carry over unchanged. In practice, **design every new method in `snake_case` first, in the core, and derive the facade name from it**, never the other way around.
 
@@ -77,22 +81,23 @@ The mapping is mechanical: drop the underscores and capitalise the next letter (
 | **ESP-IDF style guide (C++)** | `snake_case` methods and members | `CamelCase`, with an underscore allowed if readability suffers (`GPIO_Output`) | no indication |
 | **C++ Core Guidelines** | `underscore_style` (NL.10) | examples predominantly use `PascalCase` types | ALL_CAPS reserved for macros (NL.9) |
 
-The shared names land in between: `CS123X_Config` follows the ESP-IDF C++ pattern (`CamelCase`, with an underscore after an all-caps prefix, as in `GPIO_Output`), while `CS123X_GAIN_128` mirrors ESP-IDF's namespaced ALL_CAPS constants. The resulting API remains idiomatic in both Arduino and ESP-IDF environments without requiring different naming conventions for shared types.
+> [!NOTE]
+> **Terminology.** The ESP-IDF guide says `CamelCase` but specifies "with a capital letter as beginning", which is `PascalCase`, while the Arduino guide's "camel case" means `camelCase`, with a lowercase initial. The same word covers two styles, so this guide always writes `camelCase` (`readNetCounts()`) and `PascalCase` (`CS123x`).
 
-**Enumerations.** Avoid `enum class`: use plain enums whose enumerators carry the class prefix (`CS123X_GAIN_128`), which gives the same namespacing without the drawbacks. Scoped enumerators require qualification and explicit casts, which is hard on Arduino beginners used to plain constants like `HIGH` and `INPUT`, and `enum class` is C++-only, so it would not carry over to a C core (see the note in [Chapter 3](../chapters/03-agnostic-core-hal-architecture.md)).
+The shared names land in between: `CS123X_Config` follows the ESP-IDF C++ pattern (`CamelCase`, with an underscore after an all-caps prefix, as in `GPIO_Output`), and `CS123X_GAIN_128` mirrors ESP-IDF's namespaced ALL_CAPS constants. The class itself is the one real departure: the core class `cs123x` is in `snake_case`, like the C++ standard library's classes, whereas ESP-IDF's C++ guide asks for `CamelCase` classes, which the facade class `CS123x` happens to satisfy for both ecosystems.
+
+**Enumerations.** Avoid `enum class`: use plain enums whose enumerators carry the class prefix (`CS123X_GAIN_128`), which gives the same namespacing without the drawbacks. Scoped enumerators require qualification and explicit casts, which is hard on Arduino beginners used to plain constants like `HIGH` and `INPUT`, and `enum class` is C++-only, so it would not carry over to a C core.
 
 > [!IMPORTANT]
-> These are conventions, not rules: the references disagree. To stay closer to ESP-IDF's C style, the scheme works just as well with the `_t` suffix on types (e.g. `CS123X_Config_t`). What matters is that every shared name is built the same way, from the class prefix (`CLASSNAME_Rest`): it keeps each name unambiguous and prevents clashes with macro names, which is the reason the C++ Core Guidelines reserve ALL_CAPS for macros. CS123x itself has no `_t` types, because this analysis emerged while writing the guide, not the library.
+> These are conventions, not rules: the references disagree. To stay closer to ESP-IDF's C style, the scheme works just as well with the `_t` suffix on types (e.g. `CS123X_Config_t`). What matters is that every shared name is built the same way, from the class prefix (`CLASSNAME_Rest`): it keeps each name unambiguous and prevents clashes with macro names, which is the reason the C++ Core Guidelines reserve ALL_CAPS for macros.
 
 **Files.** Core and HAL files are lowercase (`cs123x.h`, `cs123x_hal_espidf.h`); the facade keeps the library name (`CS123x.h`). The core header and the facade header differ only in case, so they must never share a folder: on a case-insensitive file system they would be the same file (here they live in `src/core/` and `src/`, see [Chapter 2](../chapters/02-repo-structure.md)).
 
 ---
 
-## Exceptions in CS123x
+## A deliberate exception: boolean `verify` arguments
 
-**The lowercase core class (not deliberate).** The core class `cs123x` is in lowercase because of an incorrect assumption made while designing the library, not because of a rule: with a C core it would disappear, replaced by a `cs123x_t` type and a `CamelCase` C++ wrapper class.
-
-**Boolean `verify` arguments (deliberate).** The same Arduino style guide advises avoiding boolean arguments, suggesting two functions with distinguishing names instead. The library knowingly deviates with `bool verify = true`, found on `set_config()`, `set_ch()`, `set_gain()`, `set_rate()`, `set_ref()`, `read_temp()`, and `read_dual_channel()`. The flag is uniform across the whole API (always the last parameter, always defaulting to `true`, always meaning "read the register back to confirm"), so it reads as a convention rather than an oversight, and it avoids doubling every hardware-writing method into a verified and an unverified twin.
+The same Arduino style guide advises avoiding boolean arguments, suggesting two functions with distinguishing names instead. The library knowingly deviates with `bool verify = true`, found on `set_config()`, `set_ch()`, `set_gain()`, `set_rate()`, `set_ref()`, `read_temp()`, and `read_dual_channel()`. The flag is uniform across the whole API (always the last parameter, always defaulting to `true`, always meaning "read the register back to confirm"), so it reads as a convention rather than an oversight, and it avoids doubling every hardware-writing method into a verified and an unverified twin.
 
 ---
 

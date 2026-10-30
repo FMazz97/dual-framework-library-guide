@@ -2,9 +2,6 @@
 
 With the repository structure established ([Chapter 2 - Repository Structure](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing **Arduino** and **ESP-IDF** to use their own **native hardware APIs**?
 
-> [!IMPORTANT]
-> **A premise discovered too late.** In ESP-IDF, the dominant design choice for a component's public API is almost always a C API rather than a C++ one: even Espressif's [esp-idf-cxx](https://components.espressif.com/components/espressif/esp-idf-cxx) provides C++ classes as wrappers around ESP-IDF's components. The architecture in this chapter, a C++ core with an Arduino facade, was designed without that premise. A library aiming at both ecosystems could instead use a C core (`foo_t`) plus a C++ wrapper (`class Foo`), which would also settle the departures noted in [Appendix C](../appendix/C-naming-convention.md). The repository layout, the HAL, and the publishing steps are language-agnostic and would carry over, but the whole guide could be restructured around this premise. [CS123x](https://github.com/FMazz97/CS123x) itself keeps a C++ core, because the realization emerged while writing the guide, not the library.
-
 The resulting architecture separates responsibilities into three layers:
 
 ```text

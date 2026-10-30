@@ -7,9 +7,11 @@ A practical guide to architecture, repository layout, and publishing for ESP32 l
 > [!NOTE]
 > **Reference implementation:** this guide comes from the practical experience of developing [CS123x](https://github.com/FMazz97/CS123x), a driver for the Chipsea CS1237 and CS1238 24-bit differential ADCs, designed for load cells, weight scales, and bridge sensors. The library follows every pattern, layout, and configuration described in these chapters.
 >
-> **Design note:** the CS123x core is written in C++. For ESP-IDF, a C core with a C++ wrapper may be the more idiomatic choice: see the note in [Chapter 3](chapters/03-agnostic-core-hal-architecture.md).
->
 > **Tested with:** ESP-IDF v6.1 (native), PlatformIO `espressif32@6.4.0` (IDF 5.1.1), Arduino IDE 2.3.x. Registry/tool behavior observed in September 2026; it may change.
+<!-- markdownlint-disable MD028 -->
+<!-- markdownlint-enable MD028 -->
+> [!WARNING]
+> **The guide is based on a C++ class shared by both frameworks.** It derives from the CS123x library, which was born for Arduino and then adapted to ESP-IDF quickly, by adding only the HAL and the Arduino facade. This approach sits halfway between using the [Arduino-ESP32](https://docs.espressif.com/projects/arduino-esp32/en/latest/index.html) component, which brings the whole framework along, and a full port following Espressif's guide on [porting a library to an ESP-IDF component](https://developer.espressif.com/blog/2025/10/porting-external-library-as-component/). In the future, the guide may be updated to follow the path of a C core for ESP-IDF, with error handling through `esp_err_t`, and a C++ facade for Arduino.
 
 ## Table of Contents
 
@@ -21,6 +23,7 @@ A practical guide to architecture, repository layout, and publishing for ESP32 l
 - [Appendix A - IDF Dependency Resolution](appendix/A-esp-idf-dependency-resolution.md)
 - [Appendix B - Yield & Watchdog](appendix/B-yield-watchdog.md)
 - [Appendix C - Naming Convention](appendix/C-naming-convention.md)
+- [Appendix D - Testing During Development](D-testing-during-development.md)
 
 ---
 
