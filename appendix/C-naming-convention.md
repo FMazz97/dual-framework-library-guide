@@ -18,7 +18,7 @@ While refining the public API of the [CS123x](https://github.com/FMazz97/CS123x)
 
 The boundary between `set_*` and `write_*` is the existence of a counterpart: `set_config()` pairs with `get_config()`, while `write_bits()` has no `get_bits()`, because it is a transfer and not state. A primitive that reads and writes in a single transaction carries both prefixes, as in the private `read_val_and_write_register()`: it honours the `read_*` promise (it can time out and returns sentinel values) while also writing to the device.
 
-The `read_*`/`write_*` pair also echoes the Arduino [library style guide](https://docs.arduino.cc/learn/contributions/arduino-library-style-guide/), which asks to use `read()` to read inputs and `write()` to write outputs, as in `digitalRead()` and `analogWrite()`.
+The `read_*`/`write_*` pair also echoes the Arduino library style guide, which asks to use `read()` to read inputs and `write()` to write outputs, as in `digitalRead()` and `analogWrite()`.
 
 Everything else (`begin()`, `power_up()`, `power_down()`, `tare()`, `is_ready()`, `calibrate_*`) sits outside the scheme: universal, self-explanatory names like `begin()` and `end()` need no convention, and the rest adapt to the device at hand, so imposing a rule on them would make little sense. The guideline only asks that such names don't borrow one of the four prefixes without keeping its promise.
 
@@ -44,6 +44,15 @@ The lesson: **a convention found by auditing a real API is often more reliable t
 
 ## Case styles: `snake_case` for the core directly used by ESP-IDF, `camelCase` for the Arduino facade
 
+> [!IMPORTANT]
+> Each of the three systems already has its own guidelines:
+>
+> - [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming)
+> - [Arduino library style guide](https://docs.arduino.cc/learn/contributions/arduino-library-style-guide/)
+> - [ESP-IDF style guide](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/contribute/style-guide.html)
+>
+> They don't always agree with each other: this appendix sets out compromises that try to align them all.
+
 | Item | Core / ESP-IDF | Arduino facade |
 | :--- | :--- | :--- |
 | Class | `cs123x` | `CS123x` |
@@ -52,9 +61,12 @@ The lesson: **a convention found by auditing a real API is often more reliable t
 | Parameters | `known_weight` | `knownWeight` |
 | Shared types and constants | `CS123X_Config`, `CS123X_GAIN_128`: identical in both | |
 
+> [!WARNING]
+> The core class is shown in lowercase (`cs123x`), which violates ESP-IDF's C++ convention of `CamelCase` classes. See [Exceptions in CS123x](#exceptions-in-cs123x) below and the note in [Chapter 3](../chapters/03-agnostic-core-hal-architecture.md) on a possible C core, where this class would disappear.
+
 The mapping is mechanical: drop the underscores and capitalise the next letter (`get_timeout_ms()` → `getTimeoutMs()`), and the prefix semantics above carry over unchanged. In practice, **design every new method in `snake_case` first, in the core, and derive the facade name from it**, never the other way around.
 
-**Why two spellings.** The core follows the conventions of the environment it targets natively: ESP-IDF's [style guide](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/contribute/style-guide.html) asks for `snake_case` functions (`gpio_set_level()`) and, in C++, `snake_case` methods and members, which is also what the C++ standard library does, and what the [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming) prefer. The facade follows the Arduino style guide, which asks to "Use camel case function names, not underscore", a style it adopted from Processing.org for readability, as in `analogRead()`. Each audience sees one style only, and the two never appear side by side in a user's code (see [Chapter 3](../chapters/03-agnostic-core-hal-architecture.md)).
+**Why two spellings.** The core follows the conventions of the environment it targets natively: ESP-IDF's style guide asks for `snake_case` functions (`gpio_set_level()`) and, in C++, `snake_case` methods and members, which is also what the C++ standard library does, and what the C++ Core Guidelines prefer. The facade follows the Arduino style guide, which asks to "Use camel case function names, not underscore", a style it adopted from Processing.org for readability, as in `analogRead()`. Each audience sees one style only, and the two never appear side by side in a user's code (see [Chapter 3](../chapters/03-agnostic-core-hal-architecture.md)).
 
 **Shared types and constants.** Enums, structs, and constants are shared by core and facade, so they keep a single spelling in both worlds, built on the class prefix: `CS123X_` followed by PascalCase for types (`CS123X_Config`, `CS123X_DualReading`) and ALL_CAPS for constants and enumerators (`CS123X_GAIN_128`, `CS123X_TIMEOUT_ERROR`). No single standard covers them, and the references disagree, so here is what each one says, for the record:
 
@@ -67,6 +79,8 @@ The mapping is mechanical: drop the underscores and capitalise the next letter (
 
 The shared names land in between: `CS123X_Config` follows the ESP-IDF C++ pattern (`CamelCase`, with an underscore after an all-caps prefix, as in `GPIO_Output`), and `CS123X_GAIN_128` mirrors ESP-IDF's namespaced ALL_CAPS constants. The class itself is the one real departure: the core class `cs123x` follows the C++ standard library's `snake_case`, whereas ESP-IDF's C++ guide asks for `CamelCase` classes, which the facade class `CS123x` happens to satisfy for both ecosystems.
 
+**Enumerations.** Avoid `enum class`: use plain enums whose enumerators carry the class prefix (`CS123X_GAIN_128`), which gives the same namespacing without the drawbacks. Scoped enumerators require qualification and explicit casts, which is hard on Arduino beginners used to plain constants like `HIGH` and `INPUT`, and `enum class` is C++-only, so it would not carry over to a C core (see the note in [Chapter 3](../chapters/03-agnostic-core-hal-architecture.md)).
+
 > [!IMPORTANT]
 > These are conventions, not rules: the references disagree. To stay closer to ESP-IDF's C style, the scheme works just as well with the `_t` suffix on types (e.g. `CS123X_Config_t`). What matters is that every shared name is built the same way, from the class prefix (`CLASSNAME_Rest`): it keeps each name unambiguous and prevents clashes with macro names, which is the reason the C++ Core Guidelines reserve ALL_CAPS for macros. CS123x itself has no `_t` types, because this analysis emerged while writing the guide, not the library.
 
@@ -74,9 +88,11 @@ The shared names land in between: `CS123X_Config` follows the ESP-IDF C++ patter
 
 ---
 
-## A deliberate exception: boolean `verify` arguments
+## Exceptions in CS123x
 
-The same Arduino style guide advises avoiding boolean arguments, suggesting two functions with distinguishing names instead. The library knowingly deviates with `bool verify = true`, found on `set_config()`, `set_ch()`, `set_gain()`, `set_rate()`, `set_ref()`, `read_temp()`, and `read_dual_channel()`. The flag is uniform across the whole API (always the last parameter, always defaulting to `true`, always meaning "read the register back to confirm"), so it reads as a convention rather than an oversight, and it avoids doubling every hardware-writing method into a verified and an unverified twin.
+**The lowercase core class (not deliberate).** The core class `cs123x` is in lowercase because of an incorrect assumption made while designing the library, not because of a rule: with a C core it would disappear, replaced by a `cs123x_t` type and a `CamelCase` C++ wrapper class.
+
+**Boolean `verify` arguments (deliberate).** The same Arduino style guide advises avoiding boolean arguments, suggesting two functions with distinguishing names instead. The library knowingly deviates with `bool verify = true`, found on `set_config()`, `set_ch()`, `set_gain()`, `set_rate()`, `set_ref()`, `read_temp()`, and `read_dual_channel()`. The flag is uniform across the whole API (always the last parameter, always defaulting to `true`, always meaning "read the register back to confirm"), so it reads as a convention rather than an oversight, and it avoids doubling every hardware-writing method into a verified and an unverified twin.
 
 ---
 
