@@ -1,6 +1,6 @@
-# Native Libraries for Both Arduino & ESP-IDF
+# Dual-Framework Library Guide
 
-A practical guide to architecture, repository layout, and publishing for ESP32 libraries that run natively on both ecosystems.
+Native libraries for Arduino & ESP-IDF: a practical guide to architecture, repository layout, and publishing for ESP32 libraries that run natively on both ecosystems.
 
 **Who it's for:** developers who want to write libraries that work natively on both Arduino and ESP-IDF, starting from either ecosystem.
 
@@ -15,6 +15,9 @@ A practical guide to architecture, repository layout, and publishing for ESP32 l
 - [Appendix B - Yield & Watchdog](appendix/B-yield-watchdog.md)
 - [Appendix C - Naming Convention](appendix/C-naming-convention.md)
 - [Appendix D - Testing During Development](appendix/D-testing-during-development.md)
+- [Appendix E - Final Checklist](appendix/E-final-checklist.md)
+- [LICENSE](LICENSE)
+- [LICENSE-CODE](LICENSE-CODE)
 
 ---
 
@@ -95,6 +98,21 @@ This guide documents the architecture, constraints, and practical decisions requ
 > [!WARNING]
 > **The guide is based on a C++ class shared by both frameworks.** The previously mentioned [CS123x](https://github.com/FMazz97/CS123x) library, was born for Arduino and then adapted to ESP-IDF quickly, by adding only the HAL and the Arduino facade. This approach sits halfway between using the [Arduino-ESP32](https://docs.espressif.com/projects/arduino-esp32/en/latest/index.html) component — which brings the whole framework along — and rewriting the core in C with ESP-IDF convention.
 > In the future, the guide may be updated to follow the path of a C core for ESP-IDF — with error handling through `esp_err_t`, if possible — and a C++ facade class for Arduino.
+
+---
+
+## License
+
+This guide is dual-licensed:
+
+- **Text** (prose, tables, diagrams): [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/), see [LICENSE](LICENSE).
+- **Code** (every fenced code block and snippet): [MIT License](https://mit-license.org/), see [LICENSE-CODE](LICENSE-CODE).
+
+[![CC BY 4.0](https://licensebuttons.net/l/by/4.0/88x31.png)](https://creativecommons.org/licenses/by/4.0/)
+
+<!-- markdownlint-disable MD034 -->
+If you reuse or adapt the text, give credit as: *"Dual-Framework Library Guide" by FMazz97, https://github.com/FMazz97/arduino-espidf-dual-library-guide*, and indicate if changes were made. Code snippets can be reused under the MIT terms, keeping the copyright notice.
+<!-- markdownlint-enable MD034 -->
 
 ---
 
