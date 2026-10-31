@@ -2,16 +2,7 @@
 
 A practical guide to architecture, repository layout, and publishing for ESP32 libraries that run natively on both ecosystems.
 
-**Who it's for:** developers comfortable with Arduino who want to write libraries that also work as native ESP-IDF components. Basic familiarity with Arduino libraries and, optionally, PlatformIO is assumed.
-
-> [!NOTE]
-> **Reference implementation:** this guide comes from the practical experience of developing [CS123x](https://github.com/FMazz97/CS123x), a driver for the Chipsea CS1237 and CS1238 24-bit differential ADCs, designed for load cells, weight scales, and bridge sensors. The library follows every pattern, layout, and configuration described in these chapters.
->
-> **Tested with:** ESP-IDF v6.1 (native), PlatformIO `espressif32@6.4.0` (IDF 5.1.1), Arduino IDE 2.3.x. Registry/tool behavior observed in September 2026; it may change.
-<!-- markdownlint-disable MD028 -->
-<!-- markdownlint-enable MD028 -->
-> [!WARNING]
-> **The guide is based on a C++ class shared by both frameworks.** It derives from the CS123x library, which was born for Arduino and then adapted to ESP-IDF quickly, by adding only the HAL and the Arduino facade. This approach sits halfway between using the [Arduino-ESP32](https://docs.espressif.com/projects/arduino-esp32/en/latest/index.html) component, which brings the whole framework along, and a full port following Espressif's guide on [porting a library to an ESP-IDF component](https://developer.espressif.com/blog/2025/10/porting-external-library-as-component/). In the future, the guide may be updated to follow the path of a C core for ESP-IDF, with error handling through `esp_err_t`, and a C++ facade for Arduino.
+**Who it's for:** developers who want to write libraries that work natively on both Arduino and ESP-IDF, starting from either ecosystem.
 
 ## Table of Contents
 
@@ -39,7 +30,8 @@ Before diving into the technical constraints, it's worth answering a more fundam
 
 **Arduino is, and will remain for a long time, the primary entry point into embedded development.**
 
-Its greatest strength is not raw technical capability, but **accessibility.** Projects can be initialized in seconds, the API is intentionally approachable, and compiling and flashing firmware is often reduced to a single click. For beginners, hobbyists, educators, and even experienced developers building quick prototypes, this reduction in friction is not a secondary advantage: it is the very reason the platform became dominant and continues to attract the largest community in the embedded world.
+Its greatest strength is not raw technical capability, but **accessibility.** Projects can be initialized in seconds, the API is intentionally approachable, and compiling and flashing firmware is often reduced to a single click. Beginners, hobbyists, educators, and even experienced developers building quick prototypes.
+This reduction in friction is not a secondary advantage: it is the very reason the platform became dominant and continues to attract the largest community in the embedded world.
 
 **Ignoring Arduino means ignoring where most users begin.**
 
@@ -59,7 +51,7 @@ There is also a technical reality that is often underestimated:
 </p>
 <!-- markdownlint-enable MD033 -->
 
-`arduino-esp32` is itself a layer built on top of ESP-IDF as a component, not an independent alternative. The question isn't "Arduino or IDF?" but rather:
+[`arduino-esp32`](https://docs.espressif.com/projects/arduino-esp32/en/latest/index.html) is itself a layer built on top of ESP-IDF as a component, not an independent alternative. The question isn't "Arduino or IDF?" but rather:
 
 ***Do you want to interact directly with the platform's engine, or through an additional translation layer?***
 
@@ -92,6 +84,17 @@ This guide documents the architecture, constraints, and practical decisions requ
 - [PlatformIO Registry](https://registry.platformio.org/)
 
 **Addressing this architectural choice right from the start helps avoid the need to adapt or refactor the library at a later stage.**
+
+> [!NOTE]
+> **Reference implementation:** this guide comes from the practical experience of developing my [CS123x](https://github.com/FMazz97/CS123x) library. It follows almost every pattern, layout, and configuration described in these chapters. A few differences remain, as the guide evolved beyond the original implementation through additional research and experimentation across both frameworks.
+>
+> **Tested with:** ESP-IDF v6.1 (native), PlatformIO `espressif32@6.4.0` (IDF 5.1.1), Arduino IDE 2.3.x.
+> Registry/tool behavior observed in September 2026; it may change.
+<!-- markdownlint-disable MD028 -->
+<!-- markdownlint-enable MD028 -->
+> [!WARNING]
+> **The guide is based on a C++ class shared by both frameworks.** The previously mentioned [CS123x](https://github.com/FMazz97/CS123x) library, was born for Arduino and then adapted to ESP-IDF quickly, by adding only the HAL and the Arduino facade. This approach sits halfway between using the [Arduino-ESP32](https://docs.espressif.com/projects/arduino-esp32/en/latest/index.html) component — which brings the whole framework along — and rewriting the core in C with ESP-IDF convention.
+> In the future, the guide may be updated to follow the path of a C core for ESP-IDF — with error handling through `esp_err_t`, if possible — and a C++ facade class for Arduino.
 
 ---
 

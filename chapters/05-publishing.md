@@ -181,8 +181,7 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   }
   ```
 
-  - **Avoid parentheses and maybe other special chart, they mede invalid the manifest.**
-  - **ESP-IDF examples:** avoid whitespace,  in the `"examples"` → `"name"` field. The registry derives the download directory from it, and a path containing spaces breaks the build.
+  - **Example names:** use only letters, digits, `-` and `_` in the `"examples"` → `"name"` field. Parentheses make the manifest invalid: `pio pkg pack` and `pio pkg publish` both report it, so the pre-verification step catches it before publishing (other special characters were not tested). For ESP-IDF examples, whitespace also breaks the build: the registry derives the download directory from the name, and a path containing spaces breaks the build.
   - **Arduino examples:** PlatformIO does not require the `.ino` filename to match its parent folder, but keep the convention from [Chapter 4](04-examples.md#41-arduino), since the same files are consumed by the Arduino IDE.
 
 > [!IMPORTANT]
