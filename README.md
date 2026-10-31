@@ -11,6 +11,7 @@ Native libraries for Arduino & ESP-IDF: a practical guide to architecture, repos
 - [Chapter 3 - Agnostic Core & HAL Architecture](chapters/03-agnostic-core-hal-architecture.md)
 - [Chapter 4 - Example Conventions](chapters/04-examples.md)
 - [Chapter 5 - Publishing](chapters/05-publishing.md)
+- [Chapter 6 - Conclusions](chapters/06-conclusions.md)
 - [Appendix A - IDF Dependency Resolution](appendix/A-esp-idf-dependency-resolution.md)
 - [Appendix B - Yield & Watchdog](appendix/B-yield-watchdog.md)
 - [Appendix C - Naming Convention](appendix/C-naming-convention.md)

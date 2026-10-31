@@ -162,7 +162,7 @@ The Arduino IDE only looks in its own `libraries` folder, so the only way to tes
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Appendix C - Naming Convention](C-naming-convention.md) — [Introduction](../README.md)
+[⬅️ Appendix C - Naming Convention](C-naming-convention.md) — [Introduction](../README.md) — [Appendix E - Final Checklist ➡️](E-final-checklist.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->

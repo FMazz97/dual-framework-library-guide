@@ -268,30 +268,12 @@ Name the GitHub repository and `library.properties` using **PascalCase** (e.g. `
 
 PlatformIO allows flexibility in package naming and can resolve dependencies across casing styles without breaking. However, **using the same lowercase name as ESP-IDF** (`foo`) is best practice: it prevents subtle cross-ecosystem naming conflicts and avoids the PlatformIO package rename trap.
 
-<!-- conclusion to be move in their chapter:
----
-
-## Beyond *Arduino* & *ESP-IDF*: Extending and Contributing
-
-While this guide focused heavily on bridging Arduino, ESP-IDF and PlatformIO, the underlying architectural patterns (unified source layouts, explicit dependency management, and reciprocal registry exclusions) are likely applicable to the wider embedded ecosystem.
-
-Before diving into your own multi-ecosystem implementations, be sure to explore and contribute to the appendices for deeper technical insights:
-
-- **[Appendix A: ESP-IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)** — A deep dive into how ESP-IDF resolves complex dependency graphs.
-- **[Appendix B: Yield & Watchdog Conventions](../appendix/B-yield-watchdog.md)** — Guidelines on yields and watchdogs across AVR, ESP8266 and FreeRTOS-based ESP32 targets.
-- **[Appendix C: Naming Conventions](../appendix/C-naming-convention.md)** — A recap of the class and method naming rules.
-
-The embedded landscape is constantly evolving, and platforms like Zephyr, new microcontrollers, or alternative build systems continue to emerge. If you are looking to extend this framework-agnostic approach to other platforms, refine the appendices, or share your own experiences, contributions and pull requests are always welcome.
-
-Embedded development thrives on shared knowledge; feel free to open an issue, propose improvements, or adapt these patterns to help make multi-ecosystem library maintenance smoother for everyone.
--->
-
 ---
 
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Chapter 4 - Example Conventions](04-examples.md) — [Introduction](../README.md) <!--— [Conclusion (to be written) ➡️](06-final-checklist.md)-->
+[⬅️ Chapter 4 - Example Conventions](04-examples.md) — [Introduction](../README.md) — [Chapter 6 - Conclusions ➡️](06-conclusions.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->
