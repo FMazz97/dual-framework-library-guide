@@ -181,7 +181,8 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   }
   ```
 
-  - **ESP-IDF examples:** avoid whitespace in the `"examples"` → `"name"` field. The registry derives the download directory from it, and a path containing spaces breaks the build.
+  - **Avoid parentheses and maybe other special chart, they mede invalid the manifest.**
+  - **ESP-IDF examples:** avoid whitespace,  in the `"examples"` → `"name"` field. The registry derives the download directory from it, and a path containing spaces breaks the build.
   - **Arduino examples:** PlatformIO does not require the `.ino` filename to match its parent folder, but keep the convention from [Chapter 4](04-examples.md#41-arduino), since the same files are consumed by the Arduino IDE.
 
 > [!IMPORTANT]

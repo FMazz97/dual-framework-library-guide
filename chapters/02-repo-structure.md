@@ -15,7 +15,7 @@ repo/                    ← repository root = component root = component name
 ├── library.properties   ← Arduino
 ├── library.json         ← PlatformIO
 ├── src/
-│   ├── Foo.h            ← Arduino public header (camelCase facade)
+│   ├── Foo.h            ← Arduino public header (facade, camelCase methods)
 │   ├── core/            ← shared implementation
 │   │   ├── foo.h        ← ESP-IDF public header
 │   │   └── foo.cpp

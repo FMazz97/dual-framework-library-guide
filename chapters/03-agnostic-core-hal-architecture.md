@@ -5,7 +5,7 @@ With the repository structure established ([Chapter 2 - Repository Structure](02
 The resulting architecture separates responsibilities into three layers:
 
 ```text
-Foo (Arduino facade, camelCase)
+Foo (Arduino facade: camelCase methods)
 │ forwards every call 1:1, adds nothing
 ▼
 foo (core, snake_case)

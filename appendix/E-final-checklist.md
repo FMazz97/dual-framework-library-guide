@@ -1,79 +1,91 @@
 # Appendix E — Final Checklist
 
-Every item below is a rule that came out of the previous chapters. The last section lists what this guide did **not** verify; keep it honest.
+Every item below is a rule that came out of the previous chapters and of the development of CS123x. The last section lists what this guide did **not** verify.
 
-## E.1 Before writing code
+## Before writing code
 
-- [ ] Fix the **final package name** for every registry before the first publish: lowercase, 2–64 characters, `a-z`, `0-9`, `-`, `_`, no leading, trailing or consecutive separators. `compote` lowercases `--name` anyway. (Ch. 5, App. A, App. C)
-- [ ] Fix the naming scheme: `snake_case` in the core, `camelCase` in the Arduino facade, shared types and constants identical in both; prefix semantics `get_` / `set_` / `read_` / `is_` / `calibrate_`. (App. C)
-- [ ] Hardware access goes through **compile-time macros** (HAL), not virtual interfaces or templates. (Ch. 3)
-- [ ] The core calls no framework API directly. Test `ARDUINO` before `ESP_PLATFORM`. (Ch. 3)
+- [ ] Fix the **final package name** for every registry before the first publish. ESP component: lowercase, 2–64 characters, `a-z`, `0-9`, `-`, `_`, no leading, trailing or consecutive separators (`compote` lowercases `--name` anyway). PlatformIO: the same lowercase name. Arduino library and GitHub repository: `PascalCase`. ([Ch. 1](../chapters/01-ecosystem-constraints.md#registry-naming-rules), [Ch. 5](../chapters/05-publishing.md#55-the-generalizable-naming-rule), [App. C](C-naming-convention.md))
+- [ ] Fix the naming scheme: `snake_case` in the core, `camelCase` methods in the Arduino facade, shared types and constants identical in both; prefix semantics `get_` / `set_` / `read_` / `write_`. ([App. C](C-naming-convention.md))
+- [ ] Use plain enums whose enumerators carry the class prefix; avoid `enum class`. ([App. C](C-naming-convention.md))
+- [ ] Hardware access goes through **compile-time macros** (HAL), not virtual interfaces or templates. ([Ch. 3](../chapters/03-agnostic-core-hal-architecture.md))
+- [ ] The core calls no framework API directly. Test `ARDUINO` before `ESP_PLATFORM`. ([Ch. 3](../chapters/03-agnostic-core-hal-architecture.md))
 - [ ] In headers shared with AVR, include the C headers (`<stdint.h>`, `<math.h>`): `<cstdint>` and `<cmath>` broke the AVR build in this project.
 
-## E.2 Repository layout
+## Repository layout
 
-- [ ] IDF manifest and `CMakeLists.txt` at the **repository root**; sources under `src/`, referenced by paths that only go down (never `..`). (Ch. 2)
-- [ ] Arduino: everything that must compile lives under `src/`; examples are `examples/<Name>/<Name>.ino`. (Ch. 1)
-- [ ] The facade header and the core header differ only in case, so they never share a folder. (App. C)
-- [ ] Check what the package exclusion lists remove: excluding the Arduino HAL header breaks anyone building the IDF package with `ARDUINO` defined. (Ch. 5)
-- [ ] Each IDF example is a native project: `main/`, `main/idf_component.yml` (with `override_path`), and a `platformio.ini` with `src_dir = main`. (Ch. 4)
+- [ ] IDF manifest and `CMakeLists.txt` at the **repository root**; sources under `src/`, referenced by paths that only go down (never `..`). ([Ch. 2](../chapters/02-repo-structure.md))
+- [ ] Arduino: everything that must compile lives under `src/`; examples are `examples/<Name>/<Name>.ino`. ([Ch. 1](../chapters/01-ecosystem-constraints.md), [Ch. 4](../chapters/04-examples.md))
+- [ ] The facade header and the core header differ only in case, so they never share a folder (for now: see the warning in the [Introduction](../README.md)). ([App. C](C-naming-convention.md))
+- [ ] Check what the package exclusion lists remove: excluding the Arduino HAL header breaks anyone building the IDF package with `ARDUINO` defined. ([Ch. 5](../chapters/05-publishing.md))
+- [ ] Each IDF example is a native project: `main/`, `main/idf_component.yml` (with `override_path`), and a `platformio.ini` with `src_dir = main` and `lib_deps`. ([Ch. 4](../chapters/04-examples.md))
 
-## E.3 Manifests
+## Manifests
 
 - [ ] `library.properties` (Arduino): `name`, `version`, `includes`.
-- [ ] `library.json` (PlatformIO): `name` lowercase, `"frameworks": ["arduino", "espidf"]`, example `name`s **without parentheses**.
+- [ ] `library.json` (PlatformIO): `name` lowercase, `"frameworks": ["arduino", "espidf"]`, example `name`s **without parentheses and spaces**.
 - [ ] `idf_component.yml` (ESP): `version`, `description`, `url`/`repository`, `idf` constraint, `examples`, `files: exclude`.
 - [ ] **One version number, identical in all three.**
 
-## E.4 Dependencies under ESP-IDF
+## Dependencies under ESP-IDF
 
-- [ ] Use **one** resolution path: `idf_component.yml` (works under native IDF and PlatformIO), or `lib_deps` with **no** `REQUIRES`. Never `lib_deps` and `REQUIRES` together without a manifest. (App. A)
-- [ ] With `EXTRA_COMPONENT_DIRS`: the `list(APPEND …)` goes **before** `include(…project.cmake)`; the folder name is the component name, case preserved.
-- [ ] `REQUIRES <name>` accepts the short name for Registry components; the long `<namespace>__<name>` is rejected. (App. A)
-- [ ] Test the example **as a user gets it**: `idf.py create-project-from-example "<namespace>/<name>^<version>:<example>"`, then build. (App. A)
+- [ ] Give each toolchain **one** authoritative resolution path: `idf_component.yml` for native `idf.py`, `lib_deps` for PlatformIO. Never `lib_deps` and `REQUIRES` together without a manifest or `EXTRA_COMPONENT_DIRS`: PlatformIO fetches the package, but nothing registers it as a component. ([Ch. 4](../chapters/04-examples.md#44-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems))
+- [ ] With `EXTRA_COMPONENT_DIRS`: the `list(APPEND …)` goes **before** `include(…project.cmake)`; the component is named after its folder. ([App. A](A-esp-idf-dependency-resolution.md))
+- [ ] `REQUIRES` is optional in `main`, which requires every component automatically, and needed in any other component. ([App. A](A-esp-idf-dependency-resolution.md))
+- [ ] `REQUIRES <name>` accepts the short name for Registry components; the long `<namespace>__<name>` is rejected (in tests). ([App. A](A-esp-idf-dependency-resolution.md))
+- [ ] Test the example **as a user gets it**: `idf.py create-project-from-example "<namespace>/<name>^<version>:<example>"`, then build.
 
-## E.5 Cooperating with the scheduler
+## Cooperating with the scheduler
 
-- [ ] No portable `yield()`: AVR does nothing, ESP8266 needs the real call, ESP32 (Arduino and IDF) needs `vTaskDelay(1)`, not `taskYIELD()`. (App. B)
+- [ ] No portable `yield()`: AVR does nothing, ESP8266 needs the real call, ESP32 (Arduino and IDF) needs `vTaskDelay(1)`, not `taskYIELD()` or Arduino's `yield()`, which are only reschedule requests. ([App. B](B-yield-watchdog.md))
 - [ ] Polling loops: stay tight during the normal conversion window, yield after it, stop yielding near the timeout.
-- [ ] The guard before the timeout is **larger than one yield**; very long averages at high rates throttle their outer loop too.
-- [ ] Timeouts include a margin of at least one tick period.
+- [ ] The guard before the timeout is **larger than one yield** (up to one tick period), so a yield can never cause a timeout.
+- [ ] Very long averages at high rates throttle their outer loop too, at an interval well below the watchdog timeout.
 
-## E.6 Testing during development
+## Testing during development
 
-- [ ] The PlatformIO project directory is **outside** the library repository; `src_dir` may point inside. Library linked with `symlink://`. (App. D)
+- [ ] The PlatformIO project directory is **outside** the library repository; `src_dir` may point inside (the example folder, or its `main/` for ESP-IDF). Library linked with `symlink://`. ([App. D](D-testing-during-development.md))
 - [ ] One PlatformIO environment per wiring or USB port; `pio run` (all environments) before every release.
 - [ ] Native build: `idf.py -C <example> -B <output-folder> build`; check `git status` afterwards.
 - [ ] Arduino IDE: copy the whole repository into `libraries/`, keep one copy.
-- [ ] Never mix `idf.py` and PlatformIO builds in one folder without cleaning (`idf.py fullclean`). (Ch. 4)
-- [ ] When framework behaviour matters, open its source with F12 (Go to Definition) instead of trusting memory. (App. D)
-- [ ] **Never paste an API token into a log, report or issue.** If it happens, revoke it.
+- [ ] Never mix `idf.py` and PlatformIO builds in one folder without cleaning (`idf.py fullclean`). ([Ch. 4](../chapters/04-examples.md))
+- [ ] When framework behaviour matters, open its source with F12 (Go to Definition, works with PlatformIO) instead of trusting memory. ([App. D](D-testing-during-development.md))
 
-## E.7 Release, in order
+## Release, in order
 
-1. [ ] Bump `version` in all three manifests.
-2. [ ] Commit and **push** the bump. The tag snapshots the commit it points to.
-3. [ ] `arduino-lint --library-manager submit`.
-4. [ ] `pio pkg pack`, then list the archive (`tar -tzf`).
-5. [ ] `compote component upload --name <name> --dry-run`, then list the archives in `dist/`. The dry run uploads for validation and does not consume the version.
-6. [ ] Build every environment and flash at least one board.
+1. [ ] Build every environment and flash at least one board.
+2. [ ] Bump `version` in all three manifests.
+3. [ ] Commit and **push** the bump. The tag snapshots the commit it points to.
+4. [ ] `arduino-lint --library-manager submit`.
+5. [ ] `pio pkg pack`, then list the archive (`tar -tzf`).
+6. [ ] `compote component upload --name <name> --dry-run`, then list the archives in `dist/`. The dry run validates without creating a version and needs no token.
 7. [ ] Tag and publish the GitHub Release.
-8. [ ] `pio pkg publish`. `accepted` is not `published`: wait for the email and check the package page.
-9. [ ] `compote component upload --name <name>`. Processing is asynchronous; check `upload-status`.
-10. [ ] Arduino: first release goes through a Pull Request to the registry, updates are automatic after a new tag.
+8. [ ] Arduino: the first release goes through a Pull Request to the registry; updates are automatic after a new tag.
+9. [ ] `pio pkg publish` (logged in with `pio account login`). `accepted` is not `published`: wait for the email and check the package page.
+10. [ ] `compote component upload --name <name> --namespace <namespace>` (token in `IDF_COMPONENT_API_TOKEN`). Processing is asynchronous; check `upload-status`.
 11. [ ] Install from each registry in a **clean project** and build.
 
-## E.8 Known limits
+See [Chapter 5](../chapters/05-publishing.md) for the details of each registry.
 
-- The PIO Home → Examples panel ignores `examples[].name` for libraries and lists files one by one; the web Registry shows the names. (Ch. 5)
-- A PlatformIO package cannot be renamed from the CLI; it takes a support request. (Ch. 5)
+## Known limits
 
-## E.9 Not verified in this guide
+- The PIO Home → Examples panel ignores `examples[].name` for libraries and lists files one by one; the web Registry shows the names. ([Ch. 5](../chapters/05-publishing.md))
+- A PlatformIO package cannot be renamed from the CLI; it takes a support request. ([Ch. 5](../chapters/05-publishing.md#54-the-case-sensitivity-trap-platformios-immutable-package-binding))
 
+## Not verified in this guide
+
+- That a C API is the dominant design choice for ESP-IDF components: an observation, not measured.
 - Arduino tag with a `v` prefix: only tags without it were tested.
 - Version immutability on both Registries: stated from the documentation, never tested.
-- `lib_deps` references to the old name after the PlatformIO rename.
 - How the build system accepts `<name>` in `REQUIRES` for a component registered as `<namespace>__<name>`.
-- Which file (`build/`, `sdkconfig`, `dependencies.lock`, `managed_components/`) causes the `idf.py` → PlatformIO conflict.
 - Why the Arduino-ESP32 build never tripped the Task Watchdog (tick rate and core of `loop()` not compared).
-- `sdkconfig` options for native USB console on the C3.
+- The hypothesis on the unstable PlatformIO layout ([App. D](D-testing-during-development.md)): the files created while building appear to relaunch PlatformIO's reconfiguration; not verified in its source.
+
+---
+
+<!-- markdownlint-disable MD033 -->
+<div align="center">
+
+[⬅️ Appendix D - Testing During Development](D-testing-during-development.md) — [Introduction](../README.md)
+
+</div>
+<!-- markdownlint-enable MD033 -->

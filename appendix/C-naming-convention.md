@@ -55,7 +55,7 @@ The lesson: **a convention found by auditing a real API is often more reliable t
 <!-- markdownlint-disable MD028 -->
 <!-- markdownlint-enable MD028 -->
 > [!NOTE]
-> **Terminology.** The ESP-IDF guide says `CamelCase` but specifies "with a capital letter as beginning", which is `PascalCase`, while the Arduino guide's "camel case" means `camelCase`, with a lowercase initial. The same word covers two styles, so this guide always writes `camelCase` (`readNetCounts()`) and `PascalCase` (`CS123x`).
+> **Terminology.** The ESP-IDF guide says `CamelCase` but specifies "with a capital letter as beginning": that is `UpperCamelCase`, better known as `PascalCase`. The Arduino guide's "camel case" instead means `camelCase`, with a lowercase initial. The same word covers two styles, so this guide always writes `camelCase` (`readNetCounts()`) and `PascalCase` (`CS123x`).
 
 | Item | Core / ESP-IDF | Arduino facade |
 | :--- | :--- | :--- |
@@ -78,13 +78,8 @@ The mapping is mechanical: drop the underscores and capitalise the next letter (
 | :--- | :--- | :--- | :--- |
 | **Arduino style guide** | `camelCase` | no indication | long ALL_CAPS names are hard to read; simplify where possible |
 | **ESP-IDF style guide (C)** | `snake_case` | type definitions in `snake_case_t` | namespaced ALL_CAPS constants (`MODULE_FOO_ONE`) and a `module_foo_t` type |
-| **ESP-IDF style guide (C++)** | `snake_case` methods and members | `CamelCase`, with an underscore allowed if readability suffers (`GPIO_Output`) | no indication |
-| **C++ Core Guidelines** | `underscore_style` (NL.10) | examples predominantly use `PascalCase` types | ALL_CAPS reserved for macros (NL.9) |
-
-> [!NOTE]
-> **Terminology.** The ESP-IDF guide says `CamelCase` but specifies "with a capital letter as beginning", which is `PascalCase`, while the Arduino guide's "camel case" means `camelCase`, with a lowercase initial. The same word covers two styles, so this guide always writes `camelCase` (`readNetCounts()`) and `PascalCase` (`CS123x`).
-
-The shared names land in between: `CS123X_Config` follows the ESP-IDF C++ pattern (`CamelCase`, with an underscore after an all-caps prefix, as in `GPIO_Output`), and `CS123X_GAIN_128` mirrors ESP-IDF's namespaced ALL_CAPS constants. The class itself is the one real departure: the core class `cs123x` is in `snake_case`, like the C++ standard library's classes, whereas ESP-IDF's C++ guide asks for `CamelCase` classes, which the facade class `CS123x` happens to satisfy for both ecosystems.
+| **ESP-IDF style guide (C++)** | `snake_case` methods and members | `PascalCase`: the guide writes `CamelCase` with a capital initial (UpperCamelCase), with an underscore allowed if readability suffers (`GPIO_Output`) | no indication |
+| **C++ Core Guidelines** | `underscore_style` (NL.10) | examples predominantly use `PascalCase` types | ALL_CAPS reserved for macros (NL.9) and costants |
 
 **Enumerations.** Avoid `enum class`: use plain enums whose enumerators carry the class prefix (`CS123X_GAIN_128`), which gives the same namespacing without the drawbacks. Scoped enumerators require qualification and explicit casts, which is hard on Arduino beginners used to plain constants like `HIGH` and `INPUT`, and `enum class` is C++-only, so it would not carry over to a C core.
 
