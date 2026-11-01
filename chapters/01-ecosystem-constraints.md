@@ -8,9 +8,9 @@ This chapter summarizes those rules and their practical consequences on library 
 
 ## 1.1 Arduino
 
-### Source discovery is structural
+### 1.1.1 Source discovery is structural
 
-The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every source file (`.cpp` / `.c` / `.s`) file found recursively under `src/`** (see: [Library specification - Layout of folders and files](https://docs.arduino.cc/arduino-cli/library-specification/#layout-of-folders-and-files)). There is no manifest listing compilation units: structure alone decides what gets built, so implementation files placed outside `src/` **are never compiled**.
+The Arduino build system (and PlatformIO's Arduino framework support, which follows the same convention) compiles **every source file (`.cpp` / `.c` / `.s`) found recursively under `src/`** (see: [Library specification - Layout of folders and files](https://docs.arduino.cc/arduino-cli/library-specification/#layout-of-folders-and-files)). There is no manifest listing compilation units: structure alone decides what gets built, so implementation files placed outside `src/` **are never compiled**.
 
 **Library identity is driven by public headers**, not folder names. As long as the expected public include (e.g. `#include <Foo.h>`) is available under `src/`, the library works regardless of how its directory is named on disk.
 
@@ -22,7 +22,7 @@ For more details, see [Arduino Library Specification](https://docs.arduino.cc/ar
 
 This guide targets the CMake-based ESP-IDF build system, the standard since ESP-IDF 4.x. Its fundamental building blocks are **components**: Espressif deliberately uses this term rather than *library* because components are self-contained units that can expose functionality, depend on other components, and participate directly in the build system.
 
-To understand the repository structure developed throughout this guide, three concepts must be distinguished:
+Three concepts must be distinguished:
 
 - **Component:** a reusable unit of source code registered through `idf_component_register()` in the component's root `CMakeLists.txt`. Its name comes from the folder that contains it.
 - **Component Manager:** an optional dependency-resolution layer that can discover, validate, and download components before the build begins.
@@ -30,9 +30,9 @@ To understand the repository structure developed throughout this guide, three co
 
 For more details, see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) on how components are discovered, and Espressif's guide ["What is the ESP Component Registry?"](https://developer.espressif.com/blog/2024/10/what-is-the-esp-registry/).
 
-### Source discovery is explicit
+### 1.2.1 Source discovery is explicit
 
-Unlike Arduino, ESP-IDF does not discover source files automatically from directory conventions. Every component must explicitly declare its source files and public include directories using `SRCS` and `INCLUDE_DIRS`:
+Unlike Arduino, ESP-IDF does not discover source files automatically from directory conventions. Every component must explicitly declare its source files and public include in its `CmakeLists.txt`:
 
 ```cmake
 idf_component_register(
@@ -45,19 +45,19 @@ idf_component_register(
 
 Only files declared through this mechanism participate in the build.
 
-### Publication imposes the constraints
+### 1.2.2 Publication imposes the constraints
 
 ESP-IDF itself places very few restrictions on how components are organized locally: as long as CMake can locate the component and `idf_component_register()` points to the correct files, any layout is technically valid.
 
-Publication, however, introduces additional expectations for **reproducible and reliable components**.
+The constraints come from publication. The commands that package and upload a component, `compote component pack` and `compote component upload` (see: [Compote CLI](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/compote_cli.html)), enforce additional expectations for **reproducible and reliable components**, and two of them shape the whole guide.
 
-#### Published components must be self-contained
+#### 1.2.2.1 Published components must be self-contained
 
-The **ESP Component Registry** packages only the component itself: `compote component pack` and `compote component upload` are run from the component's root folder. Any source file referenced outside that boundary will be missing once the component is downloaded from the registry. Publishable components must therefore be self-contained, with `CMakeLists.txt` in the component root (as Espressif's [Component Files](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/component_files.html) reference specifies) and every required source inside it.
+The packaging commands run from the component's root folder and include only that folder itself, so any source file referenced outside that boundary will be missing once the component is downloaded from the **ESP Component Registry**. Publishable components must therefore be self-contained, with `CMakeLists.txt` in the component root and every required source inside it, as Espressif's [component files reference](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/component_files.html) specifies.
 
-#### Registry naming rules
+#### 1.2.2.2 Registry naming rules
 
-During local development, component names require little attention. Publication through the **ESP Component Registry**, however, enforces naming rules in the publication tooling: during `compote component pack` and `compote component upload`, component names are normalized to lowercase and validated against a restricted slug format (as revealed by inspecting the Component Manager source code).
+The same packaging commands normalize names to lowercase and validate them against a restricted slug format.
 
 Specifically, published component names:
 
@@ -69,11 +69,11 @@ Specifically, published component names:
 - cannot begin or end with `_` or `-`;
 - cannot contain consecutive separators such as `__`, `--`, `_-`, or `-_`.
 
-(see: [idf_component_manager/cli/validations.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_manager/cli/validations.py) and [idf_component_tools/manifest/constants.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_tools/manifest/constants.py))
+> These rules were revealed by inspecting the Component Manager source code: [idf_component_manager/cli/validations.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_manager/cli/validations.py) and [idf_component_tools/manifest/constants.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_tools/manifest/constants.py).
 
-**This can be surprising: the rules are enforced by the publication tooling, not by ESP-IDF's CMake build system.** The upload process silently converts names to lowercase before validation, without notifying the user, and at the time of writing, the behavior is not documented.
+**This can be surprising: the rules are enforced by the publication tooling, not by ESP-IDF's CMake configuration system.** The upload process silently converts names to lowercase before validation, without notifying the user. At the time of writing, the behavior is not documented.
 
-### The practical rule of thumb
+### 1.2.3 The practical rule of thumb
 
 When creating a component intended for reuse or publication, name it as if it were going to be published from day one. To maintain total consistency across toolchains, use the **exact same lowercase identifier**, in a 1-to-1 mapping, across every layer:
 
@@ -85,7 +85,7 @@ Component folder name (<name>/)
 
 This aligns local development and registry publication from the start, preventing breaking renames and identity mismatches down the road.
 
-For more details, see [IDF Component Manager](https://docs.espressif.com/projects/idf-component-manager/).
+For more details, see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md).
 
 ---
 
@@ -95,11 +95,11 @@ PlatformIO introduces no additional structural constraints on the library itself
 
 The only area that typically requires additional attention is the example/project structure on the ESP-IDF side, where the same examples may need to remain buildable under both native ESP-IDF and PlatformIO's ESP-IDF integration (see: [Chapter 4 - Example Conventions](04-examples.md)).
 
-### `framework = arduino`
+### 1.3.1 `framework = arduino`
 
 Source discovery follows Arduino's recursive `src/` compilation model. Metadata and examples are driven by PlatformIO's `library.json` manifest (including its structured `examples` field, see: [Arduino examples on PlatformIO](04-examples.md#arduino-examples-on-platformio)).
 
-### `framework = espidf`
+### 1.3.2 `framework = espidf`
 
 Here PlatformIO doesn't just wrap `idf.py`: it generates its **own** project scaffolding, driven by `platformio.ini` rather than IDF's native `CMakeLists.txt` flow. The convention shifts from IDF's `main/` folder to PlatformIO's own `src_dir` (default `src/`). A project can still use a hand-written, IDF-native `CMakeLists.txt`/`main/` layout under PlatformIO, but only by explicitly setting `src_dir = main`.
 

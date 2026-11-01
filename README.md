@@ -1,6 +1,6 @@
 # Dual-Framework Library Guide
 
-Native libraries for Arduino & ESP-IDF: a practical guide to architecture, repository layout, and publishing for ESP32 libraries that run natively on both ecosystems.
+**Native libraries for Arduino & ESP-IDF**: a practical guide to architecture, repository layout, and publishing for ESP32 libraries that run natively on both ecosystems.
 
 **Who it's for:** developers who want to write libraries that work natively on both Arduino and ESP-IDF, starting from either ecosystem.
 
