@@ -91,17 +91,27 @@ For more details, see [Appendix A - IDF Dependency Resolution](../appendix/A-esp
 
 ## 1.3 PlatformIO
 
-PlatformIO introduces no additional structural constraints on the library itself. When used with Arduino, it follows Arduino's library conventions; when used with ESP-IDF, it follows ESP-IDF's component model. As a result, the repository layout described in [Chapter 2 - Repository Structure](02-repo-structure.md) already satisfies PlatformIO without any other source organization.
+PlatformIO introduces no additional structural constraints on the library itself. However, it applies its own library-builder defaults independently of the selected framework.
 
-The only area that typically requires additional attention is the example/project structure on the ESP-IDF side, where the same examples may need to remain buildable under both native ESP-IDF and PlatformIO's ESP-IDF integration (see: [Chapter 4 - Example Conventions](04-examples.md)).
+By default, the library builder compiles the sources under `src/` (recursively) and automatically adds both `src/` and `include/` (if present) to the include search path, but not their subdirectories (see [`srcDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/srcdir.html) and [`includeDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/includedir.html) in the [`library.json`](https://docs.platformio.org/en/latest/manifests/library-json/index.html) reference).
+
+Headers located in a subfolder such as `src/core/` can be exposed through `library.json` by declaring it with `build.flags` (`"-I src/core"`; see [Chapter 5](05-publishing.md)). This plays a role similar to ESP-IDF's `INCLUDE_DIRS` within `idf_component_register()`: it extends the include search path without affecting the library's structure.
+
+As a result, the repository layout described in [Chapter 2 - Repository Structure](02-repo-structure.md) already satisfies PlatformIO without requiring any additional source reorganization.
 
 ### 1.3.1 `framework = arduino`
 
-Source discovery follows Arduino's recursive `src/` compilation model. Metadata and examples are driven by PlatformIO's `library.json` manifest (including its structured `examples` field, see: [Arduino examples on PlatformIO](04-examples.md#arduino-examples-on-platformio)).
+Under the Arduino framework, metadata, packaging, and examples are driven by PlatformIO's `library.json` manifest, including its structured `"examples"` field, with a fallback to the Arduino conventions when the manifest doesn't define them (see [Arduino examples on PlatformIO](04-examples.md#arduino-examples-on-platformio)).
 
 ### 1.3.2 `framework = espidf`
 
-Here PlatformIO doesn't just wrap `idf.py`: it generates its **own** project scaffolding, driven by `platformio.ini` rather than IDF's native `CMakeLists.txt` flow. The convention shifts from IDF's `main/` folder to PlatformIO's own `src_dir` (default `src/`). A project can still use a hand-written, IDF-native `CMakeLists.txt`/`main/` layout under PlatformIO, but only by explicitly setting `src_dir = main`.
+Under ESP-IDF, PlatformIO does more than simply invoke `idf.py`: it generates its own project scaffolding, driven by `platformio.ini` rather than by ESP-IDF's native project layout.
+
+The convention therefore shifts from ESP-IDF's traditional `main/` directory to PlatformIO's `src_dir` (which defaults to `src/`). A project can still preserve a fully native ESP-IDF structure by explicitly setting `src_dir = main`; the example layout that builds under both toolchains is described in [Chapter 4 - Example Conventions](04-examples.md#43-platformio).
+
+Libraries brought in through `lib_deps` continue to follow PlatformIO's library model and are processed by its library builder using the defaults described above.
+
+Components discovered through `EXTRA_COMPONENT_DIRS`, the project's `components/` folder, or the Component Manager (`idf_component.yml`) instead follow ESP-IDF's native component model (see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)).
 
 For more details, see [PlatformIO Library Management](https://docs.platformio.org/en/latest/librarymanager/).
 
@@ -109,15 +119,20 @@ For more details, see [PlatformIO Library Management](https://docs.platformio.or
 
 ## 1.4 Where the constraints collide
 
-Comparing these three ecosystems reveals that the true challenge of a cross-ecosystem library is not managing different APIs, but harmonizing conflicting toolchain assumptions about source discovery, identity, and publication:
+Comparing these three ecosystems reveals that the true challenge is not managing different APIs, but harmonizing conflicting toolchain assumptions about source discovery, identity, and publication:
 
-| Ecosystem | Primary structural constraint | Identity constraint |
+| Ecosystem | Structural constraint | Identity constraint |
 | :--- | :--- | :--- |
-| **Arduino** | All compilable sources **must** live under `src/` | Library identity is independent of the local folder name |
-| **ESP-IDF** | Published components **must** be self-contained | Component identity depends on the mechanism in use; *Registry-compatible* components require **lowercase** `<name>` values |
-| **PlatformIO** | Introduces no additional structural constraints beyond the selected framework | Package identity comes from `library.json` |
+| **Arduino** | All compilable sources **must** live under `src/` | Library identity is independent of the local folder name or `library.properties` manifest |
+| **ESP-IDF** | Published components **must** be self-contained | Registry-compatible components require **lowercase** slug format (see [1.2.2.2](#1222-registry-naming-rules)) |
+| **PlatformIO** | Introduces no additional structural constraints | Package identity comes from `library.json` |
 
-The root conflict comes down to just two non-negotiable rules: **Arduino's source discovery** (everything compiled lives under `src/`) and **ESP-IDF's publication requirements** (self-contained components with strict naming). They are not inherently incompatible: the challenge is simply finding a repository layout that satisfies both simultaneously.
+The root conflict comes down to just two non-negotiable rules:
+
+- **Arduino's source discovery** (everything compiled lives under `src/`)
+- **ESP-IDF's publication requirements** (self-contained components with strict naming)
+
+They are not inherently incompatible: the challenge is simply finding a repository layout that satisfies both simultaneously.
 
 The layout used throughout this guide exploits exactly that: the ESP-IDF component files (`CMakeLists.txt` and `idf_component.yml`) are placed at the repository root, making the repository itself the component boundary, while `src/` remains the single source of truth for the implementation. [Chapter 2 - Repository Structure](02-repo-structure.md) shows the resulting layout and explains why it works.
 

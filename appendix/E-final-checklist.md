@@ -22,7 +22,7 @@ Every item below is a rule that came out of the previous chapters and of the dev
 ## Manifests
 
 - [ ] `library.properties` (Arduino): `name`, `version`, `includes`.
-- [ ] `library.json` (PlatformIO): `name` lowercase, `"frameworks": ["arduino", "espidf"]`, example `name`s **without parentheses and spaces**.
+- [ ] `library.json` (PlatformIO): `name` lowercase, `"frameworks": ["arduino", "espidf"]`, `"build": {"flags": ["-I src/core"]}` for headers in subfolders, example `name`s **without parentheses and spaces**.
 - [ ] `idf_component.yml` (ESP): `version`, `description`, `url`/`repository`, `idf` constraint, `examples`, `files: exclude`.
 - [ ] **One version number, identical in all three.**
 

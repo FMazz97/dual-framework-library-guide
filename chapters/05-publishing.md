@@ -151,6 +151,9 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
 
   ```json
   {
+    "build": {
+      "flags": ["-I src/core"]
+    },
     "examples": [
       {
         "name": "Arduino_BasicExample",
@@ -181,6 +184,7 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   }
   ```
 
+  - **Header folders:** PlatformIO only adds `src/` to the include path, not its subfolders, so the core's public headers in `src/core/` are declared with `build.flags` (see [1.3 PlatformIO](01-ecosystem-constraints.md#13-platformio)).
   - **Example names:** use only letters, digits, `-` and `_` in the `"examples"` → `"name"` field. Parentheses make the manifest invalid: `pio pkg pack` and `pio pkg publish` both report it, so the pre-verification step catches it before publishing (other special characters were not tested). For ESP-IDF examples, whitespace also breaks the build: the registry derives the download directory from the name, and a path containing spaces breaks the build.
   - **Arduino examples:** PlatformIO does not require the `.ino` filename to match its parent folder, but keep the convention from [Chapter 4](04-examples.md#41-arduino), since the same files are consumed by the Arduino IDE.
 
