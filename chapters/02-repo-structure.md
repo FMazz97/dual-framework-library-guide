@@ -23,9 +23,28 @@ repo/                    ← repository root = component root = component name
 └── examples/
 ```
 
-ESP-IDF recognizes a component by its `CMakeLists.txt`, which must live in the component root (see [Published components must be self-contained](01-ecosystem-constraints.md#published-components-must-be-self-contained)). Placing `CMakeLists.txt` and `idf_component.yml` at the repository root therefore makes the repository itself the component: the ESP Component Registry packages the directory that contains the manifest, minus any exclusions declared under `files:` (see: [Manifest and Metadata](05-publishing.md#521-manifest-and-metadata)). The shared implementation under `src/core/` becomes part of the published package, while Arduino keeps discovering and compiling sources from `src/` exactly as expected.
+ESP-IDF recognizes a component by its `CMakeLists.txt`, which must live in the component root (see [Published components must be self-contained](01-ecosystem-constraints.md#1221-published-components-must-be-self-contained)). Placing `CMakeLists.txt` and `idf_component.yml` at the repository root therefore makes the repository itself the component: the ESP Component Registry packages the directory that contains the manifest, minus any exclusions declared under `files:` (see: [Manifest and Metadata](05-publishing.md#521-manifest-and-metadata)). The shared implementation under `src/core/` becomes part of the published package, while Arduino keeps discovering and compiling sources from `src/` exactly as expected.
 
-The absence of a traditional ESP-IDF `include/` directory is intentional. Since Arduino already requires public headers and implementation files to live within the `src/` tree, duplicating the same headers under a separate `include/` directory would introduce redundancy without providing any architectural benefit.
+The absence of a traditional `include/` directory, the usual home of public headers in both ESP-IDF components and PlatformIO libraries, is intentional. Since Arduino already requires public headers and implementation files to live within the `src/` tree, duplicating the same headers under a separate `include/` directory would introduce redundancy without providing any architectural benefit.
+
+On the ESP-IDF side, `INCLUDE_DIRS` points straight at the core folder:
+
+```cmake
+idf_component_register(
+    SRCS
+        "src/core/foo.cpp"
+    INCLUDE_DIRS
+        "src/core"
+)
+```
+
+PlatformIO's library builder, by default, compiles the sources under `src/` (recursively) and automatically adds both `src/` and `include/` (if present) to the include search path, but not their subdirectories (see [`srcDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/srcdir.html) and [`includeDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/includedir.html) in the [`library.json`](https://docs.platformio.org/en/latest/manifests/library-json/index.html) reference). Headers located in a subfolder such as `src/core/` can be exposed through `library.json`:
+
+```json
+  "build": { "flags": ["-I src/core"] }
+```
+
+This plays a role similar to ESP-IDF's `INCLUDE_DIRS`: it extends the include search path without affecting the library's structure.
 
 As a result, the same source tree works unchanged for:
 
@@ -42,17 +61,13 @@ A related trap, once the [Registry naming rules](01-ecosystem-constraints.md#reg
 
 **This isn't necessary.**
 
-The key observation is that `EXTRA_COMPONENT_DIRS` and the Component Manager (in local deployment) operate on **what exists locally on disk at build time**, while a component installed from the Registry is resolved from its registered package name. In neither case does the GitHub repository name play a role.
-
-Using:
+The key observation is that `EXTRA_COMPONENT_DIRS` and the Component Manager (in local deployment) operate on **what exists locally on disk at build time**, while a component installed from the Registry is resolved from its registered package name. In neither case does the GitHub repository name play a role: a component is named after its **local folder** ([Appendix A](../appendix/A-esp-idf-dependency-resolution.md)), and the clone command lets you choose it:
 
 ```bash
-git clone https://github.com/owner/Foo.git foo
+git clone https://github.com/<owner>/<repository>.git <component_name>
 ```
 
-clones the exact same repository (same history, same tags, same remote URL) into a **locally chosen** folder named `foo`, independent of whatever the repository is called on GitHub. As long as the local folder and manifest names satisfy the conventions from [Chapter 1]((01-ecosystem-constraints.md)), the remote name is irrelevant.
-
-Renaming the GitHub repository solves nothing that a documented `git clone <URL> <lowercase-name>` instruction doesn't already solve, while introducing real (if usually low) risk to existing registrations that may reference the current URL or name more strictly than expected.
+The same repository (history, tags, remote URL) lands in a folder named `<component_name>`, whatever the repository is called on GitHub. Renaming the repository would therefore solve nothing, while introducing real (if usually low) risk to existing registrations that may reference the current URL or name more strictly than expected.
 
 The distinction becomes even more important once publication enters the picture: ***repository name, local folder name, and package name are three different things.*** The first two can usually be changed with limited consequences (a repository rename still carries the risks above); **the third often cannot.**
 

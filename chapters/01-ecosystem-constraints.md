@@ -91,13 +91,7 @@ For more details, see [Appendix A - IDF Dependency Resolution](../appendix/A-esp
 
 ## 1.3 PlatformIO
 
-PlatformIO introduces no additional structural constraints on the library itself. However, it applies its own library-builder defaults independently of the selected framework.
-
-By default, the library builder compiles the sources under `src/` (recursively) and automatically adds both `src/` and `include/` (if present) to the include search path, but not their subdirectories (see [`srcDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/srcdir.html) and [`includeDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/includedir.html) in the [`library.json`](https://docs.platformio.org/en/latest/manifests/library-json/index.html) reference).
-
-Headers located in a subfolder such as `src/core/` can be exposed through `library.json` by declaring it with `build.flags` (`"-I src/core"`; see [Chapter 5](05-publishing.md)). This plays a role similar to ESP-IDF's `INCLUDE_DIRS` within `idf_component_register()`: it extends the include search path without affecting the library's structure.
-
-As a result, the repository layout described in [Chapter 2 - Repository Structure](02-repo-structure.md) already satisfies PlatformIO without requiring any additional source reorganization.
+PlatformIO is highly configurable by design and introduces no structural constraints on the library: as long as `platformio.ini` (and, for a library, its `library.json`) points to the correct sources and include paths, any layout is technically valid. As a result, the repository layout described in [Chapter 2 - Repository Structure](02-repo-structure.md) satisfies PlatformIO without any source reorganization, only a declaration of the folder holding the core headers.
 
 ### 1.3.1 `framework = arduino`
 
@@ -111,8 +105,8 @@ The convention therefore shifts from ESP-IDF's traditional `main/` directory to 
 
 How a dependency is built depends on how it enters the project:
 
-- **Libraries linked through `lib_deps`** continue to follow PlatformIO's library model and are processed by its library builder using the defaults described above (see [4.4 PlatformIO, Component Manager, and CMake are independent dependency-resolution systems](04-examples.md#44-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems))
-- **Components discovered through `EXTRA_COMPONENT_DIRS`, the project's `components/` folder, or the Component Manager (`idf_component.yml`)** follow ESP-IDF's native component model (see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md))
+- **Libraries linked through `lib_deps`** continue to follow PlatformIO's library model and are processed by its library builder, with the defaults described in [Chapter 2](02-repo-structure.md).
+- **Components discovered through `EXTRA_COMPONENT_DIRS`, the project's `components/` folder, or the Component Manager (`idf_component.yml`)** follow ESP-IDF's native component model (see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)).
 
 For more details, see [PlatformIO Library Management](https://docs.platformio.org/en/latest/librarymanager/).
 
