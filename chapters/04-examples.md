@@ -1,6 +1,6 @@
 # Chapter 4 — Example Conventions
 
-With the core fully framework-agnostic and the HAL sitting between it and the framework (see: [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)), the focus shifts to structuring `examples/`.
+With the core fully framework-agnostic and the HAL sitting between it and the framework (see: [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)), the focus shifts to structuring practical `examples/`. These are essential for showcasing the API to beginners and offer a ready-to-use template for quick setup. Ultimately, the base code written to test the library provides the perfect foundation to help users hit the ground running.
 
 ---
 
@@ -10,7 +10,7 @@ The Arduino IDE expects examples to be organized as `examples/<ExampleName>/<Exa
 
 ESP-IDF example projects don't follow this convention and are therefore automatically omitted from the Arduino IDE's Examples menu. No further setup is needed.
 
-For more details, see the `Library Examples` section on [Layout of folders and files](https://docs.arduino.cc/arduino-cli/library-specification/#layout-of-folders-and-files).
+For more details, see the **'Library Examples'** section on [Layout of folders and files](https://docs.arduino.cc/arduino-cli/library-specification/#layout-of-folders-and-files).
 
 ### Arduino examples on PlatformIO
 
@@ -29,13 +29,13 @@ and simply adapt the source code from default `src/` folder to the example folde
 src_dir = . ; tipical 
 ```
 
-The `examples` field of `library.json` then declares which files make up each example in the published package (see: [PlatformIO Manifest and Metadata](05-publishing#531-manifest-and-metadata)).
+The `examples` field of `library.json` specifies which files make up each example in the published package (see: [PlatformIO Manifest and Metadata](05-publishing#531-manifest-and-metadata)).
 
 ---
 
 ## 4.2 ESP-IDF (native)
 
-Unlike Arduino sketches, ESP-IDF examples are complete, self-contained projects, each with its own build scripts, configuration, and source directory structure. Native `idf.py` projects and PlatformIO's `framework = espidf` integration expect different layouts, but those differences are largely superficial: with a small amount of configuration, a single example can be built unchanged by both toolchains.
+ESP-IDF examples are complete, self-contained projects, each with its own build scripts, configuration, and source directory structure. Native `idf.py` projects and PlatformIO's `framework = espidf` integration expect different layouts, but those differences are largely superficial: with a small amount of configuration, a single example can be built unchanged by both toolchains.
 
 Natively, local examples can be wired using either a pure CMake setup or the ESP Component Manager, but **using the Component Manager is strongly recommended for publishable libraries**. Declaring dependencies via `main/idf_component.yml`:
 
@@ -71,7 +71,7 @@ At that point, an important question remains: *which system is responsible for r
 
 ## 4.4 PlatformIO, Component Manager, and CMake are independent dependency-resolution systems
 
-[Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) showed that ESP-IDF component discovery and component compilation are distinct stages of the build process. <!--ricontrollare una volta completata l'appendice A--> When **PlatformIO** is introduced, a third dependency-resolution mechanism enters the picture.
+[Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) showed that ESP-IDF component discovery and component compilation are distinct stages of the configuration process. <!--ricontrollare una volta completata l'appendice A--> When **PlatformIO** is introduced, a third dependency-resolution mechanism enters the picture.
 
 Under `framework = espidf`, three independent systems can participate in component resolution:
 
@@ -114,7 +114,7 @@ examples/my_example/
     └── main.cpp
 ```
 
-> [!WARNING]
+> [!IMPORTANT]
 > "The esp-idf build system does not support spaces in the path to either esp-idf or to projects." (see: [Step 5. Start a Project](https://docs.espressif.com/projects/esp-idf/en/v3.3/get-started-cmake/index.html#step-5-start-a-project))
 <!-- markdownlint-disable MD028 -->
 <!-- markdownlint-enable MD028 -->
