@@ -109,9 +109,10 @@ Under ESP-IDF, PlatformIO does more than simply invoke `idf.py`: it generates it
 
 The convention therefore shifts from ESP-IDF's traditional `main/` directory to PlatformIO's `src_dir` (which defaults to `src/`). A project can still preserve a fully native ESP-IDF structure by explicitly setting `src_dir = main`; the example layout that builds under both toolchains is described in [Chapter 4 - Example Conventions](04-examples.md#43-platformio).
 
-Libraries brought in through `lib_deps` continue to follow PlatformIO's library model and are processed by its library builder using the defaults described above.
+How a dependency is built depends on how it enters the project:
 
-Components discovered through `EXTRA_COMPONENT_DIRS`, the project's `components/` folder, or the Component Manager (`idf_component.yml`) instead follow ESP-IDF's native component model (see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)).
+- **Libraries linked through `lib_deps`** continue to follow PlatformIO's library model and are processed by its library builder using the defaults described above (see [4.4 PlatformIO, Component Manager, and CMake are independent dependency-resolution systems](04-examples.md#44-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems))
+- **Components discovered through `EXTRA_COMPONENT_DIRS`, the project's `components/` folder, or the Component Manager (`idf_component.yml`)** follow ESP-IDF's native component model (see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md))
 
 For more details, see [PlatformIO Library Management](https://docs.platformio.org/en/latest/librarymanager/).
 
