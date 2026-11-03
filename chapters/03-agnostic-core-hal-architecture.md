@@ -18,7 +18,7 @@ resolved at compile time through:
 #elif defined(ESP_PLATFORM)
 ```
 
-The **core** (styled in `snake_case`, following the **C++** standard library and **ESP-IDF** conventions; see [Appendix C - Naming Convention](../appendix/C-naming-convention.md)) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect.
+The **core** (styled in `snake_case`, following the **C++** standard library and **ESP-IDF** conventions; see [Case styles section in Appendix C](../appendix/C-naming-convention.md#case-styles-snake_case-for-the-core-directly-used-by-esp-idf-camelcase-for-the-arduino-facade)) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect.
 
 The facade's entire job is **forwarding** every public method, with no logic of its own:
 
@@ -56,6 +56,8 @@ By isolating framework selection within the HAL, **the protocol implementation e
 ## 3.1 Why compile-time macros, not virtual dispatch or templates
 
 Before settling on compile-time macros, two standard abstraction mechanisms, *virtual interfaces* and *C++ templates*, were evaluated and rejected: the first introduces overhead that cannot be justified in a low-level hardware-access layer designed to disappear at compile time, the second adds API complexity without any benefit here.
+
+Both are also C++-only, so neither would carry over to a C core, the hypothetical path mentioned at the end of the [Introduction](../README.md#-the-purpose-of-this-repository). C can only emulate virtual dispatch with function-pointer tables, which keep the same runtime indirection, while macros work unchanged in both languages.
 
 ### Virtual dispatch
 
@@ -116,7 +118,8 @@ Once the abstraction boundary is established, integration into the core is minim
 #endif
 ```
 
-> **Note:** The order of these checks matters. When building for ESP32 using the Arduino framework, both `ARDUINO` and `ESP_PLATFORM` are defined. For this reason, `ARDUINO` must be tested first; otherwise Arduino builds would incorrectly select the ESP-IDF HAL implementation.
+> [!IMPORTANT]
+> The order of these checks matters. When building for ESP32 using the Arduino framework, both `ARDUINO` and `ESP_PLATFORM` are defined. For this reason, `ARDUINO` must be tested first; otherwise Arduino builds would incorrectly select the ESP-IDF HAL implementation.
 
 From that point onward, the implementation uses only **framework-neutral macros**:
 
@@ -145,7 +148,7 @@ Each HAL then provides the *platform-specific* implementation of those operation
 
 From the core's perspective, there is no concept of Arduino `digitalWrite()`, ESP-IDF `gpio_set_level()`, or any other *framework-specific* API: **the only contract it knows is the set of HAL macros.** The protocol code can therefore focus exclusively on *device behavior*, *timing requirements*, *state management*, and *calculations*, while framework-specific code stays confined to a small number of HAL headers and the core implementation remains identical across every supported ecosystem.
 
-> [!NOTE]
+> [!TIP]
 > Real implementations may occasionally require small leaks across that boundary. In [CS123x](https://github.com/FMazz97/CS123x), the library on which this guide is based, AVR-specific fast-I/O fields (register pointers and bit masks) remain declared in the core class under `#if defined(__AVR__)`, because the HAL macros expand directly inside the core methods. This does not change the architectural separation described above, but it is a practical exception worth documenting rather than pretending the abstraction is perfectly pure.
 
 With the architecture defined under `src/`, **the library source code is complete.** What remains is the examples: Arduino examples work naturally across Arduino IDE and PlatformIO, while ESP-IDF examples need additional structure to stay buildable under both native ESP-IDF and PlatformIO. [Chapter 4 - Example Conventions](04-examples.md) covers that shared layout.
