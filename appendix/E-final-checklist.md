@@ -28,7 +28,7 @@ Every item below is a rule that came out of the previous chapters and of the dev
 
 ## Dependencies under ESP-IDF
 
-- [ ] Give each toolchain **one** authoritative resolution path: `idf_component.yml` for native `idf.py`, `lib_deps` for PlatformIO. Never `lib_deps` and `REQUIRES` together without a manifest or `EXTRA_COMPONENT_DIRS`: PlatformIO fetches the package, but nothing registers it as a component. ([Ch. 4](../chapters/04-examples.md#44-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems))
+- [ ] Give each toolchain **one** authoritative resolution path: `idf_component.yml` for native `idf.py`, `lib_deps` for PlatformIO. Never `lib_deps` and `REQUIRES` together without a manifest or `EXTRA_COMPONENT_DIRS`: PlatformIO fetches the package, but nothing registers it as a component. ([Ch. 4](../chapters/04-examples.md#43-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems))
 - [ ] With `EXTRA_COMPONENT_DIRS`: the `list(APPEND …)` goes **before** `include(…project.cmake)`; the component is named after its folder. ([App. A](A-esp-idf-dependency-resolution.md))
 - [ ] `REQUIRES` is optional in `main`, which requires every component automatically, and needed in any other component. ([App. A](A-esp-idf-dependency-resolution.md))
 - [ ] `REQUIRES <name>` accepts the short name for Registry components; the long `<namespace>__<name>` is rejected (in tests). ([App. A](A-esp-idf-dependency-resolution.md))

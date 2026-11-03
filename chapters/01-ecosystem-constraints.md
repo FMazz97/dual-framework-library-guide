@@ -101,7 +101,7 @@ Under the Arduino framework, metadata, packaging, and examples are driven by Pla
 
 Under ESP-IDF, PlatformIO does more than simply invoke `idf.py`: it generates its own project scaffolding, driven by `platformio.ini` rather than by ESP-IDF's native project layout.
 
-The convention therefore shifts from ESP-IDF's traditional `main/` directory to PlatformIO's `src_dir` (which defaults to `src/`). A project can still preserve a fully native ESP-IDF structure by explicitly setting `src_dir = main`; the example layout that builds under both toolchains is described in [Chapter 4 - Example Conventions](04-examples.md#43-platformio).
+The convention therefore shifts from ESP-IDF's traditional `main/` directory to PlatformIO's `src_dir` (which defaults to `src/`). A project can still preserve a fully native ESP-IDF structure by explicitly setting `src_dir = main`; the example layout that builds under both toolchains is described in [Chapter 4 - Example Conventions](04-examples.md#esp-idf-examples-on-platformio).
 
 How a dependency is built depends on how it enters the project:
 

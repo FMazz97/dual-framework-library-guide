@@ -33,11 +33,11 @@ The `examples` field of `library.json` specifies which files make up each exampl
 
 ---
 
-## 4.2 ESP-IDF (native)
+## 4.2 ESP-IDF
 
-ESP-IDF examples are complete, self-contained projects, each with its own build scripts, configuration, and source directory structure. Native `idf.py` projects and PlatformIO's `framework = espidf` integration expect different layouts, but those differences are largely superficial: with a small amount of configuration, a single example can be built unchanged by both toolchains.
+ESP-IDF examples are complete, self-contained projects, each with its own build scripts, configuration, and source directory structure.
 
-Natively, local examples can be wired using either a pure CMake setup or the ESP Component Manager, but **using the Component Manager is strongly recommended for publishable libraries**. Declaring dependencies via `main/idf_component.yml`:
+Natively, an example can reach the library in two ways: through the filesystem, with `EXTRA_COMPONENT_DIRS` in its root `CMakeLists.txt`, or through the Component Manager, with a dependency declared in `main/idf_component.yml` (see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)). **The Component Manager is strongly recommended for publishable libraries**, because it is the mechanism end users will rely on:
 
 ```yaml
 dependencies:
@@ -46,39 +46,34 @@ dependencies:
     override_path: "../../.." # repository root = component root (local development)
 ```
 
-relies on the same mechanism, the Component Manager, that end users will use to consume the library, so your examples exercise the same integration model (manifest, dependency resolution, and CMake configuration in the build process) they will experience once the library is published. `override_path` simply stands in for the registry download during local development.
+The Component Manager reads this manifest, resolves `foo`, and hands its folder to the configuration system, exactly as it does when end users install the library from the ESP Component Registry, adding the dependency to the component's requirements along the way. The only difference is the source: `override_path` points to the local repository root instead of a registry download, and that folder must be named like the dependency, `foo` (see [Chapter 2](02-repo-structure.md#22-local-folder-name-vs-github-repository-name)). The example therefore exercises the same integration model that users will experience once the library is published.
 
-For more details, see Espressif's documentation on [How to Package and Upload Examples](https://docs.espressif.com/projects/idf-component-manager/en/latest/publish/how_to_examples.html), and [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for a deep dive into component resolution mechanisms.
+For more details, see Espressif's documentation on how to [Reference an ESP Component](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/index.html), and [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for a deep dive into component resolution mechanisms.
 
----
+### ESP-IDF examples on PlatformIO
 
-## 4.3 PlatformIO
-
-By default, PlatformIO expects application source code in a `src/` directory at the project root (see [`framework = espidf`](01-ecosystem-constraints.md#framework--espidf)). Rather than creating a redundant `src/` folder alongside ESP-IDF's native layout, PlatformIO can be configured to point directly to the existing `main/` directory instead (see: [PlatformIO ESP-IDF Project Structure](https://docs.platformio.org/en/latest/frameworks/espidf.html#project-structure)).
-
-This requires only a single additional setting in `platformio.ini` beyond the usual board and platform configuration:
+By default, PlatformIO expects the application sources in a `src/` folder at the project root (see [1.3.2 `framework = espidf`](01-ecosystem-constraints.md#132-framework--espidf)). In an ESP-IDF example, however, `main/` is more than the default source folder: it is a component in its own right, the one holding the entry point, added to the build automatically and requiring every other component (see [Appendix A](../appendix/A-esp-idf-dependency-resolution.md)). Rather than duplicating it in a `src/` folder, PlatformIO can be pointed at it with a single setting in `platformio.ini`, on top of the usual board and platform configuration:
 
 ```ini
 [platformio]
 src_dir = main
 ```
 
-With `src_dir = main`, PlatformIO builds the same hand-written, IDF-native project used by `idf.py`, reusing the existing `CMakeLists.txt` and `idf_component.yml`. As a result, the same `main.cpp` builds unchanged whether the project is compiled through `idf.py build` or PlatformIO's **Build button**.
+see: [PlatformIO ESP-IDF Project Structure](https://docs.platformio.org/en/latest/frameworks/espidf.html#project-structure)
 
-At that point, an important question remains: *which system is responsible for resolving external dependencies?*
+With `src_dir = main`, PlatformIO builds the same hand-written, IDF-native project used by `idf.py`, reusing the existing `main/CMakeLists.txt` and `main/idf_component.yml`. As a result, the same `main.cpp` builds unchanged whether the project is compiled through `idf.py build` or PlatformIO's **Build button**.
+
+The example now builds under both toolchains, but its dependency on the library can be declared in two ways: in `idf_component.yml`, as in the native flow, or in PlatformIO's own `lib_deps`. Which system is responsible for resolving it?
 
 ---
 
-## 4.4 PlatformIO, Component Manager, and CMake are independent dependency-resolution systems
+## 4.3 PlatformIO, Component Manager, and CMake are independent dependency-resolution systems
 
-[Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) showed that ESP-IDF component discovery and component compilation are distinct stages of the configuration process. <!--ricontrollare una volta completata l'appendice A--> When **PlatformIO** is introduced, a third dependency-resolution mechanism enters the picture.
+As [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) explains, ESP-IDF finds components in two ways, both within CMake's single configuration step: the build system discovers directories on the filesystem (`EXTRA_COMPONENT_DIRS`, the project's `components/` folder), and the Component Manager adds more from `idf_component.yml` manifests. PlatformIO adds a third, `lib_deps`, handled by PlatformIO itself rather than by CMake:
 
-Under `framework = espidf`, three independent systems can participate in component resolution:
-
-- **PlatformIO (`lib_deps`)** fetches libraries and injects them into the generated build environment (`.pio/libdeps/`).
-- **ESP-IDF Component Manager (`idf_component.yml`)** resolves through component manager the dependencies before handing them to CMake.
-- **ESP-IDF CMake (`EXTRA_COMPONENT_DIRS` + `REQUIRES`)** performs filesystem-based component discovery and registration.
-
+- **PlatformIO (`lib_deps`)** fetches libraries into `.pio/libdeps/` and builds them with its own library builder, using the defaults described in [Chapter 2](02-repo-structure.md).
+- **ESP-IDF Component Manager (`idf_component.yml`)** resolves dependencies and hands their folders to the build system, inside CMake's configuration step.
+- **ESP-IDF CMake (`EXTRA_COMPONENT_DIRS`)** discovers components on the filesystem; `REQUIRES` then connects them to each other.
 Each mechanism works correctly on its own, but combining them can introduce redundancy or, in some cases, resolution failures. The following combinations make the distinction easiest to see:
 
 | Mechanism(s) | Result | Notes |
@@ -95,12 +90,12 @@ Each mechanism works correctly on its own, but combining them can introduce redu
 The practical recommendation is to give each toolchain a single authoritative dependency-resolution mechanism:
 
 1. **PlatformIO (`lib_deps`)** when the project is intended primarily for *PlatformIO* users.
-2. **ESP-IDF Component Manager (`idf_component.yml`)** when working with *ESP-IDF components registries*.
+2. **ESP-IDF Component Manager (`idf_component.yml`)** when working with *ESP-IDF components and registries*.
 3. **CMake (`EXTRA_COMPONENT_DIRS` + `REQUIRES`)** for local, *filesystem-based component* development.
 
 ---
 
-## 4.5 The layout that makes one example buildable by both toolchains
+## 4.4 The layout that makes one example buildable by both toolchains
 
 To achieve full dual-toolchain compatibility, an ESP-IDF example simply places a `platformio.ini` file directly at its root alongside the native ESP-IDF project files:
 
@@ -121,7 +116,7 @@ examples/my_example/
 > [!TIP]
 > Optional configuration files (such as `sdkconfig.defaults`, a custom partition table `partitions.csv`, or an application-level `Kconfig.projbuild`) can be placed directly in the example's root or `main/` directory as needed. For complete guidelines on project customization files, see the [Example Project](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html#example-project) section of the official [ESP-IDF Build System](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html) documentation.
 
-The example therefore carries one dependency declaration per toolchain, each authoritative in its own context: `idf_component.yml` for native `idf.py` builds, aligned with Espressif's recommended workflow, and `lib_deps` in `platformio.ini` for PlatformIO builds, so that **whenever PlatformIO is involved, it resolves dependencies through its own system**. Within the repository, PlatformIO sees both declarations, which produces the redundancy described in [4.4](#44-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems); the combination still works, and it is the price of building one unchanged example with both toolchains.
+The example therefore carries one dependency declaration per toolchain, each authoritative in its own context: `idf_component.yml` for native `idf.py` builds, aligned with Espressif's recommended workflow, and `lib_deps` in `platformio.ini` for PlatformIO builds, so that **whenever PlatformIO is involved, it resolves dependencies through its own system**. Within the repository, PlatformIO sees both declarations, which produces the redundancy described in [4.3](#43-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems); the combination still works, and it is the price of building one unchanged example with both toolchains.
 
 This layout also sets up a clean boundary for publication: each registry's manifest can exclude the files that belong to the other toolchain.
 
@@ -132,7 +127,7 @@ This reciprocal exclusion keeps the distributed packages clean and native to eac
 
 ---
 
-## 4.6 Unidirectional build conflict (`idf.py` → PlatformIO)
+## 4.5 Unidirectional build conflict (`idf.py` → PlatformIO)
 
 While **PlatformIO** isolates its output in `.pio/build/<env>`, native `idf.py` builds directly into `build/` at the project root.
 
