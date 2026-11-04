@@ -83,6 +83,7 @@ The single source of truth for ESP-IDF component metadata is `idf_component.yml`
       - "examples/*/*.ino"            # Arduino's examples
       - "examples/*/platformio.ini"   # PlatformIO's examples configuration
       - "assets/**"                   # other documentation
+      - "docs/**"                     # other documentation
       # add any other file that is irrelevant for an ESP-IDF component
   ```
 
@@ -147,46 +148,48 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   }
   ```
 
-- **File Management & Example Inclusion:** to omit the ESP-IDF component manifests along with `assets/`, `docs/`, and other folders containing non-essential contents, and to declare explicitly which example projects (and which of their files) are packaged and under what name, combine the `"export"` exclusion block with the `"examples"` configuration in `library.json`, which also carries the `"build"` flags for the core headers:
+- **Header folders:** PlatformIO only adds `src/` to the include path, not its subfolders, so the core's public headers in `src/core/` are declared with `build.flags` (see [Chapter 2 - Repository Structure](02-repo-structure.md)).
 
   ```json
-  {
-    "build": {
-      "flags": ["-I src/core"]
-    },
-    "examples": [
-      {
-        "name": "Arduino_BasicExample",
-        "base": "examples/BasicExample",
-        "files": ["BasicExample.ino", "platformio.ini"]
-      },
-      {
-        "name": "ESP-IDF_basic_example",
-        "base": "examples/basic_example",
-        "files": [
-          "main/main.cpp",
-          "main/CMakeLists.txt",
-          "CMakeLists.txt",
-          "platformio.ini",
-          "README.md"
-        ]
-      }
-    ],
-    "export": {
-      "exclude": [
-        "assets",
-        "CMakeLists.txt",
-        "idf_component.yml",
-        "library.properties",
-        "examples/*/main/idf_component.yml"
-      ]
-    }
+  "build": {
+    "flags": ["-I src/core"]
   }
   ```
 
-  - **Header folders:** PlatformIO only adds `src/` to the include path, not its subfolders, so the core's public headers in `src/core/` are declared with `build.flags` (see [Chapter 2 - Repository Structure](02-repo-structure.md)).
-  - **Example names:** use only letters, digits, `-` and `_` in the `"examples"` → `"name"` field. Parentheses make the manifest invalid: `pio pkg pack` and `pio pkg publish` both report it, so the pre-verification step catches it before publishing (other special characters were not tested). For ESP-IDF examples, whitespace also breaks the build: the registry derives the download directory from the name, and a path containing spaces breaks the build.
+- **File Management & Example Inclusion:** to omit the ESP-IDF component manifests along with `assets/`, `docs/`, and other folders containing non-essential contents, and to declare explicitly which example projects (and which of their files) are packaged and under what name, combine the `"export"` exclusion block with the `"examples"` configuration in `library.json`.
+  - **Example names:** use only letters, digits, `-` and `_` in the `"examples"` → `"name"` field. Parentheses make the manifest invalid: `pio pkg pack` and `pio pkg publish` both report it, so the pre-verification step catches it before publishing (other special characters were not tested). For ESP-IDF examples, whitespace also breaks the build, because the registry derives the download directory from the name and a path containing spaces is not supported.
   - **Arduino examples:** PlatformIO does not require the `.ino` filename to match its parent folder, but keep the convention from [Chapter 4](04-examples.md#41-arduino), since the same files are consumed by the Arduino IDE.
+
+  ```json
+  "examples": [
+    {
+      "name": "Arduino_BasicExample",
+      "base": "examples/BasicExample",
+      "files": ["BasicExample.ino", "platformio.ini"]
+    },
+    {
+      "name": "ESP-IDF_basic_example",
+      "base": "examples/basic_example",
+      "files": [
+        "main/main.cpp",
+        "main/CMakeLists.txt",
+        "CMakeLists.txt",
+        "platformio.ini",
+        "README.md"
+      ]
+    }
+  ],
+  "export": {
+    "exclude": [
+      "assets",
+      "docs",
+      "CMakeLists.txt",
+      "idf_component.yml",
+      "library.properties",
+      "examples/*/main/idf_component.yml"
+    ]
+  }
+  ```
 
 > [!IMPORTANT]
 > **PIO Home example rendering:**
@@ -234,11 +237,11 @@ Each published version of a package (`<owner>/<name>`) is permanent and immutabl
 
 ## 5.4 The case-sensitivity trap: PlatformIO's immutable package binding
 
-PlatformIO doesn't constrain the case of a library published on its registry. A package can be named `Foo` or `foo` and builds the same way: PlatformIO resolves package names case-insensitively, and the folder it installs takes the registry name, in either case. The ESP-IDF rule that a component is named after its folder doesn't come into play either: under `framework = espidf`, a library linked through `lib_deps` is processed by PlatformIO's library builder, and in tests its `idf_component_register()` appeared to have no effect, with the include paths following `build.flags` (see [1.3.2](01-ecosystem-constraints.md#132-framework--espidf)).
+PlatformIO doesn't constrain the case of a library published on its registry. A package can be named `Foo` or `foo` and builds the same way: PlatformIO resolves package names case-insensitively, and the folder it installs takes the registry name, in either case. The ESP-IDF rule that a component is named after its folder doesn't come into play either (see the note on header folders in [5.3.1](#531-manifest-and-metadata)).
 
-[Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md#registry-naming-rules) showed that Registry-compatible ESP-IDF components require lowercase names. What is easy to miss is that PlatformIO's registry backend binds a package's name to its internal ID: **the name and casing recorded at the moment of your very first publish stay bound to the package's `pkg_id` and can't be changed from the CLI.**
+[Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md#registry-naming-rules) showed that Registry-compatible ESP-IDF components require lowercase names; PlatformIO has no such requirement. What it has is a binding: its registry backend ties a package's name to its internal ID, so **the name and casing recorded at the moment of your very first publish stay bound to the package's `pkg_id` and can't be changed from the CLI.**
 
-This typically happens when a cross-framework library is first published following Arduino conventions (e.g. uppercase characters, as in `Foo`) and native ESP-IDF support is added later. The natural move is to align the `"name"` field in `library.json` to lowercase (`foo`) to match ESP-IDF component naming, even though PlatformIO doesn't strictly require it, since it resolves package names case-insensitively. Publishing the new version then fails with a database mismatch error:
+This typically bites when a cross-framework library is first published following Arduino conventions (e.g. uppercase characters, as in `Foo`) and native ESP-IDF support is added later. The natural move is to align the `"name"` field in `library.json` to lowercase (`foo`), matching the ESP Component Registry. Publishing the new version then fails with a database mismatch error:
 
 ```text
 Manifest name='foo' <> DB name='Foo' and pkg_id is not passed
