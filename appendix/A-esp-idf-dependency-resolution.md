@@ -193,7 +193,7 @@ idf_component_register(...)
 
 How the component got there, through `EXTRA_COMPONENT_DIRS`, the `components/` folder, or a manifest dependency, makes no difference to how it is built.
 
-When PlatformIO is introduced, a third actor enters the picture: see [4.4 PlatformIO, Component Manager, and CMake are independent dependency-resolution systems](../chapters/04-examples.md#44-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems) for the combinations that work and the ones that don't.
+When PlatformIO is introduced, a third actor enters the picture: see [4.3 PlatformIO, Component Manager, and CMake are independent dependency-resolution systems](../chapters/04-examples.md#43-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems) for the combinations that work and the ones that don't.
 
 ---
 
