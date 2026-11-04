@@ -18,7 +18,7 @@ resolved at compile time through:
 #elif defined(ESP_PLATFORM)
 ```
 
-The **core** (styled in `snake_case`, following the **C++** standard library and **ESP-IDF** conventions; see [Case styles section in Appendix C](../appendix/C-naming-convention.md#case-styles-snake_case-for-the-core-directly-used-by-esp-idf-camelcase-for-the-arduino-facade)) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect.
+The **core** (styled in `snake_case`, following the **C** and **C++** recommendation and **ESP-IDF** conventions; see [Case styles section in Appendix C](../appendix/C-naming-convention.md#case-styles-snake_case-for-the-core-directly-used-by-esp-idf-camelcase-for-the-arduino-facade)) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect.
 
 The facade's entire job is **forwarding** every public method, with no logic of its own:
 
@@ -148,7 +148,7 @@ Each HAL then provides the *platform-specific* implementation of those operation
 
 From the core's perspective, there is no concept of Arduino `digitalWrite()`, ESP-IDF `gpio_set_level()`, or any other *framework-specific* API: **the only contract it knows is the set of HAL macros.** The protocol code can therefore focus exclusively on *device behavior*, *timing requirements*, *state management*, and *calculations*, while framework-specific code stays confined to a small number of HAL headers and the core implementation remains identical across every supported ecosystem.
 
-> [!TIP]
+> [!NOTE]
 > Real implementations may occasionally require small leaks across that boundary. In [CS123x](https://github.com/FMazz97/CS123x), the library on which this guide is based, AVR-specific fast-I/O fields (register pointers and bit masks) remain declared in the core class under `#if defined(__AVR__)`, because the HAL macros expand directly inside the core methods. This does not change the architectural separation described above, but it is a practical exception worth documenting rather than pretending the abstraction is perfectly pure.
 
 With the architecture defined under `src/`, **the library source code is complete.** What remains is the examples: Arduino examples work naturally across Arduino IDE and PlatformIO, while ESP-IDF examples need additional structure to stay buildable under both native ESP-IDF and PlatformIO. [Chapter 4 - Example Conventions](04-examples.md) covers that shared layout.

@@ -20,7 +20,7 @@ Five decisions, each following from the previous one:
 
 ## 6.2 What remains open
 
-The guide rests on a single library and a single design (see the warning in the [Introduction](../README.md)). Where it reports an observation instead of a documented fact, it says so, and [Appendix E](../appendix/E-final-checklist.md) lists what was not verified.
+The guide rests on a single library and a single design (see the warning at the end of in the [Introduction](../README.md)). Where it reports an observation instead of a documented fact, it says so, and [Appendix E](../appendix/E-final-checklist.md#not-verified-in-this-guide) lists what was not verified.
 
 ---
 

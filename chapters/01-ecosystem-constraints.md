@@ -69,6 +69,7 @@ Specifically, published component names:
 - cannot begin or end with `_` or `-`;
 - cannot contain consecutive separators such as `__`, `--`, `_-`, or `-_`.
 
+> [!NOTE]
 > These rules were revealed by inspecting the Component Manager source code: [idf_component_manager/cli/validations.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_manager/cli/validations.py) and [idf_component_tools/manifest/constants.py](https://github.com/espressif/idf-component-manager/blob/main/idf_component_tools/manifest/constants.py).
 
 **This can be surprising: the rules are enforced by the publication tooling, not by ESP-IDF's CMake configuration system.** The upload process silently converts names to lowercase before validation, without notifying the user. At the time of writing, the behavior is not documented.
