@@ -38,7 +38,7 @@ idf_component_register(
 )
 ```
 
-PlatformIO builds a library linked through `lib_deps` with its own library builder, whatever the framework. By default it compiles the sources under `src/` (recursively) and automatically adds both `src/` and `include/` (if present) to the include search path, but not their subdirectories (see [`srcDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/srcdir.html) and [`includeDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/includedir.html) in the [`library.json`](https://docs.platformio.org/en/latest/manifests/library-json/index.html) reference). Headers located in a subfolder such as `src/core/` can be exposed through `library.json`:
+PlatformIO builds a library linked through `lib_deps` with its own library builder, whatever the framework. By default it compiles the sources under `src/` and its subfolders (recursively) and automatically adds both `src/` and `include/` (if present) to the include search path, but not their subdirectories (see [`includeDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/includedir.html) in the [`library.json`](https://docs.platformio.org/en/latest/manifests/library-json/index.html) reference). Headers located in a subfolder such as `src/core/` should be exposed through `library.json` (see [Chapter 5](05-publishing.md)):
 
 ```json
   "build": { "flags": ["-I src/core"] }
@@ -46,9 +46,7 @@ PlatformIO builds a library linked through `lib_deps` with its own library build
 
 This plays a role similar to ESP-IDF's `INCLUDE_DIRS`: it extends the include search path without affecting the library's structure.
 
-The library's `CMakeLists.txt` plays no part in this, not even under `framework = espidf`: there PlatformIO uses the project's CMake only to generate the base build environment, on which project sources, libraries included, are built (see [PlatformIO's ESP-IDF project structure](https://docs.platformio.org/en/latest/frameworks/espidf.html#project-structure)), so the `INCLUDE_DIRS "src/core"` of the library's `idf_component_register()` is never seen. Headers located in a subfolder such as `src/core/` must therefore be declared in `library.json` with `build.flags` (`"-I src/core"`; see [Chapter 5](05-publishing.md)), the counterpart of `INCLUDE_DIRS` for PlatformIO: it extends the include search path without affecting the library's structure.
-
-This plays a role similar to ESP-IDF's `INCLUDE_DIRS`: it extends the include search path without affecting the library's structure.
+The library's `CMakeLists.txt` plays no part in this, not even under `framework = espidf`: `idf_component_register()` belongs to ESP-IDF's component model, while a library linked through `lib_deps` follows its `library.json`, so the `INCLUDE_DIRS "src/core"` it declares is never seen.
 
 As a result, the same source tree works unchanged for:
 
