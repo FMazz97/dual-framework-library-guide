@@ -1,17 +1,15 @@
 # Appendix A — IDF Dependency Resolution
 
-ESP-IDF dependency management is often presented as a choice between plain CMake and the Component Manager. In practice they are not alternatives: both run inside the same CMake configuration step and feed the same build system. What differs is **who tells the build system which components exist**, and how it learns what each one requires. Understanding this separation is essential to avoid build errors and ensure correct project configuration.
+ESP-IDF dependency management is often presented as a choice between plain CMake and the Component Manager. In practice they are not alternatives: both run inside the same CMake configuration step and feed the same build system. What differs is **who tells the build system which components exist**. Understanding this separation is essential to avoid build errors and ensure correct project configuration.
 
 ## Terminology
 
 Everything in ESP-IDF's build revolves around components, so it is worth fixing the vocabulary first:
 
-| Term | In ESP-IDF |
-| :--- | :--- |
-| **Component** | a self-contained piece of code that offers functionality and can be added to an application. Technically, any directory in `COMPONENT_DIRS` that contains a `CMakeLists.txt`, compiled into a static library and linked into the app. Libraries, drivers, and `main` are all components |
-| **Project** | what is built into an application: a directory with the top-level CMake `project()`, which gathers the components it uses. A project is not a component itself |
-| **Example** | a self-contained project that depends on a component in order to demonstrate it |
-| **Package** | what the ESP Component Registry publishes: an archive of a component |
+- **Component:** a self-contained piece of code that offers functionality and can be added to an application. Technically, any directory in `COMPONENT_DIRS` that contains a `CMakeLists.txt`, compiled into a static library and linked into the app. Libraries, drivers, and `main` are all components.
+- **Project:** what is built into an application: a directory with the top-level CMake `project()`, which gathers the components it uses. A project is not a component itself.
+- **Example:** a self-contained project that depends on a component in order to demonstrate it.
+- **Package:** what the ESP Component Registry publishes: an archive of a component.
 
 ---
 

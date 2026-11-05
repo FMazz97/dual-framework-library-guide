@@ -148,7 +148,7 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   }
   ```
 
-- **Header folders:** PlatformIO only adds `src/` to the include path, not its subfolders, so the core's public headers in `src/core/` are declared with `build.flags` (see [Chapter 2 - Repository Structure](02-repo-structure.md)).
+- **Header folders:** PlatformIO by default adds `src/` and `include/` to the include path, not its subfolders, so the core's public headers in `src/core/` are declared with:
 
   ```json
   "build": {
@@ -156,8 +156,10 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   }
   ```
 
-- **File Management & Example Inclusion:** to omit the ESP-IDF component manifests along with `assets/`, `docs/`, and other folders containing non-essential contents, and to declare explicitly which example projects (and which of their files) are packaged and under what name, combine the `"export"` exclusion block with the `"examples"` configuration in `library.json`.
-  - **Example names:** use only letters, digits, `-` and `_` in the `"examples"` → `"name"` field. Parentheses make the manifest invalid: `pio pkg pack` and `pio pkg publish` both report it, so the pre-verification step catches it before publishing (other special characters were not tested). For ESP-IDF examples, whitespace also breaks the build, because the registry derives the download directory from the name and a path containing spaces is not supported.
+  With `framework = espidf` this matters even more: the header an ESP-IDF example includes is the core one in `src/core/`, not one directly in `src/`, and a library linked through `lib_deps` is built by PlatformIO's library builder, which never reads the library's `CMakeLists.txt`, so the `INCLUDE_DIRS "src/core"` of its `idf_component_register()` is not seen (see [Chapter 2 - Repository Structure](02-repo-structure.md)).
+
+- **File Management & Example Inclusion:** to omit the ESP-IDF component files along with `assets/`, `docs/`, and other folders containing non-essential contents, and to declare explicitly which example projects (and which of their files) are packaged and under what name, combine the `"export"` exclusion block with the `"examples"` configuration in `library.json`.
+  - **Example names:** use only letters, digits, `-` and `_` in the `"examples"` → `"name"` field. Parentheses make the manifest invalid: `pio pkg pack` and `pio pkg publish` both report it, so the pre-verification step catches it before publishing (other special characters were not tested). For ESP-IDF examples, whitespace also breaks the build: the registry derives the download directory from the name, and a path containing spaces is not supported by the ESP-IDF build system (see the [limitations](https://docs.platformio.org/en/latest/frameworks/espidf.html#limitations) of PlatformIO's ESP-IDF integration).
   - **Arduino examples:** PlatformIO does not require the `.ino` filename to match its parent folder, but keep the convention from [Chapter 4](04-examples.md#41-arduino), since the same files are consumed by the Arduino IDE.
 
   ```json
@@ -237,7 +239,7 @@ Each published version of a package (`<owner>/<name>`) is permanent and immutabl
 
 ## 5.4 The case-sensitivity trap: PlatformIO's immutable package binding
 
-PlatformIO doesn't constrain the case of a library published on its registry. A package can be named `Foo` or `foo` and builds the same way: PlatformIO resolves package names case-insensitively, and the folder it installs takes the registry name, in either case. The ESP-IDF rule that a component is named after its folder doesn't come into play either (see the note on header folders in [5.3.1](#531-manifest-and-metadata)).
+PlatformIO doesn't constrain the case of a library published on its registry. A package can be named `Foo` or `foo` and builds the same way: PlatformIO resolves package names case-insensitively, and the folder it installs takes the registry name, in either case. The ESP-IDF rule that a component is named after its folder doesn't come into play either: a library linked through `lib_deps` is built by PlatformIO's library builder and never becomes an ESP-IDF component (see [Chapter 2 - Repository Structure](02-repo-structure.md)).
 
 [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md#registry-naming-rules) showed that Registry-compatible ESP-IDF components require lowercase names; PlatformIO has no such requirement. What it has is a binding: its registry backend ties a package's name to its internal ID, so **the name and casing recorded at the moment of your very first publish stay bound to the package's `pkg_id` and can't be changed from the CLI.**
 
