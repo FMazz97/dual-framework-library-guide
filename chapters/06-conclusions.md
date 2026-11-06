@@ -41,7 +41,7 @@ The same approach should carry over to other families and frameworks, such as ST
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Chapter 5 - Publishing](05-publishing.md) — [Introduction](../README.md)
+[⬅️ Chapter 5 - Publishing](05-publishing.md) — [Introduction](../README.md) — [Appendix A: IDF Dependency Resolution ➡️](../appendix/A-esp-idf-dependency-resolution.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->

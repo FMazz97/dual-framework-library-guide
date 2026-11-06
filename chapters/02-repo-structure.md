@@ -23,15 +23,15 @@ repo/                    ← repository root = component root = component name
 └── examples/
 ```
 
-ESP-IDF recognizes a component by its `CMakeLists.txt`, which must live in the component root (see [1.2.2.1](01-ecosystem-constraints.md#1221-published-components-must-be-self-contained)). Placing `CMakeLists.txt` and `idf_component.yml` at the repository root therefore makes the repository itself the component: the ESP Component Registry packages the directory that contains the manifest, minus any exclusions declared under `files:` (see: [5.2.1](05-publishing.md#521-manifest-and-metadata)). The shared implementation under `src/core/` becomes part of the published package, while Arduino keeps discovering and compiling sources from `src/` exactly as expected.
+ESP-IDF recognizes a component by its `CMakeLists.txt`, which must live in the component root (see [1.2.2.1](01-ecosystem-constraints.md#1221-published-components-must-be-self-contained)). Placing `CMakeLists.txt` and `idf_component.yml` at the repository root therefore makes the repository itself the component: the ESP Component Registry packages the directory that contains the manifest, minus any exclusions declared under `files:` (see: [5.2.1](05-publishing.md#521-manifest-and-metadata)). The shared implementation under `src/core/` becomes part of the published package.
 
-The absence of a traditional `include/` directory, the usual home of public headers in both ESP-IDF components and PlatformIO libraries, is intentional. Since Arduino already requires public headers and implementation files to live within the `src/` tree, duplicating the same headers under a separate `include/` directory would introduce redundancy without providing any architectural benefit.
-
-A layout with a separate `include/` directory is feasible too, but discouraged: the Arduino IDE only searches `src/`, so every file there has to reach the header through relative paths (`#include "../include/foo.h"` from the facade `Foo.h`, `#include "../../include/foo.h"` from `foo.cpp`), and these references multiply with every header and every level of the tree.
+The absence of a traditional `include/` directory, the usual home of public headers in both ESP-IDF components and PlatformIO libraries, is intentional, and the reason comes from Arduino, the most rigid of the three toolchains. The next three sections describe how each one finds sources and headers.
 
 ### 2.1.1 Arduino IDE Source & Include Path
 
-As described in [1.1](01-ecosystem-constraints.md#11-arduino), the Arduino IDE compiles everything under `src/` and searches only that folder for headers, so nothing needs to be configured: the facade `Foo.h` sits in `src/` and reaches the core with a path relative to it (`#include "core/foo.h"`).
+The Arduino IDE compiles everything under `src/` and searches only that folder for headers (see [1.1](01-ecosystem-constraints.md#11-arduino)), so nothing needs to be configured: the facade `Foo.h` sits in `src/` and reaches the core with a path relative to it (`#include "core/foo.h"`). This is also why the layout has no `include/` directory: public headers and implementation files already live within `src/`, and duplicating the headers in a separate folder would introduce redundancy without any architectural benefit.
+
+A layout with a separate `include/` directory is feasible too, but discouraged: every file in `src/` would have to reach the header through relative paths (`#include "../include/foo.h"` from the facade `Foo.h`, `#include "../../include/foo.h"` from `foo.cpp`), and these references multiply with every header and every level of the tree.
 
 ### 2.1.2 ESP-IDF Source & Include Path
 

@@ -78,8 +78,8 @@ The single source of truth for ESP-IDF component metadata is `idf_component.yml`
     exclude:
       - "library.properties"          # Arduino's manifest
       - "library.json"                # PlatformIO's manifest
-      - "src/Foo.h"                   # Arduino's facade *
-      - "src/hal/foo_hal_arduino.h"   # Arduino's HAL *
+      - "src/Foo.h"                   # * Arduino's facade
+      - "src/hal/foo_hal_arduino.h"   # * Arduino's HAL
       - "examples/*/*.ino"            # Arduino's examples
       - "examples/*/platformio.ini"   # PlatformIO's examples configuration
       - "assets/**"                   # other documentation
@@ -159,7 +159,7 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
   With `framework = espidf` this matters even more: the header an ESP-IDF example includes is the core one in `src/core/`, not one directly in `src/`, and a library linked through `lib_deps` is built by PlatformIO's library builder, which never reads the library's `CMakeLists.txt`, so the `INCLUDE_DIRS "src/core"` of its `idf_component_register()` is not seen (see [2.1.3 PlatformIO Source & Include Path](02-repo-structure.md#213-platformio-source--include-path)).
 
 - **File Management & Example Inclusion:** to omit the ESP-IDF component files along with `assets/`, `docs/`, and other folders containing non-essential contents, and to declare explicitly which example projects (and which of their files) are packaged and under what name, combine the `"export"` exclusion block with the `"examples"` configuration in `library.json`.
-  - **Example names:** use only letters, digits, `-` and `_` in the `"examples"` → `"name"` field. Parentheses make the manifest invalid: `pio pkg pack` and `pio pkg publish` both report it, so the pre-verification step catches it before publishing (other special characters were not tested). For ESP-IDF examples, whitespace also breaks the build: the registry derives the download directory from the name, and a path containing spaces is not supported by the ESP-IDF build system (see the [limitations](https://docs.platformio.org/en/latest/frameworks/espidf.html#limitations) of PlatformIO's ESP-IDF integration).
+  - **Example names:** use only letters, digits, `-` and `_` in the `"examples"` → `"name"` field. Parentheses make the manifest invalid: `pio pkg pack` and `pio pkg publish` both report it, so the pre-verification step catches it before publishing (other special characters were not tested). Avoid whitespace because, for ESP32 targets, both ESP-IDF and Arduino builds ultimately depend on the ESP-IDF build system, which does not reliably support paths containing spaces. (see the [limitations](https://docs.platformio.org/en/latest/frameworks/espidf.html#limitations) of PlatformIO's ESP-IDF integration).
   - **Arduino examples:** PlatformIO does not require the `.ino` filename to match its parent folder, but keep the convention from [Chapter 4](04-examples.md#41-arduino), since the same files are consumed by the Arduino IDE.
 
   ```json
