@@ -239,7 +239,7 @@ Each published version of a package (`<owner>/<name>`) is permanent and immutabl
 
 ## 5.4 The case-sensitivity trap: PlatformIO's immutable package binding
 
-PlatformIO doesn't constrain the case of a library published on its registry. A package can be named `Foo` or `foo` and builds the same way: PlatformIO resolves package names case-insensitively, and the folder it installs takes the registry name, in either case. The ESP-IDF rule that a component is named after its folder doesn't come into play either: a library linked through `lib_deps` is built by PlatformIO's library builder and never becomes an ESP-IDF component (see [Chapter 2 - Repository Structure](02-repo-structure.md)).
+PlatformIO doesn't constrain the case of a library published on its registry. A package can be named `Foo` or `foo` and builds the same way: PlatformIO resolves package names case-insensitively, and the folder it installs takes the registry name, in either case. The ESP-IDF rule that a component is named after its folder doesn't come into play either: a library linked through `lib_deps` is built by PlatformIO's library builder and never becomes an ESP-IDF component (see [2.1.3 PlatformIO Source & Include Path](02-repo-structure.md#213-platformio-source--include-path)).
 
 [Chapter 1 - Ecosystem Constraints](01-ecosystem-constraints.md#registry-naming-rules) showed that Registry-compatible ESP-IDF components require lowercase names; PlatformIO has no such requirement. What it has is a binding: its registry backend ties a package's name to its internal ID, so **the name and casing recorded at the moment of your very first publish stay bound to the package's `pkg_id` and can't be changed from the CLI.**
 

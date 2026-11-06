@@ -1,6 +1,6 @@
 # Chapter 4 — Example Conventions
 
-With the core fully framework-agnostic and the HAL sitting between it and the framework (see: [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md)), the focus shifts to structuring practical `examples/`. These are essential for showcasing the API to beginners and offer a ready-to-use template for quick setup. Ultimately, the base code written to test the library provides the perfect foundation to help users hit the ground running.
+With the core fully framework-agnostic and the HAL sitting between it and the framework (see: [Chapter 3](03-agnostic-core-hal-architecture.md)), the focus shifts to structuring practical `examples/`. These are essential for showcasing the API to beginners and offer a ready-to-use template for quick setup. Ultimately, the base code written to test the library provides the perfect foundation to help users hit the ground running.
 
 ---
 
@@ -46,7 +46,7 @@ dependencies:
     override_path: "../../.." # repository root = component root (local development)
 ```
 
-The Component Manager reads this manifest, resolves `foo`, and hands its folder to the configuration system, exactly as it does when end users install the library from the ESP Component Registry, adding the dependency to the component's requirements along the way. The only difference is the source: `override_path` points to the local repository root instead of a registry download, and that folder must be named like the dependency, `foo` (see [Chapter 2](02-repo-structure.md#22-local-folder-name-vs-github-repository-name)). The example therefore exercises the same integration model that users will experience once the library is published.
+The Component Manager reads this manifest, resolves `foo`, and hands its folder to the configuration system, exactly as it does when end users install the library from the ESP Component Registry, adding the dependency to the component's requirements along the way. The only difference is the source: `override_path` points to the local repository root instead of a registry download, and that folder must be named like the dependency `foo`. The example therefore exercises the same integration model that users will experience once the library is published.
 
 For more details, see Espressif's documentation on how to [Reference an ESP Component](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/index.html), and [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for a deep dive into component resolution mechanisms.
 
@@ -71,9 +71,10 @@ The example now builds under both toolchains, but its dependency on the library 
 
 As [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) explains, ESP-IDF finds components in two ways, both within CMake's single configuration step: the build system discovers directories on the filesystem (`EXTRA_COMPONENT_DIRS`, the project's `components/` folder), and the Component Manager adds more from `idf_component.yml` manifests. PlatformIO adds a third, `lib_deps`, handled by PlatformIO itself rather than by CMake:
 
-- **PlatformIO (`lib_deps`)** fetches libraries into `.pio/libdeps/` and builds them with its own library builder, using the defaults described in [Chapter 2](02-repo-structure.md).
-- **ESP-IDF Component Manager (`idf_component.yml`)** resolves dependencies and hands their folders to the build system, inside CMake's configuration step.
-- **ESP-IDF CMake (`EXTRA_COMPONENT_DIRS`)** discovers components on the filesystem; `REQUIRES` then connects them to each other.
+- **PlatformIO (`lib_deps`)** fetches libraries into `.pio/libdeps/` and builds them with its own library builder, using the defaults described in [2.1.3 PlatformIO Source & Include Path](02-repo-structure.md#213-platformio-source--include-path).
+- **ESP-IDF Component Manager (`idf_component.yml`)** resolves dependencies and hands their folders to the build system, inside CMake's configuration step (see: [Appendix A](../appendix/A-esp-idf-dependency-resolution.md)).
+- **ESP-IDF CMake (`EXTRA_COMPONENT_DIRS`)** discovers components on the filesystem; `REQUIRES` then connects them to each other (see: [Appendix A](../appendix/A-esp-idf-dependency-resolution.md)).
+
 Each mechanism works correctly on its own, but combining them can introduce redundancy or, in some cases, resolution failures. The following combinations make the distinction easiest to see:
 
 | Mechanism(s) | Result | Notes |
@@ -85,7 +86,7 @@ Each mechanism works correctly on its own, but combining them can introduce redu
 | `lib_deps` + `EXTRA_COMPONENT_DIRS` + `REQUIRES` | Works | Redundant: PlatformIO and CMake both locate the same component |
 | `lib_deps` + `REQUIRES`, without `EXTRA_COMPONENT_DIRS` or `idf_component.yml` | **Fails** | See below |
 
-**Dependency-*fetching* and component-*registration* are separate concepts.** In the failing case, PlatformIO fetches the dependency and builds it with its own library builder, which never reads the library's `CMakeLists.txt`: the package exists on disk and compiles, but it never becomes an ESP-IDF component. `REQUIRES` only connects components that the build system already knows, so it has nothing to resolve (see [2.1.3 PlatformIO Source & Include Path](02-repo-structure.md#213-platformio-source--include-path) for why PlatformIO handles such libraries on its own).
+**Dependency-*fetching* and component-*registration* are separate concepts.** In the failing case, PlatformIO fetches the dependency and builds it with its own library builder, which never reads `idf_component_register()` in the library's `CMakeLists.txt`: the package exists on disk and compiles, but it never becomes an ESP-IDF component. `REQUIRES` only connects components that the build system already knows, so it has nothing to resolve (see [2.1.3 PlatformIO Source & Include Path](02-repo-structure.md#213-platformio-source--include-path) for why PlatformIO handles such libraries on its own).
 
 The practical recommendation is to give each toolchain a single authoritative dependency-resolution mechanism:
 

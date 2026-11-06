@@ -1,6 +1,6 @@
 # Chapter 3 — Agnostic Core & HAL Architecture
 
-With the repository structure established ([Chapter 2 - Repository Structure](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing **Arduino** and **ESP-IDF** to use their own **native hardware APIs**?
+With the repository structure established ([Chapter 2](02-repo-structure.md)), the next challenge is architectural: how do you organize the code so that the protocol logic exists only *once*, while still allowing **Arduino** and **ESP-IDF** to use their own **native hardware APIs**?
 
 The resulting architecture separates responsibilities into three layers:
 
@@ -18,7 +18,9 @@ resolved at compile time through:
 #elif defined(ESP_PLATFORM)
 ```
 
-The **core** (styled in `snake_case`, following the **C** and **C++** recommendation and **ESP-IDF** conventions; see [Case styles section in Appendix C](../appendix/C-naming-convention.md#case-styles-snake_case-for-the-core-directly-used-by-esp-idf-camelcase-for-the-arduino-facade)) contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect.
+The **core** contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect.
+
+Everything except the Arduino facade is styled in `snake_case`, following the **C** and **C++** guidelines and **ESP-IDF** conventions (see [Case styles](../appendix/C-naming-convention.md#case-styles-snake_case-for-the-core-directly-used-by-esp-idf-camelcase-for-the-arduino-facade) section in [Appendix C](../appendix/C-naming-convention.md)).
 
 The facade's entire job is **forwarding** every public method, with no logic of its own:
 
@@ -57,7 +59,7 @@ By isolating framework selection within the HAL, **the protocol implementation e
 
 Before settling on compile-time macros, two standard abstraction mechanisms, *virtual interfaces* and *C++ templates*, were evaluated and rejected: the first introduces overhead that cannot be justified in a low-level hardware-access layer designed to disappear at compile time, the second adds API complexity without any benefit here.
 
-Both are also C++-only, so neither would carry over to a C core, the hypothetical path mentioned at the end of the [Introduction](../README.md#-the-purpose-of-this-repository). C can only emulate virtual dispatch with function-pointer tables, which keep the same runtime indirection, while macros work unchanged in both languages.
+Both are also C++ only, so neither would carry over to a C core, the hypothetical path mentioned at the end of the [Introduction](../README.md#-the-purpose-of-this-repository). C can only emulate virtual dispatch with function-pointer tables, which keep the same runtime indirection, while macros work unchanged in both languages.
 
 ### Virtual dispatch
 
@@ -95,7 +97,7 @@ For a HAL consisting of just a *few low-level I/O primitives* (such as GPIO sett
 
 ### Why macros won
 
-Because the target platform is *known before compilation begins*, preprocessor macros allow the HAL implementation to be selected entirely at **compile time** (the selection itself is shown in [3.2](#32-integrating-the-hal-into-the-core)). Each hardware macro (such as `FOO_PIN_HIGH()`) expands directly into the platform's fastest *primitive*, whether that is a native framework API, direct hardware access, or a standard I/O function.
+Because the target platform is *known before compilation begins*, preprocessor macros allow the HAL implementation to be selected entirely at **compile time** (the selection itself is shown below in [3.2](#32-integrating-the-hal-into-the-core)). Each hardware macro (such as `FOO_PIN_HIGH()`) expands directly into the platform's fastest *primitive*, whether that is a native framework API, direct hardware access, or a standard I/O function.
 
 The trade-off is clear: macros are unscoped, global, and lack language-level type safety across boundaries. However, since the target platform never changes at runtime, sacrificing dynamic flexibility yields a zero-cost abstraction: no vtables and no template syntax leaking into the public API.
 
