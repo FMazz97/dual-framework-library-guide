@@ -6,7 +6,7 @@ This chapter documents how those requirements are reconciled into a single folde
 
 ---
 
-## 2.1 The layout
+## 2.1 The Layout
 
 ```text
 repo/                    ← repository root = component root = component name
@@ -27,7 +27,15 @@ ESP-IDF recognizes a component by its `CMakeLists.txt`, which must live in the c
 
 The absence of a traditional `include/` directory, the usual home of public headers in both ESP-IDF components and PlatformIO libraries, is intentional. Since Arduino already requires public headers and implementation files to live within the `src/` tree, duplicating the same headers under a separate `include/` directory would introduce redundancy without providing any architectural benefit.
 
-On the ESP-IDF side, `INCLUDE_DIRS` points straight at the core folder:
+A layout with a separate `include/` directory is feasible too, but discouraged: the Arduino IDE only searches `src/`, so every file there has to reach the header through relative paths (`#include "../include/foo.h"` from the facade `Foo.h`, `#include "../../include/foo.h"` from `foo.cpp`), and these references multiply with every header and every level of the tree.
+
+### 2.1.1 Arduino IDE Source & Include Path
+
+As described in [1.1 Arduino](01-ecosystem-constraints.md#11-arduino), the Arduino IDE compiles everything under `src/` and searches only that folder for headers, so nothing needs to be configured: the facade `Foo.h` sits in `src/` and reaches the core with a path relative to it (`#include "core/foo.h"`).
+
+### 2.1.2 ESP-IDF Source & Include Path
+
+As described in [1.2.1](01-ecosystem-constraints.md#121-source-discovery-is-explicit), ESP-IDF source discovery is explicit, so the component's `CMakeLists.txt` lists the sources and points `INCLUDE_DIRS` straight at the core folder, where the public header lives:
 
 ```cmake
 idf_component_register(
@@ -38,22 +46,36 @@ idf_component_register(
 )
 ```
 
-PlatformIO builds a library linked through `lib_deps` with its own library builder, whatever the framework. By default it compiles the sources under `src/` and its subfolders (recursively) and automatically adds both `src/` and `include/` (if present) to the include search path, but not their subdirectories (see [`includeDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/includedir.html) in the [`library.json`](https://docs.platformio.org/en/latest/manifests/library-json/index.html) reference). Headers located in a subfolder such as `src/core/` should be exposed through `library.json` (see [Chapter 5](05-publishing.md)):
+### 2.1.3 PlatformIO Source & Include Path
+
+PlatformIO builds a library linked through `lib_deps` with its own library builder, whatever the framework. By default it compiles the sources under `src/` and its subfolders (recursively) and automatically adds both `src/` and `include/` (if present) to the include search path, but not their subdirectories (see [`includeDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/includedir.html) in the [`library.json`](https://docs.platformio.org/en/latest/manifests/library-json/index.html) reference). Headers located in a subfolder such as `src/core/` should be exposed through `library.json` (see [PlatformIO Manifest and Metadata](05-publishing.md#531-manifest-and-metadata)), for both frameworks:
 
 ```json
-  "build": { "flags": ["-I src/core"] }
+  "build": {
+    "flags": ["-I src/core"]
+  }
 ```
 
 This plays a role similar to ESP-IDF's `INCLUDE_DIRS`: it extends the include search path without affecting the library's structure.
 
 The library's `CMakeLists.txt` plays no part in this, not even under `framework = espidf`: `idf_component_register()` belongs to ESP-IDF's component model, while a library linked through `lib_deps` follows its `library.json`, so the `INCLUDE_DIRS "src/core"` it declares is never seen.
 
-As a result, the same source tree works unchanged for:
+### 2.1.4 Layout conclusions
 
-- Arduino Library Manager
-- Local development via `EXTRA_COMPONENT_DIRS` and `idf_component.yml`
+At this point, each toolchain finds sources and headers in its own way:
+
+| | Sources | Include path | Where it is declared |
+| :--- | :--- | :--- | :--- |
+| **Arduino IDE** | everything under `src/`, recursively | `src/` only | nowhere: the layout is the configuration |
+| **ESP-IDF** | listed explicitly in `SRCS` | `INCLUDE_DIRS` | the component's `CMakeLists.txt` |
+| **PlatformIO** | everything under `src/`, recursively | `src/` and `include/`, without their subfolders, plus `build.flags` | `library.json` |
+
+And the same source tree works unchanged for:
+
+- Arduino Library Manager and Arduino IDE
+- ESP-IDF local development via `EXTRA_COMPONENT_DIRS` and `idf_component.yml`
 - ESP Component Registry installation via `idf.py add-dependency`
-- PlatformIO Registry, across both **Arduino** and **ESP-IDF** frameworks
+- PlatformIO local development and Registry, across both **Arduino** and **ESP-IDF** frameworks
 
 ---
 

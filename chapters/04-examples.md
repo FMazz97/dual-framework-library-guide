@@ -85,7 +85,7 @@ Each mechanism works correctly on its own, but combining them can introduce redu
 | `lib_deps` + `EXTRA_COMPONENT_DIRS` + `REQUIRES` | Works | Redundant: PlatformIO and CMake both locate the same component |
 | `lib_deps` + `REQUIRES`, without `EXTRA_COMPONENT_DIRS` or `idf_component.yml` | **Fails** | See below |
 
-**Dependency-*fetching* and component-*registration* are separate concepts.** In the failing case, PlatformIO fetches the dependency and builds it with its own library builder, which never reads the library's `CMakeLists.txt`: the package exists on disk and compiles, but it never becomes an ESP-IDF component. `REQUIRES` only connects components that the build system already knows, so it has nothing to resolve (see [Chapter 2](02-repo-structure.md#21-the-layout) for why PlatformIO handles such libraries on its own).
+**Dependency-*fetching* and component-*registration* are separate concepts.** In the failing case, PlatformIO fetches the dependency and builds it with its own library builder, which never reads the library's `CMakeLists.txt`: the package exists on disk and compiles, but it never becomes an ESP-IDF component. `REQUIRES` only connects components that the build system already knows, so it has nothing to resolve (see [2.1.3 PlatformIO Source & Include Path](02-repo-structure.md#213-platformio-source--include-path) for why PlatformIO handles such libraries on its own).
 
 The practical recommendation is to give each toolchain a single authoritative dependency-resolution mechanism:
 
