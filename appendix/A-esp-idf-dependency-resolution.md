@@ -6,10 +6,22 @@ ESP-IDF dependency management is often presented as a choice between plain CMake
 
 Everything in ESP-IDF's build revolves around components, so it is worth fixing the vocabulary first:
 
-- **Component:** a self-contained piece of code that offers functionality and can be added to an application. Technically, any directory in `COMPONENT_DIRS` that contains a `CMakeLists.txt`, compiled into a static library and linked into the app. Libraries, drivers, and `main` are all components.
-- **Project:** what is built into an application: a directory with the top-level CMake `project()`, which gathers the components it uses. A project is not a component itself.
+- **Component:** a self-contained piece of code that offers functionality and can be added to an application. Technically, any directory  that contains a `CMakeLists.txt` and linked to a project will compiled into a static library and linked into the app. Libraries, drivers, and `main` are all components.
+- **Project:** what is built into an application: a directory with the top-level CMake `project()`, which gathers the components it uses. A project is not a component itself, but componentes in its `components/` folder is added by default in the build system.
 - **Example:** a self-contained project that depends on a component in order to demonstrate it.
 - **Package:** what the ESP Component Registry publishes: an archive of a component.
+
+> [!IMPORTANT]
+> A component is named as its folder. This is the name the build system knows, in both workflows described below.
+
+Whichever way a directory is found, it is presented to the build system together with its source. That source sets an **override order**, which can also be used on purpose: when two components share the same name, the one higher in this list replaces the others.
+
+1. **Project components:** the `components/` folder inside the project (highest priority)
+2. **`EXTRA_COMPONENT_DIRS`:** directories registered in the project's root `CMakeLists.txt`
+3. **Managed components:** dependencies declared in `idf_component.yml` are resolved by the Component Manager and downloaded into `managed_components`, unless the manager is disabled
+4. **ESP-IDF components:** the built-in ones under `IDF_PATH/components` (default of `COMPONENT_DIRS` — lowest priority)
+
+For example, copying an ESP-IDF component into the project's `components/` folder and modifying it there overrides the original, which stays untouched.
 
 ---
 
@@ -35,28 +47,6 @@ Regardless of how dependencies are resolved, every **ESP-IDF standalone project*
   ```
 
 The two workflows below only differ in **how the library component reaches the build system**.
-
----
-
-## The big picture: three roles in one configuration step
-
-| Role | Responsibility | How |
-| :--- | :--- | :--- |
-| **Discovery (CMake)** | decides which directories are components | scans `COMPONENT_DIRS`: `IDF_PATH/components`, the project's `components/` folder, and `EXTRA_COMPONENT_DIRS` |
-| **Component Manager** | adds more components to that list | runs inside CMake's configuration step: reads manifests, solves dependencies, and downloads them into `managed_components`, which CMake then scans (local dependencies are used in place) |
-| **Requirements (CMake)** | connects components to each other | `REQUIRES` and `PRIV_REQUIRES` define include paths and linking between components already known to the build; in a project they are typically declared by `main`, the component that uses the library |
-
-> [!IMPORTANT]
-> A component is named as its folder. This is the name the build system knows, in both workflows described below.
-
-Whichever way a directory is found, it is presented to the build system together with its source. That source sets an **override order**, which can also be used on purpose: when two components share the same name, the one higher in this list replaces the others.
-
-1. **Project components:** the `components/` folder inside the project (highest priority)
-2. **`EXTRA_COMPONENT_DIRS`:** directories registered in the project's root `CMakeLists.txt`
-3. **Managed components:** dependencies declared in `idf_component.yml` are resolved by the Component Manager and downloaded into `managed_components`, unless the manager is disabled
-4. **ESP-IDF components:** the built-in ones under `IDF_PATH/components` (lowest priority)
-
-For example, copying an ESP-IDF component into the project's `components/` folder and modifying it there overrides the original, which stays untouched.
 
 ---
 
