@@ -30,9 +30,9 @@ The guide rests on a single library and a single design (see the warning at the 
   - Arduino tag with a `v` prefix: only tags without it were tested.
   - Version immutability on both Registries: stated from the documentation, never tested.
 - **Observed, not explained**
-  - How the build system accepts `<name>` in `REQUIRES` for a component registered as `<namespace>__<name>` ([Appendix A](../appendix/A-esp-idf-dependency-resolution.md)).
-  - Why the Arduino-ESP32 build never tripped the Task Watchdog: tick rate and core of `loop()` were not compared ([Appendix B](../appendix/B-yield-watchdog.md)).
-  - The hypothesis on the unstable PlatformIO layout ([Appendix D](../appendix/D-testing-during-development.md)): the files created while building appear to relaunch PlatformIO's reconfiguration, not verified in its source.
+  - How the build system accepts `<name>` in `REQUIRES` for a component registered as `<namespace>__<name>` ([Appendix A](../appendices/A-esp-idf-dependency-resolution.md)).
+  - Why the Arduino-ESP32 build never tripped the Task Watchdog: tick rate and core of `loop()` were not compared ([Appendix B](../appendices/B-yield-watchdog.md)).
+  - The hypothesis on the unstable PlatformIO layout ([Appendix D](../appendices/D-testing-during-development.md)): the files created while building appear to relaunch PlatformIO's reconfiguration, not verified in its source.
 
 ### Known limits
 
@@ -45,10 +45,10 @@ The guide rests on a single library and a single design (see the warning at the 
 
 While this guide focused on bridging Arduino, ESP-IDF, and PlatformIO, the underlying patterns (unified source layouts, explicit dependency management, and reciprocal registry exclusions) are likely applicable to the wider embedded ecosystem. The appendices go deeper on the technical details:
 
-- **[Appendix A: IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)**: how ESP-IDF discovers components, and what the Component Manager adds to the build system.
-- **[Appendix B: Yield & Watchdog](../appendix/B-yield-watchdog.md)**: how long blocking operations cooperate with the scheduler across AVR, ESP8266, and FreeRTOS-based ESP32 targets.
-- **[Appendix C: Naming Convention](../appendix/C-naming-convention.md)**: what a method name promises, and how case styles map across the core and the Arduino facade.
-- **[Appendix D: Testing During Development](../appendix/D-testing-during-development.md)**: one example tested on many boards with PlatformIO, and the layouts that keep it reliable.
+- **[Appendix A: IDF Dependency Resolution](../appendices/A-esp-idf-dependency-resolution.md)**: how ESP-IDF discovers components, and what the Component Manager adds to the build system.
+- **[Appendix B: Yield & Watchdog](../appendices/B-yield-watchdog.md)**: how long blocking operations cooperate with the scheduler across AVR, ESP8266, and FreeRTOS-based ESP32 targets.
+- **[Appendix C: Naming Convention](../appendices/C-naming-convention.md)**: what a method name promises, and how case styles map across the core and the Arduino facade.
+- **[Appendix D: Testing During Development](../appendices/D-testing-during-development.md)**: one example tested on many boards with PlatformIO, and the layouts that keep it reliable.
 
 The same approach should carry over to other families and frameworks, such as STM32 with its Arduino and STM32Cube frameworks, where a new HAL would be the only framework-specific addition, or Zephyr (not tested here). The embedded landscape keeps evolving, with new microcontrollers and alternative build systems continuing to emerge. If you want to extend this framework-agnostic approach to other platforms, refine the appendices, or share your own experience, issues and pull requests are always welcome: embedded development thrives on shared knowledge.
 

@@ -37,7 +37,7 @@ The `examples` field of `library.json` specifies which files make up each exampl
 
 ESP-IDF examples are complete, self-contained projects, each with its own build scripts, configuration, and source directory structure.
 
-Natively, an example can reach the library in two ways: through the filesystem, with `EXTRA_COMPONENT_DIRS` in its root `CMakeLists.txt`, or through the Component Manager, with a dependency declared in `main/idf_component.yml` (see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)). **The Component Manager is strongly recommended for publishable libraries**, because it is the mechanism end users will rely on:
+Natively, an example can reach the library in two ways: through the filesystem, with `EXTRA_COMPONENT_DIRS` in its root `CMakeLists.txt`, or through the Component Manager, with a dependency declared in `main/idf_component.yml` (see [Appendix A - IDF Dependency Resolution](../appendices/A-esp-idf-dependency-resolution.md)). **The Component Manager is strongly recommended for publishable libraries**, because it is the mechanism end users will rely on:
 
 ```yaml
 dependencies:
@@ -48,11 +48,11 @@ dependencies:
 
 The Component Manager reads this manifest, resolves `foo`, and hands its folder to the configuration system, exactly as it does when end users install the library from the ESP Component Registry, adding the dependency to the component's requirements along the way. The only difference is the source: `override_path` points to the local repository root instead of a registry download, and that folder must be named like the dependency `foo`. The example therefore exercises the same integration model that users will experience once the library is published.
 
-For more details, see Espressif's documentation on how to [Reference an ESP Component](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/index.html), and [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) for a deep dive into component resolution mechanisms.
+For more details, see Espressif's documentation on how to [Reference an ESP Component](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/index.html), and [Appendix A - IDF Dependency Resolution](../appendices/A-esp-idf-dependency-resolution.md) for a deep dive into component resolution mechanisms.
 
 ### ESP-IDF examples on PlatformIO
 
-By default, PlatformIO expects the application sources in a `src/` folder at the project root (see [1.3.2 `framework = espidf`](01-ecosystem-constraints.md#132-framework--espidf)). In an ESP-IDF example, however, `main/` is more than the default source folder: it is a component in its own right, the one holding the entry point, added to the build automatically and requiring every other component (see [Appendix A](../appendix/A-esp-idf-dependency-resolution.md)). Rather than duplicating it in a `src/` folder, PlatformIO can be pointed at it with a single setting in `platformio.ini`, on top of the usual board and platform configuration:
+By default, PlatformIO expects the application sources in a `src/` folder at the project root (see [1.3.2 `framework = espidf`](01-ecosystem-constraints.md#132-framework--espidf)). In an ESP-IDF example, however, `main/` is more than the default source folder: it is a component in its own right, the one holding the entry point, added to the build automatically and requiring every other component (see [Appendix A](../appendices/A-esp-idf-dependency-resolution.md)). Rather than duplicating it in a `src/` folder, PlatformIO can be pointed at it with a single setting in `platformio.ini`, on top of the usual board and platform configuration:
 
 ```ini
 [platformio]
@@ -69,11 +69,11 @@ The example now builds under both toolchains, but its dependency on the library 
 
 ## 4.3 PlatformIO, Component Manager, and CMake are independent dependency-resolution systems
 
-As [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) explains, ESP-IDF finds components in two ways, both within CMake's single configuration step: the build system discovers directories on the filesystem (`EXTRA_COMPONENT_DIRS`, the project's `components/` folder), and the Component Manager adds more from `idf_component.yml` manifests. PlatformIO adds a third, `lib_deps`, handled by PlatformIO itself rather than by CMake:
+As [Appendix A - IDF Dependency Resolution](../appendices/A-esp-idf-dependency-resolution.md) explains, ESP-IDF finds components in two ways, both within CMake's single configuration step: the build system discovers directories on the filesystem (`EXTRA_COMPONENT_DIRS`, the project's `components/` folder), and the Component Manager adds more from `idf_component.yml` manifests. PlatformIO adds a third, `lib_deps`, handled by PlatformIO itself rather than by CMake:
 
 - **PlatformIO (`lib_deps`)** fetches libraries into `.pio/libdeps/` and builds them with its own library builder, using the defaults described in [2.1.3 PlatformIO Source & Include Path](02-repo-structure.md#213-platformio-source--include-path).
-- **ESP-IDF Component Manager (`idf_component.yml`)** resolves dependencies and hands their folders to the build system, inside CMake's configuration step (see: [Appendix A](../appendix/A-esp-idf-dependency-resolution.md)).
-- **ESP-IDF CMake (`EXTRA_COMPONENT_DIRS`)** discovers components on the filesystem; `REQUIRES` then connects them to each other (see: [Appendix A](../appendix/A-esp-idf-dependency-resolution.md)).
+- **ESP-IDF Component Manager (`idf_component.yml`)** resolves dependencies and hands their folders to the build system, inside CMake's configuration step (see: [Appendix A](../appendices/A-esp-idf-dependency-resolution.md)).
+- **ESP-IDF CMake (`EXTRA_COMPONENT_DIRS`)** discovers components on the filesystem; `REQUIRES` then connects them to each other (see: [Appendix A](../appendices/A-esp-idf-dependency-resolution.md)).
 
 Each mechanism works correctly on its own, but combining them can introduce redundancy or, in some cases, resolution failures. The following combinations make the distinction easiest to see:
 

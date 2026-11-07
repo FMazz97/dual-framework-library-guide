@@ -20,7 +20,7 @@ resolved at compile time through:
 
 The **core** contains all *protocol logic*, *calculations*, *state handling*, and *device behavior*. The **HAL** provides *framework-specific hardware access*, while the **Arduino facade** exists solely to expose the naming style Arduino users typically expect.
 
-Everything except the Arduino facade is styled in `snake_case`, following the **C** and **C++** guidelines and **ESP-IDF** conventions (see [Case styles](../appendix/C-naming-convention.md#case-styles-snake_case-for-the-core-directly-used-by-esp-idf-camelcase-for-the-arduino-facade) section in [Appendix C](../appendix/C-naming-convention.md)).
+Everything except the Arduino facade is styled in `snake_case`, following the **C** and **C++** guidelines and **ESP-IDF** conventions (see [Case styles](../appendices/C-naming-convention.md#case-styles-snake_case-for-the-core-directly-used-by-esp-idf-camelcase-for-the-arduino-facade) section in [Appendix C](../appendices/C-naming-convention.md)).
 
 The facade's entire job is **forwarding** every public method, with no logic of its own:
 

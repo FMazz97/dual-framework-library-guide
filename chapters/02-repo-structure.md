@@ -85,7 +85,7 @@ A related trap, once the [Registry naming rules](01-ecosystem-constraints.md#reg
 
 **This isn't necessary.**
 
-The key observation is that `EXTRA_COMPONENT_DIRS` and the Component Manager (in local deployment) operate on **what exists locally on disk at build time**, while a component installed from the Registry is resolved from its registered package name. In neither case does the GitHub repository name play a role: a component is named after its **local folder** ([Appendix A](../appendix/A-esp-idf-dependency-resolution.md)), and the clone command lets you choose it:
+The key observation is that `EXTRA_COMPONENT_DIRS` and the Component Manager (in local deployment) operate on **what exists locally on disk at build time**, while a component installed from the Registry is resolved from its registered package name. In neither case does the GitHub repository name play a role: a component is named after its **local folder** ([Appendix A](../appendices/A-esp-idf-dependency-resolution.md)), and the clone command lets you choose it:
 
 ```bash
 git clone https://github.com/<owner>/<repository>.git <component_name>

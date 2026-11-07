@@ -273,7 +273,7 @@ Keep the local component folder (and any `name:` you declare in the manifest) lo
 
 ### 5.5.2 Online Repository & Arduino Library
 
-Name the GitHub repository and `library.properties` using **PascalCase** (e.g. `Foo`). This aligns with the Arduino community standard where library names match their primary C++ facade class name (see [Case styles](../appendix/C-naming-convention.md#case-styles-snake_case-for-the-core-directly-used-by-esp-idf-camelcase-for-the-arduino-facade) section in [Appendix C](../appendix/C-naming-convention.md)).
+Name the GitHub repository and `library.properties` using **PascalCase** (e.g. `Foo`). This aligns with the Arduino community standard where library names match their primary C++ facade class name (see [Case styles](../appendices/C-naming-convention.md#case-styles-snake_case-for-the-core-directly-used-by-esp-idf-camelcase-for-the-arduino-facade) section in [Appendix C](../appendices/C-naming-convention.md)).
 
 ### 5.5.3 PlatformIO Registry
 

@@ -6,7 +6,7 @@
 
 ## Table of Contents
 
-- **Chapter:**
+- **Chapters:**
   - [Chapter 1 - Ecosystem Constraints](chapters/01-ecosystem-constraints.md)
   - [Chapter 2 - Repository Structure](chapters/02-repo-structure.md)
   - [Chapter 3 - Agnostic Core & HAL Architecture](chapters/03-agnostic-core-hal-architecture.md)
@@ -15,13 +15,13 @@
   - [Chapter 6 - Conclusions](chapters/06-conclusions.md)
   - [Final Checklist](chapters/07-final-checklist.md)
 
-- **Appendix:**
-  - [Appendix A - IDF Dependency Resolution](appendix/A-esp-idf-dependency-resolution.md)
-  - [Appendix B - Yield & Watchdog](appendix/B-yield-watchdog.md)
-  - [Appendix C - Naming Convention](appendix/C-naming-convention.md)
-  - [Appendix D - Testing During Development](appendix/D-testing-during-development.md)
+- **Appendices:**
+  - [Appendix A - IDF Dependency Resolution](appendices/A-esp-idf-dependency-resolution.md)
+  - [Appendix B - Yield & Watchdog](appendices/B-yield-watchdog.md)
+  - [Appendix C - Naming Convention](appendices/C-naming-convention.md)
+  - [Appendix D - Testing During Development](appendices/D-testing-during-development.md)
 
-- **License:**
+- **Licenses:**
   - [LICENSE](LICENSE)
   - [LICENSE-CODE](LICENSE-CODE)
 

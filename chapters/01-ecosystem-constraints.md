@@ -28,7 +28,7 @@ Three concepts must be distinguished:
 - **Component Manager:** an optional dependency-resolution layer that can discover, validate, and download components before the build begins.
 - **Component Registry:** the online distribution service used to publish and retrieve components.
 
-For more details, see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md) on how components are discovered, and Espressif's guide ["What is the ESP Component Registry?"](https://developer.espressif.com/blog/2024/10/what-is-the-esp-registry/).
+For more details, see [Appendix A - IDF Dependency Resolution](../appendices/A-esp-idf-dependency-resolution.md) on how components are discovered, and Espressif's guide ["What is the ESP Component Registry?"](https://developer.espressif.com/blog/2024/10/what-is-the-esp-registry/).
 
 ### 1.2.1 Source discovery is explicit
 
@@ -86,7 +86,7 @@ Component folder name (<name>/)
 
 This aligns local development and registry publication from the start, preventing breaking renames and identity mismatches down the road.
 
-For more details, see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md).
+For more details, see [Appendix A - IDF Dependency Resolution](../appendices/A-esp-idf-dependency-resolution.md).
 
 ---
 
@@ -107,7 +107,7 @@ The convention therefore shifts from ESP-IDF's traditional `main/` directory to 
 How a dependency is built depends on how it enters the project:
 
 - **Libraries linked through `lib_deps`** continue to follow PlatformIO's library model and are processed by its library builder, with the defaults described in [2.1.3 PlatformIO Source & Include Path](02-repo-structure.md#213-platformio-source--include-path).
-- **Components discovered through `EXTRA_COMPONENT_DIRS`, the project's `components/` folder, or the Component Manager (`idf_component.yml`)** follow ESP-IDF's native component model (see [Appendix A - IDF Dependency Resolution](../appendix/A-esp-idf-dependency-resolution.md)).
+- **Components discovered through `EXTRA_COMPONENT_DIRS`, the project's `components/` folder, or the Component Manager (`idf_component.yml`)** follow ESP-IDF's native component model (see [Appendix A - IDF Dependency Resolution](../appendices/A-esp-idf-dependency-resolution.md)).
 
 For more details, see [PlatformIO Library Management](https://docs.platformio.org/en/latest/librarymanager/).
 
