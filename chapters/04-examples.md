@@ -26,10 +26,10 @@ and simply adapt the source code from default `src/` folder to the example folde
 
 ```ini
 [platformio]
-src_dir = . ; tipical 
+src_dir = .
 ```
 
-The `examples` field of `library.json` specifies which files make up each example in the published package (see: [PlatformIO Manifest and Metadata](05-publishing#531-manifest-and-metadata)).
+The `examples` field of `library.json` specifies which files make up each example in the published package (see: [PlatformIO Manifest and Metadata](05-publishing.md#531-manifest-and-metadata)).
 
 ---
 

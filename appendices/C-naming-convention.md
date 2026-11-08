@@ -79,9 +79,9 @@ The mapping is mechanical: drop the underscores and capitalise the next letter (
 | **Arduino style guide** | `camelCase` | no indication | long ALL_CAPS names are hard to read; simplify where possible |
 | **ESP-IDF style guide (C)** | `snake_case` | type definitions in `snake_case_t` | namespaced ALL_CAPS constants (`MODULE_FOO_ONE`) and a `module_foo_t` type |
 | **ESP-IDF style guide (C++)** | `snake_case` methods and members | `PascalCase`: the guide writes `CamelCase` with a capital initial (UpperCamelCase), with an underscore allowed if readability suffers (`GPIO_Output`) | no indication |
-| **C++ Core Guidelines** | `underscore_style` (NL.10) | examples predominantly use `PascalCase` types | ALL_CAPS reserved for macros (NL.9) and costants |
+| **C++ Core Guidelines** | `underscore_style` (NL.10) | examples predominantly use `PascalCase` types | ALL_CAPS reserved for macros (NL.9) and constants |
 
-**Enumerations.** Avoid `enum class`: use plain enums whose enumerators carry the class prefix (`CS123X_GAIN_128`), which gives the same namespacing without the drawbacks. Scoped enumerators require qualification and explicit casts, which is hard on Arduino beginners used to plain constants like `HIGH` and `INPUT`, and `enum class` is C++-only, so it would not carry over to a C core.
+**Enumerations.** Avoid `enum class`: use plain enums whose enumerators carry the class prefix (`CS123X_GAIN_128`), which gives the same namespacing without the drawbacks. Scoped enumerators require qualification and explicit casts, which is hard on Arduino beginners used to plain constants like `HIGH` and `INPUT`, and `enum class` is C++ only, so it would not carry over to a C core.
 
 > [!IMPORTANT]
 > These are conventions, not rules: the references disagree. To stay closer to ESP-IDF's C style, the scheme works just as well with the `_t` suffix on types (e.g. `CS123X_Config_t`). What matters is that every shared name is built the same way, from the class prefix (`CLASSNAME_Rest`): it keeps each name unambiguous and prevents clashes with macro names, which is the reason the C++ Core Guidelines reserve ALL_CAPS for macros.

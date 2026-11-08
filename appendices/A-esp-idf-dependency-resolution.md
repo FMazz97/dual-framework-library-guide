@@ -6,20 +6,20 @@ ESP-IDF dependency management is often presented as a choice between plain CMake
 
 Everything in ESP-IDF's build revolves around components, so it is worth fixing the vocabulary first:
 
-- **Component:** a self-contained piece of code that offers functionality and can be added to an application. Technically, any directory  that contains a `CMakeLists.txt` and linked to a project will compiled into a static library and linked into the app. Libraries, drivers, and `main` are all components.
-- **Project:** what is built into an application: a directory with the top-level CMake `project()`, which gathers the components it uses. A project is not a component itself, but componentes in its `components/` folder is added by default in the build system.
+- **Component:** a self-contained piece of code that offers functionality and can be added to an application. Technically, any directory containing a `CMakeLists.txt` that is presented to the build system, which compiles it into a static library and links it into the app. Libraries, drivers, and `main` are all components.
+- **Project:** what is built into an application: a directory with the top-level CMake `project()`, which gathers the components it uses. A project is not a component itself, but the components in its `components/` folder are added to the build by default.
 - **Example:** a self-contained project that depends on a component in order to demonstrate it.
 - **Package:** what the ESP Component Registry publishes: an archive of a component.
 
 > [!IMPORTANT]
-> A component is named as its folder. This is the name the build system knows, in both workflows described below.
+> A component is named after its folder. This is the name the build system knows it by, in both workflows described below.
 
-Whichever way a directory is found, it is presented to the build system together with its source. That source sets an **override order**, which can also be used on purpose: when two components share the same name, the one higher in this list replaces the others.
+Whichever way a directory is found, it is presented to the build system together with its source. That source sets an **override order**, which can also be used on purpose: when two components share the same name, the one higher in the list below replaces the others.
 
 1. **Project components:** the `components/` folder inside the project (highest priority)
 2. **`EXTRA_COMPONENT_DIRS`:** directories registered in the project's root `CMakeLists.txt`
-3. **Managed components:** dependencies declared in `idf_component.yml` are resolved by the Component Manager and downloaded into `managed_components`, unless the manager is disabled
-4. **ESP-IDF components:** the built-in ones under `IDF_PATH/components` (default of `COMPONENT_DIRS` — lowest priority)
+3. **Managed components:** dependencies declared in `idf_component.yml`, resolved by the Component Manager and downloaded into `managed_components`, unless the manager is disabled
+4. **ESP-IDF components:** the built-in ones under `IDF_PATH/components` (lowest priority)
 
 For example, copying an ESP-IDF component into the project's `components/` folder and modifying it there overrides the original, which stays untouched.
 

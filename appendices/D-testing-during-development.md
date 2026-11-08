@@ -85,7 +85,7 @@ board_build.sdkconfig_options =
 ```
 
 - **Pins and variants are macros.** The test project reads optional macros (here `DATA_PIN` and `CLOCK_PIN`) and falls back to defaults, so boards that need nothing special have no flags at all. Pass GPIO numbers, not silkscreen labels.
-- **The native-USB settings** were required on the S3 and C3 boards to get serial output; the reason was not investigated here.
+- **The native-USB settings** were required on the S3, C3 or C6 boards to get serial output; the reason was not investigated here.
 - **One physical board can need two environments** (native USB vs UART bridge): use one environment per wiring or USB port, not per board model.
 
 The commands are the same for both frameworks:

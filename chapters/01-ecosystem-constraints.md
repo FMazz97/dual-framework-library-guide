@@ -32,7 +32,7 @@ For more details, see [Appendix A - IDF Dependency Resolution](../appendices/A-e
 
 ### 1.2.1 Source discovery is explicit
 
-Unlike Arduino, ESP-IDF does not discover source files automatically from directory conventions. Every component must explicitly declare its source files and public include in its `CmakeLists.txt`:
+Unlike Arduino, ESP-IDF does not discover source files automatically from directory conventions. Every component must explicitly declare its source files and public include in its `CMakeLists.txt`:
 
 ```cmake
 idf_component_register(
