@@ -117,7 +117,9 @@ This guide is dual-licensed:
 [![CC BY 4.0](https://licensebuttons.net/l/by/4.0/88x31.png)](https://creativecommons.org/licenses/by/4.0/)
 
 <!-- markdownlint-disable MD034 -->
-If you reuse or adapt the text, give credit as: *"Dual-Framework Library Guide" by FMazz97, https://github.com/FMazz97/arduino-espidf-dual-library-guide*, and indicate if changes were made. Code snippets can be reused under the MIT terms, keeping the copyright notice.
+If you reuse or adapt the text, give credit as: *"Dual-Framework Library Guide" by FMazz97, https://github.com/FMazz97/dual-framework-library-guide*, and indicate if changes were made. Code snippets can be reused under the MIT terms, keeping the copyright notice.
+
+These licenses apply to all versions, commits, and historical revisions of this repository.
 <!-- markdownlint-enable MD034 -->
 
 ---
