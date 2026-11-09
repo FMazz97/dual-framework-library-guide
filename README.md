@@ -1,8 +1,10 @@
 # Dual-Framework Library Guide
 
-**Native libraries for Arduino & ESP-IDF**: a practical guide to architecture, repository layout, and publishing for ESP32 libraries that run natively on both ecosystems.
+**Native Arduino library & ESP-IDF component from a single codebase:** a practical guide to architecture, repository layout, and publishing, with one repository and no compatibility layer. It covers the Arduino Library Manager, the ESP Component Registry, and the PlatformIO Registry.
 
-**Who it's for:** developers who want to write libraries that work natively on both Arduino and ESP-IDF, starting from either ecosystem.
+**Who it's for:** developers who want to write a single library that works natively on both Arduino and ESP-IDF (including PlatformIO), starting from either ecosystem.
+
+---
 
 ## Table of Contents
 
@@ -111,8 +113,8 @@ This guide documents the architecture, constraints, and practical decisions requ
 
 This guide is dual-licensed:
 
-- **Text** (prose, tables, diagrams): [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/), see [LICENSE](LICENSE).
-- **Code** (every fenced code block and snippet): [MIT License](https://mit-license.org/), see [LICENSE-CODE](LICENSE-CODE).
+- **Text** (prose, tables, diagrams): [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/), see [LICENSE](https://github.com/FMazz97/dual-framework-library-guide/blob/main/LICENSE).
+- **Code** (every fenced code block and snippet): [MIT License](https://mit-license.org/), see [LICENSE-CODE](https://github.com/FMazz97/dual-framework-library-guide/blob/main/LICENSE-CODE).
 
 [![CC BY 4.0](https://licensebuttons.net/l/by/4.0/88x31.png)](https://creativecommons.org/licenses/by/4.0/)
 
