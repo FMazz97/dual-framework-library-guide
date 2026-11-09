@@ -1,5 +1,11 @@
 # Dual-Framework Library Guide
 
+<!-- markdownlint-disable MD033 -->
+<p align="center">
+  <img src="assets/one-repo-three-registries.png" alt="One repository with a framework-agnostic core and compile-time HAL, published to the Arduino Library Manager, the ESP Component Registry and the PlatformIO Registry" width="720">
+</p>
+<!-- markdownlint-enable MD033 -->
+
 **Native Arduino library & ESP-IDF component from a single codebase:** a practical guide to architecture, repository layout, and publishing, with one repository and no compatibility layer. It covers the Arduino Library Manager, the ESP Component Registry, and the PlatformIO Registry.
 
 **Who it's for:** developers who want to write a single library that works natively on both Arduino and ESP-IDF (including PlatformIO), starting from either ecosystem.
