@@ -27,6 +27,8 @@ dual_blink_cpp/                      ← repository root = component root
 │       ├── dual_blink_cpp_hal_arduino.h
 │       └── dual_blink_cpp_hal_espidf.h
 └── examples/
+    ├── BasicExample/                ← Arduino sketch
+    └── basic_example/               ← ESP-IDF project
 ```
 
 ---
@@ -152,8 +154,8 @@ The core never calls an Arduino or ESP-IDF API directly: only the `DUAL_BLINK_CP
 ### `src/DualBlinkCpp.h`
 
 ```cpp
-#ifndef DUAL_BLINK_CPP_FACADE_H
-#define DUAL_BLINK_CPP_FACADE_H
+#ifndef DUAL_BLINK_CPP_H
+#define DUAL_BLINK_CPP_H
 
 #include "core/dual_blink_cpp.h"
 
@@ -172,11 +174,11 @@ class DualBlinkCpp {
     uint32_t getIntervalMs() const      { return _core.get_interval_ms(); }
 };
 
-#endif /* DUAL_BLINK_CPP_FACADE_H */
+#endif /* DUAL_BLINK_CPP_H */
 ```
 
 > [!TIP]
-> The facade and the core headers use **different include guards** (`DUAL_BLINK_CPP_FACADE_H` and `DUAL_BLINK_CPP_CORE_H`). The facade includes the core, so with the same guard the core header would be silently skipped.
+> The facade and the core headers use **different include guards** (`DUAL_BLINK_CPP_H` and `DUAL_BLINK_CPP_CORE_H`). The facade includes the core, so with the same guard the core header would be silently skipped.
 
 ---
 
