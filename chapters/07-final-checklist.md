@@ -40,6 +40,9 @@ Every item below is a rule that came out of the previous chapters and of the dev
 - [ ] Polling loops: stay tight during the normal conversion window, yield after it, stop yielding near the timeout.
 - [ ] The guard before the timeout is **larger than one yield** (up to one tick period), so a yield can never cause a timeout.
 - [ ] Very long averages at high rates throttle their outer loop too, at an interval well below the watchdog timeout.
+- [ ] Critical sections save and restore the previous interrupt state; the plain `noInterrupts()`/`interrupts()` pair is only a fallback. ([App. B](../appendices/B-yield-watchdog.md))
+- [ ] Only the bit-banged transaction is inside the critical section: no waits, no yields, no logging. The enter/exit macros sit in one block.
+- [ ] The ESP32 spinlock is defined once and declared `extern` elsewhere: a `static` in a header duplicates it per file.
 
 ## Testing during development
 
