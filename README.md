@@ -29,6 +29,7 @@
   - [Appendix C - Naming Convention](appendices/C-naming-convention.md)
   - [Appendix D - Testing During Development](appendices/D-testing-during-development.md)
   - [Appendix E - Minimal Example](appendices/E-minimal-example.md)
+  - [Appendix F - Check Manifest Versions](appendices/F-version-check.md)
 
 - **Licenses:**
   - [LICENSE](LICENSE)

@@ -1,15 +1,17 @@
-# Appendix B — Yield & Watchdog: Cooperating with the Scheduler
-
-`yield()` looks like the most portable, boring function in embedded C. It isn't.
+# Appendix B — Yield and Interrupts: two opposite side
 
 While developing the [CS123x](https://github.com/FMazz97/CS123x) library across Arduino and ESP-IDF, a seemingly trivial translation of `yield()` caused a real watchdog reset on hardware. The broader lesson: any function that can block for a long time (averaging thousands of ADC readings is the typical case) has to cooperate with the operating system underneath, and what "cooperating" means differs on every platform. Left unchecked, such loops starve whatever else the MCU has to do: on some platforms nothing bad happens, on others a watchdog resets the whole device. The appendix closes with the opposite need: protecting a timing-critical transaction from interruption.
+
+---
+
+## Yield & Watchdog: Cooperating with the Scheduler
+
+`yield()` looks like the most portable, boring function in embedded C. It isn't.
 
 > [!IMPORTANT]
 > A long blocking function must not assume it owns the CPU. It should periodically hand control back to the platform, throttled by elapsed time and tuned to what the platform actually needs, never blindly on every iteration.
 
----
-
-## The four environments considered
+### The four environments considered
 
 **AVR (Uno, Nano, Mega) — no scheduler.** `setup()` and `loop()` *are* the whole program, and `yield()` is a weak, empty stub kept for source-level compatibility. The Arduino AVR core enables no watchdog by default.
 
@@ -26,9 +28,7 @@ While developing the [CS123x](https://github.com/FMazz97/CS123x) library across 
 | **Arduino-ESP32** | reschedule request (`vPortYield()`) | cheap, but lower-priority tasks are not guaranteed to run | Task WDT, if the starved idle task is monitored |
 | **Native ESP-IDF** | `taskYIELD()`: reschedule request; `vTaskDelay(1)`: blocks the caller | reschedule cheap; blocking up to one tick | Task WDT, naming the stalled idle task |
 
----
-
-## The bug: a reschedule request starves the IDLE task
+### The bug: a reschedule request starves the IDLE task
 
 The first native-IDF HAL used `taskYIELD()` as the direct translation of Arduino's `yield()`, a faithful one, since both are reschedule requests. On hardware it triggered the **Task Watchdog** almost exactly 5 seconds after boot (the default `CONFIG_ESP_TASK_WDT_TIMEOUT_S`), and the log named the stalled task: `IDLE0` had never been scheduled.
 
@@ -54,9 +54,7 @@ The first native-IDF HAL used `taskYIELD()` as the direct translation of Arduino
 
 Whether a missing yield actually trips a watchdog also depends on configuration (which core the code runs on, which idle tasks the Task Watchdog monitors, what the platform does between iterations), and a library cannot assume any of it.
 
----
-
-## Cooperation has a cost: when and how often to yield
+### Cooperation has a cost: when and how often to yield
 
 A blocking yield is not free: `vTaskDelay(1)` returns at the next tick, so it can cost up to one tick period (10 ms at the ESP-IDF default of 100 Hz), plus any time other ready tasks keep the CPU. For a chip whose conversion takes under a millisecond at its highest rate, an unconditional yield in the polling loop would cost more than the wait itself. Four rules follow:
 
