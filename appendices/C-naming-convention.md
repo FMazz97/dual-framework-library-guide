@@ -12,7 +12,7 @@ While refining the public API of the [CS123x](https://github.com/FMazz97/CS123x)
 | Prefix | Promise |
 | :--- | :--- |
 | **`get_*`** | Returns state already held in memory, or derived from it. **No hardware access**, always `const`, cannot fail or block. |
-| **`set_*`** | Stores state and may push it to the device. Always has a `get_*` counterpart for the same state. If it touches the hardware, it **reports success or failure** through its return value. |
+| **`set_*`** | Stores state and may push it to the device. Always has a `get_*` counterpart. If it pushes state to an external device that can confirm it via `write_*` and `read_*` functions, it reports success or failure through its return value; `void` if nothing can answer. |
 | **`read_*`** | Acquires data from the device. Not `const`: it can **block**, can **time out**, and **signals failure** with a sentinel value (e.g. `CS123X_TIMEOUT_ERROR`, or `NAN` for floating-point results). |
 | **`write_*`** | Raw transfer primitive that sends data to the device. Reserved for operations with **no state counterpart** (here, the private `write_bits()`). |
 

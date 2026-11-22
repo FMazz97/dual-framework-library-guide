@@ -49,7 +49,7 @@ While this guide focused on bridging Arduino, ESP-IDF, and PlatformIO, the under
 - **[Appendix C: Naming Convention](../appendices/C-naming-convention.md)**: what a method name promises, and how case styles map across the core and the Arduino facade.
 - **[Appendix D: Testing During Development](../appendices/D-testing-during-development.md)**: one example tested on many boards with PlatformIO, and the layouts that keep it reliable.
 - **[Appendix E - Minimal Example](../appendices/E-minimal-example.md)**: a minimal library demonstrating how to implement the guide.
-- **[Appendix F - Check Manifest Versions](../appendices/F-version-check.md)**: how to keep the manifest aligned.
+- **[Appendix F - Check Manifest Versions](../appendices/F-manifest-version-check.md)**: how to keep the manifest aligned.
 
 The same approach should carry over to other families and frameworks, such as STM32 with its Arduino and STM32Cube frameworks, where a new HAL would be the only framework-specific addition, or Zephyr (not tested here). The embedded landscape keeps evolving, with new microcontrollers and alternative build systems continuing to emerge. If you want to extend this framework-agnostic approach to other platforms, refine the appendices, or share your own experience, issues and pull requests are always welcome: embedded development thrives on shared knowledge.
 

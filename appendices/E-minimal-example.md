@@ -1,6 +1,6 @@
 # Appendix E — A Minimal Example
 
-This appendix puts the guide together in the smallest library that follows its rules: a `DualBlinkCpp` class that blinks one pin without blocking, through a compile-time HAL shared by Arduino and ESP-IDF. The buildable version lives in the [DualBlinkCpp](https://github.com/FMazz97/DualBlinkCpp) repository, and the code below is a copy of it at the same tag. The `Cpp` suffix keeps the plain `DualBlink` name free for a future variant. In the chapters, `Foo` remains the generic placeholder, and names follow [Appendix C](C-naming-convention.md).
+This appendix puts the guide together in the smallest library that follows its rules: a `DualBlinkCpp` class that blinks one pin without blocking, through a compile-time HAL shared by Arduino and ESP-IDF. The buildable version lives in the [DualBlinkCpp - v1.1.1](https://github.com/FMazz97/DualBlinkCpp) repository, and the code below is a copy at the same tag, without the Doxygen comments (see them for complete details). The `Cpp` suffix keeps the plain `DualBlink` name free for a future variant. In the chapters, `Foo` remains the generic placeholder, and names follow [Appendix C](C-naming-convention.md).
 
 > **Tested with:** Arduino IDE 2.3.x, PlatformIO (`framework = arduino` and `framework = espidf`, `espressif32@6.4.0` with IDF 5.1.1) and native ESP-IDF v6.1, on an Arduino Nano and on an ESP32 (`esp32dev`) mounted on a [Cheap Yellow Display](https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display) board.
 
@@ -31,6 +31,9 @@ dual_blink_cpp/                      ← repository root = component root
     └── basic_example/               ← ESP-IDF project
 ```
 
+> [!NOTE]
+> The repository also contains the files that check that the versions declared in the manifests are aligned. They are not part of the library and are left out of the tree above: see [Appendix F - Check Manifest Versions](F-manifest-version-check.md).
+
 ---
 
 ## The five source files
@@ -45,6 +48,7 @@ dual_blink_cpp/                      ← repository root = component root
 
 #define DUAL_BLINK_CPP_PIN_OUTPUT()       pinMode(_pin, OUTPUT)
 #define DUAL_BLINK_CPP_PIN_WRITE(level)   digitalWrite(_pin, level)
+#define DUAL_BLINK_CPP_PIN_READ()         digitalRead(_pin)
 #define DUAL_BLINK_CPP_MILLIS()           (static_cast<uint32_t>(millis()))
 
 #endif /* DUAL_BLINK_CPP_HAL_ARDUINO_H */
@@ -59,8 +63,9 @@ dual_blink_cpp/                      ← repository root = component root
 #include "driver/gpio.h"
 #include "esp_timer.h"
 
-#define DUAL_BLINK_CPP_PIN_OUTPUT()       gpio_set_direction(static_cast<gpio_num_t>(_pin), GPIO_MODE_OUTPUT)
+#define DUAL_BLINK_CPP_PIN_OUTPUT()       gpio_set_direction(static_cast<gpio_num_t>(_pin), GPIO_MODE_INPUT_OUTPUT)
 #define DUAL_BLINK_CPP_PIN_WRITE(level)   gpio_set_level(static_cast<gpio_num_t>(_pin), level)
+#define DUAL_BLINK_CPP_PIN_READ()         gpio_get_level(static_cast<gpio_num_t>(_pin))
 #define DUAL_BLINK_CPP_MILLIS()           (static_cast<uint32_t>(esp_timer_get_time() / 1000))
 
 #endif /* DUAL_BLINK_CPP_HAL_ESPIDF_H */
@@ -88,16 +93,19 @@ class dual_blink_cpp {
   public:
     explicit dual_blink_cpp(int pin, uint32_t interval_ms = 500);
 
-    void begin();
-    void update();
+    bool begin();
+    bool update();
 
-    void set_level(bool level);
+    bool set_level(bool level);
     bool get_level() const;
 
     void set_interval_ms(uint32_t interval_ms);
     uint32_t get_interval_ms() const;
 
   private:
+    bool read_level();
+    void write_level(bool level);
+
     int      _pin;
     uint32_t _interval_ms;
     uint32_t _last_toggle_ms;
@@ -117,23 +125,26 @@ class dual_blink_cpp {
 dual_blink_cpp::dual_blink_cpp(int pin, uint32_t interval_ms)
     : _pin(pin), _interval_ms(interval_ms), _last_toggle_ms(0), _level(false) {}
 
-void dual_blink_cpp::begin() {
+bool dual_blink_cpp::begin() {
     DUAL_BLINK_CPP_PIN_OUTPUT();
-    set_level(false);
+    bool confirmed = set_level(false);
     _last_toggle_ms = DUAL_BLINK_CPP_MILLIS();
+    return confirmed;
 }
 
-void dual_blink_cpp::update() {
+bool dual_blink_cpp::update() {
     uint32_t now = DUAL_BLINK_CPP_MILLIS();
     if (now - _last_toggle_ms >= _interval_ms) {
         _last_toggle_ms = now;
-        set_level(!_level);
+        return set_level(!_level);
     }
+    return true;
 }
 
-void dual_blink_cpp::set_level(bool level) {
-    _level = level;
-    DUAL_BLINK_CPP_PIN_WRITE(level);
+bool dual_blink_cpp::set_level(bool level) {
+    write_level(level);
+    _level = read_level();
+    return _level == level;
 }
 
 bool dual_blink_cpp::get_level() const {
@@ -146,6 +157,14 @@ void dual_blink_cpp::set_interval_ms(uint32_t interval_ms) {
 
 uint32_t dual_blink_cpp::get_interval_ms() const {
     return _interval_ms;
+}
+
+bool dual_blink_cpp::read_level() {
+    return DUAL_BLINK_CPP_PIN_READ() != 0;
+}
+
+void dual_blink_cpp::write_level(bool level) {
+    DUAL_BLINK_CPP_PIN_WRITE(level);
 }
 ```
 
@@ -166,9 +185,9 @@ class DualBlinkCpp {
   public:
     DualBlinkCpp(int pin, uint32_t intervalMs = 500) : _core(pin, intervalMs) {}
 
-    void begin()                        { _core.begin(); }
-    void update()                       { _core.update(); }
-    void setLevel(bool level)           { _core.set_level(level); }
+    bool begin()                        { _core.begin(); }
+    bool update()                       { _core.update(); }
+    bool setLevel(bool level)           { _core.set_level(level); }
     bool getLevel() const               { return _core.get_level(); }
     void setIntervalMs(uint32_t ms)     { _core.set_interval_ms(ms); }
     uint32_t getIntervalMs() const      { return _core.get_interval_ms(); }
@@ -188,7 +207,7 @@ class DualBlinkCpp {
 
 ```properties
 name=DualBlinkCpp
-version=1.0.0
+version=1.1.1
 author=FMazz97
 maintainer=FMazz97
 sentence=Non-blocking blink, native to Arduino and ESP-IDF.
@@ -204,7 +223,7 @@ includes=DualBlinkCpp.h
 ```json
 {
     "name": "dual_blink_cpp",
-    "version": "1.0.0",
+    "version": "1.1.1",
     "description": "Minimal example of a C++ library with a compile-time HAL shared by both frameworks, implementing a non-blocking blink, native to Arduino and ESP-IDF",
     "keywords": ["blink", "hal", "example"],
     "homepage": "https://github.com/FMazz97/DualBlinkCpp",
@@ -226,7 +245,11 @@ includes=DualBlinkCpp.h
             "CMakeLists.txt",
             "idf_component.yml",
             "library.properties",
-            "examples/*/main/idf_component.yml"
+            "examples/*/main/idf_component.yml",
+            ".gitattributes",
+            ".githooks/*",
+            ".github/*",
+            "scripts/*"
         ]
     },
     "examples": [
@@ -249,7 +272,7 @@ The `"build"` flag exposes `src/core/` to PlatformIO, as explained in [Chapter 2
 ### `idf_component.yml` (ESP-IDF)
 
 ```yaml
-version: "1.0.0"
+version: "1.1.1"
 description: Minimal example of a C++ library with a compile-time HAL shared by both frameworks, implementing a non-blocking blink, native to Arduino and ESP-IDF
 url: https://github.com/FMazz97/DualBlinkCpp
 repository: https://github.com/FMazz97/DualBlinkCpp.git
@@ -270,6 +293,10 @@ files:
     - "library.json"
     - "src/DualBlinkCpp.h"                      # Arduino's facade *
     - "src/hal/dual_blink_cpp_hal_arduino.h"    # Arduino's HAL *
+    - ".gitattributes"
+    - ".githooks/*"
+    - ".github/*"
+    - "scripts/*"
 ```
 
 The entries marked with `*` are optional: leave them out of the exclusions to support Arduino as an ESP-IDF component ([Chapter 5](../chapters/05-publishing.md#521-manifest-and-metadata)). Add the `examples` key when the repository has examples.
@@ -356,7 +383,7 @@ On ESP-IDF a polling loop must hand control back to the scheduler, with `vTaskDe
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Appendix D - Testing During Development](D-testing-during-development.md) — [Introduction](../README.md)
+[⬅️ Appendix D - Testing During Development](D-testing-during-development.md) — [Introduction](../README.md) — [Appendix F - Check Manifest Versions ➡️](F-manifest-version-check.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->
