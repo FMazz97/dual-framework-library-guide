@@ -25,7 +25,7 @@
 
 - **Appendices:**
   - [Appendix A - IDF Dependency Resolution](appendices/A-esp-idf-dependency-resolution.md)
-  - [Appendix B - Yield & Watchdog](appendices/B-yield-watchdog.md)
+  - [Appendix B - Yield & Interrupts](appendices/B-yield-interrupts.md)
   - [Appendix C - Naming Convention](appendices/C-naming-convention.md)
   - [Appendix D - Testing During Development](appendices/D-testing-during-development.md)
   - [Appendix E - Minimal Example](appendices/E-minimal-example.md)

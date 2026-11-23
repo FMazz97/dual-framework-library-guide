@@ -376,7 +376,7 @@ extern "C" void app_main(void) {
 }
 ```
 
-On ESP-IDF a polling loop must hand control back to the scheduler, with `vTaskDelay(1)` and not `taskYIELD()` ([Appendix B](B-yield-watchdog.md)). The example layouts, the `platformio.ini` and the dependency declarations are described in [Chapter 4](../chapters/04-examples.md).
+On ESP-IDF a polling loop must hand control back to the scheduler, with `vTaskDelay(1)` and not `taskYIELD()` ([Appendix B](B-yield-interrupts.md)). The example layouts, the `platformio.ini` and the dependency declarations are described in [Chapter 4](../chapters/04-examples.md).
 
 ---
 

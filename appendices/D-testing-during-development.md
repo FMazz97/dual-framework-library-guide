@@ -123,7 +123,7 @@ build_src_filter =
 
 ## Reading the framework source: "Go to Definition"
 
-`platformio.ini` tells VS Code which framework, platform and board you work with. Selecting an environment in the status bar rebuilds the IntelliSense configuration, so "Go to Definition" (F12) opens the **real source of that environment's framework**, under `~/.platformio/packages/`. This is how the behaviour in [Appendix B](B-yield-watchdog.md) was checked, instead of relying on documentation or memory.
+`platformio.ini` tells VS Code which framework, platform and board you work with. Selecting an environment in the status bar rebuilds the IntelliSense configuration, so "Go to Definition" (F12) opens the **real source of that environment's framework**, under `~/.platformio/packages/`. This is how the behaviour in [Appendix B](B-yield-interrupts.md) was checked, instead of relying on documentation or memory.
 
 - The same call opens **different code in different environments**: switch the environment, press F12 again.
 - Some symbols open only a **declaration** ("Function definition not found", as with `yield()`): the definition is in a source file IntelliSense didn't index, so search the framework's folder for it.

@@ -36,11 +36,11 @@ Every item below is a rule that came out of the previous chapters and of the dev
 
 ## Cooperating with the scheduler
 
-- [ ] No portable `yield()`: AVR does nothing, ESP8266 needs the real call, ESP32 (Arduino and IDF) needs `vTaskDelay(1)`, not `taskYIELD()` or Arduino's `yield()`, which are only reschedule requests. ([App. B](../appendices/B-yield-watchdog.md))
+- [ ] No portable `yield()`: AVR does nothing, ESP8266 needs the real call, ESP32 (Arduino and IDF) needs `vTaskDelay(1)`, not `taskYIELD()` or Arduino's `yield()`, which are only reschedule requests. ([App. B](../appendices/B-yield-interrupts.md))
 - [ ] Polling loops: stay tight during the normal conversion window, yield after it, stop yielding near the timeout.
 - [ ] The guard before the timeout is **larger than one yield** (up to one tick period), so a yield can never cause a timeout.
 - [ ] Very long averages at high rates throttle their outer loop too, at an interval well below the watchdog timeout.
-- [ ] Critical sections save and restore the previous interrupt state; the plain `noInterrupts()`/`interrupts()` pair is only a fallback. ([App. B](../appendices/B-yield-watchdog.md))
+- [ ] Critical sections save and restore the previous interrupt state; the plain `noInterrupts()`/`interrupts()` pair is only a fallback. ([App. B](../appendices/B-yield-interrupts.md))
 - [ ] Only the bit-banged transaction is inside the critical section: no waits, no yields, no logging. The enter/exit macros sit in one block.
 - [ ] The ESP32 spinlock is defined once and declared `extern` elsewhere: a `static` in a header duplicates it per file.
 
@@ -119,7 +119,7 @@ External sources cited throughout the guide, grouped by ecosystem. Each entry na
   - [IDF Component Manager and ESP Component Registry Documentation](https://docs.espressif.com/projects/idf-component-manager/en/latest/): the manifest and registry reference.
   - [ESP-IDF Programming Guide](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/index.html): the entry point to the official documentation.
   - [What is the ESP Component Registry?](https://developer.espressif.com/blog/2024/10/what-is-the-esp-registry/): already listed under ESP-IDF, also relied upon here.
-- **Appendix B, Yield & Watchdog**
+- **Appendix B, Yield & Interrupts**
   - Arduino-ESP32 core, `esp32-hal-misc.c`: the `yield()` wrapper around `vPortYield()` and `yieldIfNecessary()`. Read from the installed package through "Go to Definition" (see Appendix D).
   - FreeRTOS kernel, `tasks.c`: the behaviour of `vTaskDelay(0)`, which only forces a reschedule. Read from the framework sources, in the same way.
   - [CS123x](https://github.com/FMazz97/CS123x): the library where the Task Watchdog failure was observed and fixed.

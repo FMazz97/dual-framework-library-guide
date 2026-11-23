@@ -99,7 +99,7 @@ The same Arduino style guide advises avoiding boolean arguments, suggesting two 
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Appendix B - Yield & Watchdog](B-yield-watchdog.md) — [Introduction](../README.md) — [Appendix D - Testing During Development ➡️](D-testing-during-development.md)
+[⬅️ Appendix B - Yield & Watchdog](B-yield-interrupts.md) — [Introduction](../README.md) — [Appendix D - Testing During Development ➡️](D-testing-during-development.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->

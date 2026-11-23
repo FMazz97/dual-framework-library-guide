@@ -188,7 +188,7 @@ When PlatformIO is introduced, a third actor enters the picture: see [4.3 Platfo
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[Introduction](../README.md) — [Appendix B - Yield & Watchdog ➡️](B-yield-watchdog.md)
+[Introduction](../README.md) — [Appendix B - Yield & Watchdog ➡️](B-yield-interrupts.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->
