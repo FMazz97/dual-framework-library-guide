@@ -1,25 +1,25 @@
-# Appendix B — Yield and Interrupts: two opposite side
+# Appendix B — Yield & Interrupts: Two Opposite Needs
 
-While developing the [CS123x](https://github.com/FMazz97/CS123x) library across Arduino and ESP-IDF, a seemingly trivial translation of `yield()` caused a real watchdog reset on hardware. The broader lesson: any function that can block for a long time (averaging thousands of ADC readings is the typical case) has to cooperate with the operating system underneath, and what "cooperating" means differs on every platform. Left unchecked, such loops starve whatever else the MCU has to do: on some platforms nothing bad happens, on others a watchdog resets the whole device. The appendix closes with the opposite need: protecting a timing-critical transaction from interruption.
+While developing the [CS123x](https://github.com/FMazz97/CS123x) library across Arduino and ESP-IDF, two seemingly trivial details turned out to behave differently on every platform, and to ask opposite things of the CPU. A translation of `yield()` caused a real watchdog reset on hardware: a long wait has to **give the CPU away**, or the rest of the system starves. A bit-banged register transaction needs the opposite: it has to **keep the CPU** until the last clock edge, or an interrupt can corrupt it. This appendix covers the first need, yielding and the watchdog, and then the second, interrupts and critical sections.
 
 ---
 
 ## Yield & Watchdog: Cooperating with the Scheduler
 
-`yield()` looks like the most portable, boring function in embedded C. It isn't.
+`yield()` looks like the most portable, boring function in embedded C. It isn't. Any function that can block for a long time (averaging thousands of ADC readings is the typical case) has to cooperate with the operating system underneath, and what "cooperating" means differs on every platform. Left unchecked, such loops starve whatever else the MCU has to do: on some platforms nothing bad happens, on others a watchdog resets the whole device.
 
 > [!IMPORTANT]
 > A long blocking function must not assume it owns the CPU. It should periodically hand control back to the platform, throttled by elapsed time and tuned to what the platform actually needs, never blindly on every iteration.
 
 ### The four environments considered
 
-**AVR (Uno, Nano, Mega) — no scheduler.** `setup()` and `loop()` *are* the whole program, and `yield()` is a weak, empty stub kept for source-level compatibility. The Arduino AVR core enables no watchdog by default.
+1. **AVR (Uno, Nano, Mega) — no scheduler.** `setup()` and `loop()` *are* the whole program, and `yield()` is a weak, empty stub kept for source-level compatibility. The Arduino AVR core enables no watchdog by default.
 
-**ESP8266 (Arduino core) — a cooperative event loop, not a real RTOS.** The NON-OS SDK needs control handed back periodically to service Wi-Fi/TCP-IP and feed the **Soft WDT** (a software watchdog with a timeout in the low single-digit seconds), so `yield()` does real, necessary work.
+2. **ESP8266 (Arduino core) — a cooperative event loop, not a real RTOS.** The NON-OS SDK needs control handed back periodically to service Wi-Fi/TCP-IP and feed the **Soft WDT** (a software watchdog with a timeout in the low single-digit seconds), so `yield()` does real, necessary work.
 
-**Arduino-ESP32 — FreeRTOS underneath, and `yield()` is only a reschedule request.** In the core's source it is a thin wrapper around `vPortYield()` (`esp32-hal-misc.c`): the caller stays ready, so lower-priority tasks are not guaranteed to run. The core knows this: on single-core configurations (`CONFIG_FREERTOS_UNICORE`) its own main loop calls `yieldIfNecessary()`, which blocks with `vTaskDelay(5)` at most once every 2 seconds. A long blocking call inside `loop()` cannot reach that code until it returns.
+3. **Arduino-ESP32 — FreeRTOS underneath, and `yield()` is only a reschedule request.** In the core's source it is a thin wrapper around `vPortYield()` (`esp32-hal-misc.c`): the caller stays ready, so lower-priority tasks are not guaranteed to run. The core knows this: on single-core configurations (`CONFIG_FREERTOS_UNICORE`) its own main loop calls `yieldIfNecessary()`, which blocks with `vTaskDelay(5)` at most once every 2 seconds. A long blocking call inside `loop()` cannot reach that code until it returns.
 
-**Native ESP-IDF — same FreeRTOS, no Arduino core.** The obvious analogue of `yield()` is `taskYIELD()`, which is also a reschedule request. This is the one that caused the real failure.
+4. **Native ESP-IDF — same FreeRTOS, no Arduino core.** The obvious analogue of `yield()` is `taskYIELD()`, which is also a reschedule request. This is the one that caused the real failure.
 
 | Environment | What `yield()` (or its equivalent) does | Cost | If omitted for too long |
 | :--- | :--- | :--- | :--- |
