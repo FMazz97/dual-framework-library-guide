@@ -34,15 +34,17 @@ Every item below is a rule that came out of the previous chapters and of the dev
 - [ ] `REQUIRES <name>` accepts the short name for Registry components; the long `<namespace>__<name>` is rejected (in tests). ([App. A](../appendices/A-esp-idf-dependency-resolution.md))
 - [ ] Test the example **as a user gets it**: `idf.py create-project-from-example "<namespace>/<name>^<version>:<example>"`, then build.
 
-## Cooperating with the scheduler
+## Yield and interrupts
 
 - [ ] No portable `yield()`: AVR does nothing, ESP8266 needs the real call, ESP32 (Arduino and IDF) needs `vTaskDelay(1)`, not `taskYIELD()` or Arduino's `yield()`, which are only reschedule requests. ([App. B](../appendices/B-yield-interrupts.md))
 - [ ] Polling loops: stay tight during the normal conversion window, yield after it, stop yielding near the timeout.
 - [ ] The guard before the timeout is **larger than one yield** (up to one tick period), so a yield can never cause a timeout.
 - [ ] Very long averages at high rates throttle their outer loop too, at an interval well below the watchdog timeout.
 - [ ] Critical sections save and restore the previous interrupt state; the plain `noInterrupts()`/`interrupts()` pair is only a fallback. ([App. B](../appendices/B-yield-interrupts.md))
-- [ ] Only the bit-banged transaction is inside the critical section: no waits, no yields, no logging. The enter/exit macros sit in one block.
+- [ ] On a dual-core ESP32, a spinlock (`portMUX_TYPE`) protects the transaction: masking interrupts does not stop the other core.
+- [ ] Only the bit-banged transaction is inside the critical section: no waits, no yields; prepare the data before and process the result after. The enter/exit macros sit in one block, because a `return` between them leaves interrupts off or the lock held (ESP8266's RAII guard is the exception).
 - [ ] The ESP32 spinlock is defined once and declared `extern` elsewhere: a `static` in a header duplicates it per file.
+- [ ] If the device signals readiness with an interrupt, the ISR only sets a flag and the transaction runs from the main loop.
 
 ## Testing during development
 
@@ -71,9 +73,9 @@ See [Chapter 5](05-publishing.md) for the details of each registry.
 
 ---
 
-## References
+## Sources
 
-External sources cited throughout the guide, grouped by ecosystem. Each entry names the chapter or appendix where it is first relied upon
+External sources cited throughout the guide, grouped by ecosystem, including the framework source files read to check the behaviour described. Each entry names the chapter or appendix where it is first relied upon.
 
 ### Arduino
 
@@ -110,6 +112,7 @@ External sources cited throughout the guide, grouped by ecosystem. Each entry na
 ### Reference implementation
 
 - [CS123x](https://github.com/FMazz97/CS123x): the library on which this guide is based (Ch. 3, 5).
+- [DualBlinkCpp](https://github.com/FMazz97/DualBlinkCpp): the minimal, buildable example of the guide (App. E).
 
 ### Appendices
 
@@ -122,6 +125,7 @@ External sources cited throughout the guide, grouped by ecosystem. Each entry na
 - **Appendix B, Yield & Interrupts**
   - Arduino-ESP32 core, `esp32-hal-misc.c`: the `yield()` wrapper around `vPortYield()` and `yieldIfNecessary()`. Read from the installed package through "Go to Definition" (see Appendix D).
   - FreeRTOS kernel, `tasks.c`: the behaviour of `vTaskDelay(0)`, which only forces a reschedule. Read from the framework sources, in the same way.
+  - Arduino core for ESP8266, `core_esp8266_wiring_digital.cpp`: where the core protects its own GPIO handling with `esp8266::InterruptLock`, the guard that replaced the failed `xt_rsil` attempt. Read from the installed package, in the same way.
   - [CS123x](https://github.com/FMazz97/CS123x): the library where the Task Watchdog failure was observed and fixed.
 - **Appendix C, Naming Convention**
   - [C++ Core Guidelines, Naming and layout](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming): `underscore_style` (NL.10) and ALL_CAPS reserved for macros (NL.9).
@@ -129,6 +133,8 @@ External sources cited throughout the guide, grouped by ecosystem. Each entry na
   - [ESP-IDF Style Guide](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/contribute/style-guide.html): `snake_case` in C and C++, and the type and constant conventions.
 - **Appendix D, Testing During Development**
   - No external sources beyond those already listed (PlatformIO and ESP-IDF documentation). The behaviour described was observed on hardware and checked in the framework sources.
+- **Appendix E, A Minimal Example**
+  - [Cheap Yellow Display](https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display): the ESP32 board on which the example was tested.
 
 ---
 
