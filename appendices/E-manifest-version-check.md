@@ -40,7 +40,7 @@ Copy `scripts/check_versions.py`, `.githooks/pre-push` and `.github/workflows/ch
 >
 > If a push does not print a `pre-push: checking …` line, the hook is not active.
 
-Keep the hook on LF line endings (`.githooks/* text eol=lf` in `.gitattributes`) or its first line breaks on Windows, and set the executable bit for Linux and macOS users: `git update-index --chmod=+x .githooks/pre-push`.
+Keep the hook on LF line endings — `.githooks/* text eol=lf` in `.gitattributes` — or its first line breaks on Windows, and set the executable bit for Linux and macOS users: `git update-index --chmod=+x .githooks/pre-push`.
 
 **Release flow:** bump all three manifests in a single commit and push; create the tag with the same version; then **bump to the next version immediately**, because until then the version equals the last tag and every push is rejected.
 
@@ -48,7 +48,7 @@ Keep the hook on LF line endings (`.githooks/* text eol=lf` in `.gitattributes`)
 
 ## Assumptions
 
-- The manifests are at the repository root, each with a **top-level** version key (versions of dependencies are not read). Other names or paths: edit `MANIFESTS` in the script.
+- The manifests are at the repository root, each with a **top-level** version key (versions of dependencies are not read).
 - Versions are semantic; tags are compared with semver precedence and non-semver tags are ignored.
 - Python 3 is available, and there is a single version line (no hotfixes on older versions).
 
@@ -56,7 +56,7 @@ Keep the hook on LF line endings (`.githooks/* text eol=lf` in `.gitattributes`)
 
 ## Limits
 
-- **The hook is per-clone**, can be skipped with `git push --no-verify`, and skips the check, with a message, if no working Python is found.
+- **The hook is per-clone**, can be skipped with `git push --no-verify`. The check will skipped with a message if no working Python is found.
 - **GitHub cannot block a push**, only report it. A required status check on `main` blocks merges, but only through pull requests.
 - **Nothing protects `main` by default.** Branch protection is a setting of each GitHub repository, not part of the files: without it, a merge made on the website skips the hook and a failing check does not stop it.
 - **A Release created on the GitHub website never passes through the hook.** Only the workflow sees it, afterwards. The deletion job, verified in a test repository, removes the tag within moments, but a registry may have looked at it first.
@@ -69,7 +69,7 @@ Keep the hook on LF line endings (`.githooks/* text eol=lf` in `.gitattributes`)
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Appendix E - Minimal Example](E-minimal-example.md) — [Introduction](../README.md)
+[⬅️ Appendix D - Testing During Development](D-testing-during-development.md) — [Introduction](../README.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->

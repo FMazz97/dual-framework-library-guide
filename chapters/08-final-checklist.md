@@ -107,7 +107,7 @@ External sources cited throughout the guide, grouped by ecosystem, including the
 - [`includeDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/includedir.html): default include paths of a library (Ch. 2).
 - [Espressif 32 ESP-IDF framework](https://docs.platformio.org/en/latest/frameworks/espidf.html): project structure, `src_dir`, and limitations (Ch. 4, 5).
 - [Package Management CLI](https://docs.platformio.org/en/latest/core/userguide/pkg/index.html): `pio pkg pack` and `pio pkg publish` (Ch. 5).
-- [PlatformIO Issue #12672](https://github.com/platformio/platformio-home/issues/12672): PIO Home flattening multi-file `examples` entries (Ch. 5, 6).
+- [PlatformIO Issue #12672](https://github.com/platformio/platformio-home/issues/12672): PIO Home flattening multi-file `examples` entries (Ch. 5, 7).
 
 ### Reference implementation
 
@@ -133,15 +133,13 @@ External sources cited throughout the guide, grouped by ecosystem, including the
   - [ESP-IDF Style Guide](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/contribute/style-guide.html): `snake_case` in C and C++, and the type and constant conventions.
 - **Appendix D, Testing During Development**
   - No external sources beyond those already listed (PlatformIO and ESP-IDF documentation). The behaviour described was observed on hardware and checked in the framework sources.
-- **Appendix E, A Minimal Example**
-  - [Cheap Yellow Display](https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display): the ESP32 board on which the example was tested.
 
 ---
 
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Chapter 6 - Conclusions](06-conclusions.md) — [Introduction](../README.md)
+[⬅️ Chapter 7 - Conclusions](07-conclusions.md) — [Introduction](../README.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->

@@ -20,16 +20,18 @@
   - [Chapter 3 - Agnostic Core & HAL Architecture](chapters/03-agnostic-core-hal-architecture.md)
   - [Chapter 4 - Example Conventions](chapters/04-examples.md)
   - [Chapter 5 - Publishing](chapters/05-publishing.md)
-  - [Chapter 6 - Conclusions](chapters/06-conclusions.md)
-  - [Final Checklist](chapters/07-final-checklist.md)
+  - [Chapter 6 - Minimal Example](chapters/06-minimal-example.md)
+  - [Chapter 7 - Conclusions](chapters/07-conclusions.md)
+  - [Final Checklist](chapters/08-final-checklist.md)
 
-- **Appendices:**
-  - [Appendix A - IDF Dependency Resolution](appendices/A-esp-idf-dependency-resolution.md)
-  - [Appendix B - Yield & Interrupts](appendices/B-yield-interrupts.md)
-  - [Appendix C - Naming Convention](appendices/C-naming-convention.md)
-  - [Appendix D - Testing During Development](appendices/D-testing-during-development.md)
-  - [Appendix E - Minimal Example](appendices/E-minimal-example.md)
-  - [Appendix F - Check Manifest Versions](appendices/F-manifest-version-check.md)
+- Appendices:
+  - Technical background:
+    - [Appendix A - IDF Dependency Resolution](appendices/A-esp-idf-dependency-resolution.md)
+    - [Appendix B - Yield & Interrupts](appendices/B-yield-interrupts.md)
+    - [Appendix C - Naming Convention](appendices/C-naming-convention.md)
+  - Development workflow
+    - [Appendix D - Testing During Development](appendices/D-testing-during-development.md)
+    - [Appendix E - Check Manifest Versions](appendices/E-manifest-version-check.md)
 
 - **Licenses:**
   - [LICENSE](LICENSE)

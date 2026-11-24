@@ -1,10 +1,10 @@
-# Chapter 6 — Conclusions
+# Chapter 7 — Conclusions
 
 The guide started from a question: why accept the complexity of supporting both Arduino and ESP-IDF natively, instead of choosing one ecosystem or relying on a compatibility layer? This chapter collects what the answer turned out to be, what remains open, and where to go from here.
 
 ---
 
-## 6.1 What the guide settled
+## 7.1 What the guide settled
 
 Five decisions, each following from the previous one:
 
@@ -13,12 +13,13 @@ Five decisions, each following from the previous one:
 3. **A framework-agnostic core** ([Chapter 3](03-agnostic-core-hal-architecture.md)). Protocol logic is written once, hardware access is selected at compile time through a HAL, and the Arduino facade only forwards.
 4. **Examples that build with both toolchains** ([Chapter 4](04-examples.md)). One project layout for `idf.py` and PlatformIO, with one dependency declaration per toolchain.
 5. **Publication as a design concern** ([Chapter 5](05-publishing.md)). Three registries with different manifests, filters, and immutability rules, and a package name decided before the first publish.
+6. **A pratical examples**[Chapter 6](06-minimal-example.md). A minimal library that demonstrating how to implement the guide.
 
-The [Final Checklist](07-final-checklist.md) condenses them, in the order in which they come up.
+The [Final Checklist](08-final-checklist.md) condenses them, in the order in which they come up.
 
 ---
 
-## 6.2 What remains open
+## 7.2 What remains open
 
 The guide rests on a single library and a single design (see the warning at the end of the [Introduction](../README.md#-the-purpose-of-this-repository)). Where it reports an observation instead of a documented fact, it says so in the text: this section collects what was not verified and the limits found along the way, and each point is a good starting point for a contribution.
 
@@ -40,7 +41,7 @@ The guide rests on a single library and a single design (see the warning at the 
 
 ---
 
-## 6.3 Beyond Arduino & ESP-IDF: Extending and Contributing
+## 7.3 Beyond Arduino & ESP-IDF: Extending and Contributing
 
 While this guide focused on bridging Arduino, ESP-IDF, and PlatformIO, the underlying patterns (unified source layouts, explicit dependency management, and reciprocal registry exclusions) are likely applicable to the wider embedded ecosystem. The appendices go deeper on the technical details:
 
@@ -48,8 +49,7 @@ While this guide focused on bridging Arduino, ESP-IDF, and PlatformIO, the under
 - **[Appendix B: Yield & Interrupts](../appendices/B-yield-interrupts.md)**: how long blocking operations cooperate with the scheduler across AVR, ESP8266, and FreeRTOS-based ESP32 targets and how to protecting a transaction during a critical sections.
 - **[Appendix C: Naming Convention](../appendices/C-naming-convention.md)**: what a method name promises, and how case styles map across the core and the Arduino facade.
 - **[Appendix D: Testing During Development](../appendices/D-testing-during-development.md)**: one example tested on many boards with PlatformIO, and the layouts that keep it reliable.
-- **[Appendix E - Minimal Example](../appendices/E-minimal-example.md)**: a minimal library demonstrating how to implement the guide.
-- **[Appendix F - Check Manifest Versions](../appendices/F-manifest-version-check.md)**: how to keep the manifest aligned.
+- **[Appendix E - Check Manifest Versions](../appendices/E-manifest-version-check.md)**: how to keep the manifest aligned.
 
 The same approach should carry over to other families and frameworks, such as STM32 with its Arduino and STM32Cube frameworks, where a new HAL would be the only framework-specific addition, or Zephyr (not tested here). The embedded landscape keeps evolving, with new microcontrollers and alternative build systems continuing to emerge. If you want to extend this framework-agnostic approach to other platforms, refine the appendices, or share your own experience, issues and pull requests are always welcome: embedded development thrives on shared knowledge.
 
@@ -58,7 +58,7 @@ The same approach should carry over to other families and frameworks, such as ST
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Chapter 5 - Publishing](05-publishing.md) — [Introduction](../README.md) — [Final Checklist ➡️](07-final-checklist.md)
+[⬅️ Chapter 6 - Minimal Example](06-minimal-example.md) — [Introduction](../README.md) — [Final Checklist ➡️](08-final-checklist.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->

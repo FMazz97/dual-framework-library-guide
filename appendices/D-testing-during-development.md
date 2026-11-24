@@ -162,7 +162,7 @@ The Arduino IDE only looks in its own `libraries` folder, so the only way to tes
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Appendix C - Naming Convention](C-naming-convention.md) — [Introduction](../README.md) — [Appendix E - Minimal Example ➡️](E-minimal-example.md)
+[⬅️ Appendix C - Naming Convention](C-naming-convention.md) — [Introduction](../README.md) — [Appendix E - Check Manifest Versions ➡️](E-manifest-version-check.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->

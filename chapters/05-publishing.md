@@ -284,7 +284,7 @@ PlatformIO allows flexibility in package naming and can resolve dependencies acr
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Chapter 4 - Example Conventions](04-examples.md) — [Introduction](../README.md) — [Chapter 6 - Conclusions ➡️](06-conclusions.md)
+[⬅️ Chapter 4 - Example Conventions](04-examples.md) — [Introduction](../README.md) — [Chapter 6 - Minimal Example ➡️](06-minimal-example.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->

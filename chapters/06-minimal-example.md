@@ -1,12 +1,12 @@
-# Appendix E — A Minimal Example
+# Chapter 6 — A Minimal Example
 
-This appendix puts the guide together in the smallest library that follows its rules: a `DualBlinkCpp` class that blinks one pin without blocking, through a compile-time HAL shared by Arduino and ESP-IDF. The buildable version lives in the [DualBlinkCpp - v1.1.1](https://github.com/FMazz97/DualBlinkCpp) repository, and the code below is a copy at the same tag, without the Doxygen comments (see them for complete details). The `Cpp` suffix keeps the plain `DualBlink` name free for a future variant. In the chapters, `Foo` remains the generic placeholder, and names follow [Appendix C](C-naming-convention.md).
+This chapter puts the guide together in the smallest library that follows its rules: a `DualBlinkCpp` class that blinks one pin without blocking, through a compile-time HAL shared by Arduino and ESP-IDF. The buildable version lives in the [DualBlinkCpp - v1.1.1](https://github.com/FMazz97/DualBlinkCpp) repository, and the code below is a copy at the same tag, without the Doxygen comments (see them for complete details). The `Cpp` suffix keeps the plain `DualBlink` name free for a future variant.
 
-> **Tested with:** Arduino IDE 2.3.x, PlatformIO (`framework = arduino` and `framework = espidf`, `espressif32@6.4.0` with IDF 5.1.1) and native ESP-IDF v6.1, on an Arduino Nano and on an ESP32 (`esp32dev`) mounted on a [Cheap Yellow Display](https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display) board.
+> **Tested with:** Arduino IDE 2.3.x, PlatformIO (`framework = arduino` and `framework = espidf`, `espressif32@6.4.0` with IDF 5.1.1) and native ESP-IDF v6.1, on an Arduino Nano and on an ESP32 (`esp32dev`) board.
 
-## Repository tree
+## 6.1 Repository tree
 
-The repository is named `DualBlinkCpp` on GitHub (the Arduino library name, `PascalCase`) and cloned into a lowercase folder, which becomes the component name (see [Chapter 2](../chapters/02-repo-structure.md#22-local-folder-name-vs-github-repository-name)):
+The repository is named `DualBlinkCpp` on GitHub (the Arduino library name, `PascalCase`) and cloned into a lowercase folder, which becomes the component name (see [Chapter 2](02-repo-structure.md#22-local-folder-name-vs-github-repository-name)):
 
 ```bash
 git clone https://github.com/FMazz97/DualBlinkCpp.git dual_blink_cpp
@@ -32,13 +32,13 @@ dual_blink_cpp/                      ← repository root = component root
 ```
 
 > [!NOTE]
-> The repository also contains the files that check that the versions declared in the manifests are aligned. They are not part of the library and are left out of the tree above: see [Appendix F - Check Manifest Versions](F-manifest-version-check.md).
+> The repository also contains the files that check that the versions declared in the manifests are aligned. They are not part of the library and are left out of the tree above: see [Appendix E - Check Manifest Versions](../appendices/E-manifest-version-check.md).
 
 ---
 
-## The five source files
+## 6.2 The five source files
 
-### `src/hal/dual_blink_cpp_hal_arduino.h`
+### 6.2.1 `src/hal/dual_blink_cpp_hal_arduino.h`
 
 ```cpp
 #ifndef DUAL_BLINK_CPP_HAL_ARDUINO_H
@@ -54,7 +54,7 @@ dual_blink_cpp/                      ← repository root = component root
 #endif /* DUAL_BLINK_CPP_HAL_ARDUINO_H */
 ```
 
-### `src/hal/dual_blink_cpp_hal_espidf.h`
+### 6.2.2 `src/hal/dual_blink_cpp_hal_espidf.h`
 
 ```cpp
 #ifndef DUAL_BLINK_CPP_HAL_ESPIDF_H
@@ -71,9 +71,9 @@ dual_blink_cpp/                      ← repository root = component root
 #endif /* DUAL_BLINK_CPP_HAL_ESPIDF_H */
 ```
 
-The two HALs expose the same three macros, which expand directly inside the core methods and rely on its `_pin` member ([Chapter 3](../chapters/03-agnostic-core-hal-architecture.md)). `millis()` on Arduino and `esp_timer_get_time()` on ESP-IDF are the equivalent clocks: the blink never blocks.
+The two HALs expose the same three macros, which expand directly inside the core methods and rely on its `_pin` member ([Chapter 3](03-agnostic-core-hal-architecture.md)). `millis()` on Arduino and `esp_timer_get_time()` on ESP-IDF are the equivalent clocks: the blink never blocks.
 
-### `src/core/dual_blink_cpp.h`
+### 6.2.3 `src/core/dual_blink_cpp.h`
 
 ```cpp
 #ifndef DUAL_BLINK_CPP_CORE_H
@@ -115,9 +115,9 @@ class dual_blink_cpp {
 #endif /* DUAL_BLINK_CPP_CORE_H */
 ```
 
-`ARDUINO` is tested first because Arduino-ESP32 defines both macros. The methods follow the prefix scheme of [Appendix C](C-naming-convention.md): `set_level()`/`get_level()` and `set_interval_ms()`/`get_interval_ms()` are pairs, and the getters are `const` and never touch the hardware. `begin()` and `update()` are domain vocabulary, outside the scheme.
+`ARDUINO` is tested first because Arduino-ESP32 defines both macros. The methods follow the prefix scheme of [Appendix C](../appendices/C-naming-convention.md): `set_level()`/`get_level()` and `set_interval_ms()`/`get_interval_ms()` are pairs, and the getters are `const` and never touch the hardware. `begin()` and `update()` are domain vocabulary, outside the scheme.
 
-### `src/core/dual_blink_cpp.cpp`
+### 6.2.4 `src/core/dual_blink_cpp.cpp`
 
 ```cpp
 #include "dual_blink_cpp.h"
@@ -170,7 +170,7 @@ void dual_blink_cpp::write_level(bool level) {
 
 The core never calls an Arduino or ESP-IDF API directly: only the `DUAL_BLINK_CPP_*` macros. The unsigned subtraction `now - _last_toggle_ms` stays correct when the millisecond counter wraps around.
 
-### `src/DualBlinkCpp.h`
+### 6.2.5 `src/DualBlinkCpp.h`
 
 ```cpp
 #ifndef DUAL_BLINK_CPP_H
@@ -201,9 +201,9 @@ class DualBlinkCpp {
 
 ---
 
-## The manifests
+## 6.3 The manifests
 
-### `library.properties` (Arduino)
+### 6.3.1 `library.properties` (Arduino)
 
 ```properties
 name=DualBlinkCpp
@@ -218,7 +218,7 @@ architectures=*
 includes=DualBlinkCpp.h
 ```
 
-### `library.json` (PlatformIO)
+### 6.3.2 `library.json` (PlatformIO)
 
 ```json
 {
@@ -267,9 +267,9 @@ includes=DualBlinkCpp.h
 }
 ```
 
-The `"build"` flag exposes `src/core/` to PlatformIO, as explained in [Chapter 2](../chapters/02-repo-structure.md#213-platformio-source--include-path).
+The `"build"` flag exposes `src/core/` to PlatformIO, as explained in [Chapter 2](02-repo-structure.md#213-platformio-source--include-path).
 
-### `idf_component.yml` (ESP-IDF)
+### 6.3.3 `idf_component.yml` (ESP-IDF)
 
 ```yaml
 version: "1.1.1"
@@ -299,9 +299,9 @@ files:
     - "scripts/*"
 ```
 
-The entries marked with `*` are optional: leave them out of the exclusions to support Arduino as an ESP-IDF component ([Chapter 5](../chapters/05-publishing.md#521-manifest-and-metadata)). Add the `examples` key when the repository has examples.
+The entries marked with `*` are optional: leave them out of the exclusions to support Arduino as an ESP-IDF component ([Chapter 5](05-publishing.md#521-manifest-and-metadata)). Add the `examples` key when the repository has examples.
 
-### `CMakeLists.txt` (ESP-IDF)
+### 6.3.4 `CMakeLists.txt` (ESP-IDF)
 
 ```cmake
 # Select dependencies based on ESP-IDF version
@@ -327,7 +327,7 @@ idf_component_register(
 
 ---
 
-## Using the library
+## 6.4 Using the library
 
 **Arduino sketch** (`examples/BasicExample/BasicExample.ino`):
 
@@ -376,14 +376,14 @@ extern "C" void app_main(void) {
 }
 ```
 
-On ESP-IDF a polling loop must hand control back to the scheduler, with `vTaskDelay(1)` and not `taskYIELD()` ([Appendix B](B-yield-interrupts.md)). The example layouts, the `platformio.ini` and the dependency declarations are described in [Chapter 4](../chapters/04-examples.md).
+On ESP-IDF a polling loop must hand control back to the scheduler, with `vTaskDelay(1)` and not `taskYIELD()` ([Appendix B](../appendices/B-yield-interrupts.md)). The example layouts, the `platformio.ini` and the dependency declarations are described in [Chapter 4](04-examples.md).
 
 ---
 
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Appendix D - Testing During Development](D-testing-during-development.md) — [Introduction](../README.md) — [Appendix F - Check Manifest Versions ➡️](F-manifest-version-check.md)
+[⬅️ Chapter 5 - Publishing](05-publishing.md) — [Introduction](../README.md) — [Chapter 7 - Conclusions ➡️](07-conclusions.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->
