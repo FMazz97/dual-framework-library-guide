@@ -79,7 +79,7 @@ Keep the hook on LF line endings — `.githooks/* text eol=lf` in `.gitattribute
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Appendix D - Testing During Development](D-testing-during-development.md) — [Introduction](../README.md) — [References & Links ➡️](appendices/Z-references.md)
+[⬅️ Appendix D - Testing During Development](D-testing-during-development.md) — [Introduction](../README.md) — [References & Links ➡️](Z-references.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->
