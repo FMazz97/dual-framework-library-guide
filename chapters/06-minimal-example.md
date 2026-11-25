@@ -1,6 +1,8 @@
 # Chapter 6 — A Minimal Example
 
-This chapter puts the guide together in the smallest library that follows its rules: a `DualBlinkCpp` class that blinks one pin without blocking, through a compile-time HAL shared by Arduino and ESP-IDF. The buildable version lives in the [DualBlinkCpp - v1.1.1](https://github.com/FMazz97/DualBlinkCpp) repository, and the code below is a copy at the same tag, without the Doxygen comments (see them for complete details). The `Cpp` suffix keeps the plain `DualBlink` name free for a future variant.
+With the publication workflow covered ([Chapter 5](05-publishing.md)), it is time to put the whole guide together in the smallest library that follows its rules: a `DualBlinkCpp` class that blinks one pin without blocking, through a compile-time HAL shared by Arduino and ESP-IDF. Where the earlier chapters use `Foo` as a placeholder, this chapter uses the real names, and the `Cpp` suffix keeps the plain `DualBlink` name free for a future variant.
+
+The buildable version lives in the [DualBlinkCpp](https://github.com/FMazz97/DualBlinkCpp) repository (v1.1.2), and the code below is a copy at the same tag, without the Doxygen comments, which hold the complete documentation.
 
 > **Tested with:** Arduino IDE 2.3.x, PlatformIO (`framework = arduino` and `framework = espidf`, `espressif32@6.4.0` with IDF 5.1.1) and native ESP-IDF v6.1, on an Arduino Nano and on an ESP32 (`esp32dev`) board.
 
@@ -32,7 +34,7 @@ dual_blink_cpp/                      ← repository root = component root
 ```
 
 > [!NOTE]
-> The repository also contains the files that check that the versions declared in the manifests are aligned. They are not part of the library and are left out of the tree above: see [Appendix E - Check Manifest Versions](../appendices/E-manifest-version-check.md).
+> The repository also contains the files that check that the versions declared in the manifests are aligned. They are not part of the library and are left out of the tree above: see [Appendix E - Manifest Versions Check](../appendices/E-manifest-version-check.md).
 
 ---
 
@@ -247,9 +249,9 @@ includes=DualBlinkCpp.h
             "library.properties",
             "examples/*/main/idf_component.yml",
             ".gitattributes",
-            ".githooks/*",
-            ".github/*",
-            "scripts/*"
+            ".githooks",
+            ".github",
+            "scripts"
         ]
     },
     "examples": [
@@ -294,9 +296,9 @@ files:
     - "src/DualBlinkCpp.h"                      # Arduino's facade *
     - "src/hal/dual_blink_cpp_hal_arduino.h"    # Arduino's HAL *
     - ".gitattributes"
-    - ".githooks/*"
-    - ".github/*"
-    - "scripts/*"
+    - ".githooks/**"
+    - ".github/**"
+    - "scripts/**"
 ```
 
 The entries marked with `*` are optional: leave them out of the exclusions to support Arduino as an ESP-IDF component ([Chapter 5](05-publishing.md#521-manifest-and-metadata)). Add the `examples` key when the repository has examples.

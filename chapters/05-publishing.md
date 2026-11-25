@@ -4,6 +4,9 @@ Publishing a framework-agnostic library means interacting with three independent
 
 Rather than treating publishing as a single step, this chapter covers each registry individually: how its manifest handles metadata and file filtering (as introduced in [Chapter 4 - Example Conventions](04-examples.md)), local pre-verification, initial publication, and updates. It closes with the naming rules that keep the three registries consistent.
 
+> [!NOTE]
+> Keeping the same version in the three manifests is easy to get wrong by hand. [Appendix E - Manifest Version Check](../appendices/E-manifest-version-check.md) describes a small check that catches it before a push or a tag reaches the registries.
+
 ---
 
 ## 5.1 Arduino Library Manager
@@ -84,6 +87,10 @@ The single source of truth for ESP-IDF component metadata is `idf_component.yml`
       - "examples/*/platformio.ini"   # PlatformIO's examples configuration
       - "assets/**"                   # other documentation
       - "docs/**"                     # other documentation
+      - ".gitattributes"              # version check (Appendix E)
+      - ".githooks/**"                # version check (Appendix E)
+      - ".github/**"                  # version check (Appendix E)
+      - "scripts/**"                  # version check (Appendix E)
       # add any other file that is irrelevant for an ESP-IDF component
   ```
 
@@ -188,10 +195,16 @@ PlatformIO package metadata is declared in `library.json` at the root of the pro
       "CMakeLists.txt",
       "idf_component.yml",
       "library.properties",
-      "examples/*/main/idf_component.yml"
+      "examples/*/main/idf_component.yml",
+      ".gitattributes",
+      ".githooks",
+      ".github",
+      "scripts"
     ]
   }
   ```
+
+  > `.gitattributes`, `.githooks/*`, `.github/*` and `scripts/*` are files of the version check (see [Appendix E](../appendices/E-manifest-version-check.md)): they are not needed in the published package.
 
 > [!IMPORTANT]
 > **PIO Home example rendering:**

@@ -31,7 +31,7 @@
     - [Appendix C - Naming Convention](appendices/C-naming-convention.md)
   - Development workflow
     - [Appendix D - Testing During Development](appendices/D-testing-during-development.md)
-    - [Appendix E - Check Manifest Versions](appendices/E-manifest-version-check.md)
+    - [Appendix E - Manifest Versions Check](appendices/E-manifest-version-check.md)
 
 - [References & Links](appendices/Z-references.md)
 
