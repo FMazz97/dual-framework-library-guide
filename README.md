@@ -130,7 +130,7 @@ If you reuse or adapt the text, give credit as: *"Dual-Framework Library Guide" 
 
 These licenses apply to all versions, commits, and historical revisions of this repository.
 
-> **PDF / Offline:** Full license texts are in [LICENSE](https://github.com/FMazz97/dual-framework-library-guide/blob/main/LICENSE) and [LICENSE-CODE](https://github.com/FMazz97/dual-framework-library-guide/blob/main/LICENSE-CODE) at the repository root: [https://github.com/FMazz97/dual-framework-library-guide](https://github.com/FMazz97/dual-framework-library-guide).
+> **PDF / Offline:** Full license texts are in [LICENSE](https://github.com/FMazz97/dual-framework-library-guide/blob/main/LICENSE) and [LICENSE-CODE](https://github.com/FMazz97/dual-framework-library-guide/blob/main/LICENSE-CODE) at the repository root: [https://github.com/FMazz97/dual-framework-library-guide](https://github.com/FMazz97/dual-framework-library-guide)
 
 <!--START_no_print_zone-->
 ---
