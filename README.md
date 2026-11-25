@@ -35,10 +35,6 @@
 
 - [References & Links](appendices/Z-references.md)
 
-- **Licenses:**
-  - [LICENSE](LICENSE)
-  - [LICENSE-CODE](LICENSE-CODE)
-
 ---
 
 ## Why build a library that's native to both Arduino & ESP-IDF
@@ -130,11 +126,11 @@ This guide is dual-licensed:
 
 [![CC BY 4.0](https://licensebuttons.net/l/by/4.0/88x31.png)](https://creativecommons.org/licenses/by/4.0/)
 
-<!-- markdownlint-disable MD034 -->
-If you reuse or adapt the text, give credit as: *"Dual-Framework Library Guide" by FMazz97, https://github.com/FMazz97/dual-framework-library-guide*, and indicate if changes were made. Code snippets can be reused under the MIT terms, keeping the copyright notice.
+If you reuse or adapt the text, give credit as: *"Dual-Framework Library Guide" by FMazz97, [https://github.com/FMazz97/dual-framework-library-guide](https://github.com/FMazz97/dual-framework-library-guide)*, and indicate if changes were made. Code snippets can be reused under the MIT terms, keeping the copyright notice.
 
 These licenses apply to all versions, commits, and historical revisions of this repository.
-<!-- markdownlint-enable MD034 -->
+
+> **PDF / Offline:** Full license texts are in [LICENSE](https://github.com/FMazz97/dual-framework-library-guide/blob/main/LICENSE) and [LICENSE-CODE](https://github.com/FMazz97/dual-framework-library-guide/blob/main/LICENSE-CODE) at the repository root: [https://github.com/FMazz97/dual-framework-library-guide](https://github.com/FMazz97/dual-framework-library-guide).
 
 <!--START_no_print_zone-->
 ---
