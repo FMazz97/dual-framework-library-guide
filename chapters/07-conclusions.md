@@ -13,7 +13,7 @@ Five decisions, each following from the previous one:
 3. **A framework-agnostic core** ([Chapter 3](03-agnostic-core-hal-architecture.md)). Protocol logic is written once, hardware access is selected at compile time through a HAL, and the Arduino facade only forwards.
 4. **Examples that build with both toolchains** ([Chapter 4](04-examples.md)). One project layout for `idf.py` and PlatformIO, with one dependency declaration per toolchain.
 5. **Publication as a design concern** ([Chapter 5](05-publishing.md)). Three registries with different manifests, filters, and immutability rules, and a package name decided before the first publish.
-6. **A pratical examples**[Chapter 6](06-minimal-example.md). A minimal library that demonstrating how to implement the guide.
+6. **A pratical examples** ([Chapter 6](06-minimal-example.md)). A minimal library that demonstrating how to implement the guide.
 
 The [Final Checklist](08-final-checklist.md) condenses them, in the order in which they come up.
 
@@ -53,6 +53,7 @@ While this guide focused on bridging Arduino, ESP-IDF, and PlatformIO, the under
 
 The same approach should carry over to other families and frameworks, such as STM32 with its Arduino and STM32Cube frameworks, where a new HAL would be the only framework-specific addition, or Zephyr (not tested here). The embedded landscape keeps evolving, with new microcontrollers and alternative build systems continuing to emerge. If you want to extend this framework-agnostic approach to other platforms, refine the appendices, or share your own experience, issues and pull requests are always welcome: embedded development thrives on shared knowledge.
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -62,3 +63,4 @@ The same approach should carry over to other families and frameworks, such as ST
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

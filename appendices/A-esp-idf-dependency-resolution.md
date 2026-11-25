@@ -183,6 +183,7 @@ How the component got there, through `EXTRA_COMPONENT_DIRS`, the `components/` f
 
 When PlatformIO is introduced, a third actor enters the picture: see [4.3 PlatformIO, Component Manager, and CMake are independent dependency-resolution systems](../chapters/04-examples.md#43-platformio-component-manager-and-cmake-are-independent-dependency-resolution-systems) for the combinations that work and the ones that don't.
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -192,3 +193,4 @@ When PlatformIO is introduced, a third actor enters the picture: see [4.3 Platfo
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

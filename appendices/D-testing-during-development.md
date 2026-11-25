@@ -157,6 +157,7 @@ The Arduino IDE only looks in its own `libraries` folder, so the only way to tes
 - Link the library with `symlink://`, not a copy.
 - Run `pio run` (all environments) before every release, then flash and read the output of each board you have at hand.
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -166,3 +167,4 @@ The Arduino IDE only looks in its own `libraries` folder, so the only way to tes
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

@@ -132,6 +132,7 @@ They are not inherently incompatible: the challenge is simply finding a reposito
 
 The layout used throughout this guide exploits exactly that: the ESP-IDF component files (`CMakeLists.txt` and `idf_component.yml`) are placed at the repository root, making the repository itself the component boundary, while `src/` remains the single source of truth for the implementation. [Chapter 2 - Repository Structure](02-repo-structure.md) shows the resulting layout and explains why it works.
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -141,3 +142,4 @@ The layout used throughout this guide exploits exactly that: the ESP-IDF compone
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

@@ -279,6 +279,7 @@ Name the GitHub repository and `library.properties` using **PascalCase** (e.g. `
 
 PlatformIO allows flexibility in package naming and can resolve dependencies across casing styles without breaking. However, **using the same lowercase name as ESP-IDF** (`foo`) is best practice: it prevents subtle cross-ecosystem naming conflicts and avoids the PlatformIO package rename trap.
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -288,3 +289,4 @@ PlatformIO allows flexibility in package naming and can resolve dependencies acr
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

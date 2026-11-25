@@ -139,6 +139,7 @@ idf.py fullclean
 # or manually remove the build/ directory
 ```
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -148,3 +149,4 @@ idf.py fullclean
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

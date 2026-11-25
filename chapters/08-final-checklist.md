@@ -24,7 +24,15 @@ Every item below is a rule that came out of the previous chapters and of the dev
 - [ ] `library.properties` (Arduino): `name`, `version`, `includes`.
 - [ ] `library.json` (PlatformIO): `name` lowercase, `"frameworks": ["arduino", "espidf"]`, `"build": {"flags": ["-I src/core"]}` for headers in subfolders, example `name`s **without parentheses and spaces**.
 - [ ] `idf_component.yml` (ESP): `version`, `description`, `url`/`repository`, `idf` constraint, `examples`, `files: exclude`.
-- [ ] **One version number, identical in all three.**
+- [ ] **One version number, identical in all three**, a valid semantic version of at most 20 characters (`a-z`, digits, `.`, `-`).
+
+## Keeping versions aligned
+
+- [ ] Enable the `pre-push` hook once per clone: `git config core.hooksPath .githooks`. If a push does not print a `pre-push: checking …` line, the hook is not active. ([App. E](../appendices/E-manifest-version-check.md))
+- [ ] `.githooks/* text eol=lf` in `.gitattributes`, and the executable bit set on the hook.
+- [ ] Protect `main` on GitHub and require the version-check status check: the workflow can only report a failed push, and merges made on the website skip the hook.
+- [ ] Tag from the command line: a Release created on the GitHub website never passes through the hook.
+- [ ] After a bad tag, fix it and publish the **next** version: deleting a tag does not unpublish a version.
 
 ## Dependencies under ESP-IDF
 
@@ -58,88 +66,28 @@ Every item below is a rule that came out of the previous chapters and of the dev
 ## Release, in order
 
 1. [ ] Build every environment and flash at least one board.
-2. [ ] Bump `version` in all three manifests.
-3. [ ] Commit and **push** the bump. The tag snapshots the commit it points to.
+2. [ ] Bump `version` in all three manifests, in a single commit.
+3. [ ] Commit and **push** the bump: the version check rejects a version that is not greater than the last tag. The tag snapshots the commit it points to.
 4. [ ] `arduino-lint --library-manager submit`.
 5. [ ] `pio pkg pack`, then list the archive (`tar -tzf`).
 6. [ ] `compote component upload --name <name> --dry-run`, then list the archives in `dist/`. The dry run validates without creating a version and needs no token.
-7. [ ] Tag and publish the GitHub Release.
+7. [ ] Tag from the command line (the tag name must equal the version) and publish the GitHub Release.
 8. [ ] Arduino: the first release goes through a Pull Request to the registry; updates are automatic after a new tag.
 9. [ ] `pio pkg publish` (logged in with `pio account login`). `accepted` is not `published`: wait for the email and check the package page.
 10. [ ] `compote component upload --name <name> --namespace <namespace>` (token in `IDF_COMPONENT_API_TOKEN`). Processing is asynchronous; check `upload-status`.
-11. [ ] Install from each registry in a **clean project** and build.
+11. [ ] Bump to the next version, after the CLI publications (they read the working tree): until then the version equals the last tag and every push is rejected.
+12. [ ] Install from each registry in a **clean project** and build.
 
 See [Chapter 5](05-publishing.md) for the details of each registry.
 
----
-
-## Sources
-
-External sources cited throughout the guide, grouped by ecosystem, including the framework source files read to check the behaviour described. Each entry names the chapter or appendix where it is first relied upon.
-
-### Arduino
-
-- [Arduino Library Specification](https://docs.arduino.cc/arduino-cli/library-specification/): folder layout, `library.properties` fields, `depends`, and the `examples/` convention (Ch. 1, 4, 5).
-- [Arduino Library Manager](https://docs.arduino.cc/libraries/): the registry and its tag-driven indexing (Ch. 2, 5).
-- [Arduino Lint](https://arduino.github.io/arduino-lint/latest/): `arduino-lint --library-manager submit` and `update` (Ch. 5).
-- [arduino/library-registry](https://github.com/arduino/library-registry): the repository where the first submission is made through a Pull Request (Ch. 5).
-
-### ESP-IDF and ESP Component Registry
-
-- [What is the ESP Component Registry?](https://developer.espressif.com/blog/2024/10/what-is-the-esp-registry/): components, Component Manager, and Registry (Ch. 1).
-- [ESP Component Registry](https://components.espressif.com/): the registry itself (Ch. 2, 5).
-- [Component files reference](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/component_files.html): what a published component must contain and how `files` filters are applied (Ch. 1, 5).
-- [Compote CLI](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/compote_cli.html): `compote component pack` and `upload`, including `--dry-run` (Ch. 1, 5).
-- [Reference an ESP Component](https://docs.espressif.com/projects/idf-component-manager/en/latest/reference/index.html): dependencies and `override_path` in `idf_component.yml` (Ch. 4).
-- [Publish components](https://docs.espressif.com/projects/idf-component-manager/en/latest/publish/index.html): the publication workflow and token authentication (Ch. 5).
-- [How to Package and Upload Examples](https://docs.espressif.com/projects/idf-component-manager/en/latest/publish/how_to_examples.html): the `examples` key in `idf_component.yml` (Ch. 5).
-- [ESP-IDF Build System, Example Project](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html#example-project): optional project files such as `sdkconfig.defaults` and `partitions.csv` (Ch. 4).
-- [ESP-IDF v3.3, Get Started (CMake), Step 5. Start a Project](https://docs.espressif.com/projects/esp-idf/en/v3.3/get-started-cmake/index.html#step-5-start-a-project): the restriction on spaces in project paths (Ch. 4).
-- Component Manager source, where the naming rules were found (Ch. 1):
-  - [`idf_component_manager/cli/validations.py`](https://github.com/espressif/idf-component-manager/blob/main/idf_component_manager/cli/validations.py)
-  - [`idf_component_tools/manifest/constants.py`](https://github.com/espressif/idf-component-manager/blob/main/idf_component_tools/manifest/constants.py)
-
-### PlatformIO
-
-- [PlatformIO Registry](https://registry.platformio.org/): the registry itself (Ch. 2, 5).
-- [Library Management](https://docs.platformio.org/en/latest/librarymanager/): `lib_deps` and the library builder (Ch. 1).
-- [`library.json` reference](https://docs.platformio.org/en/latest/manifests/library-json/index.html): manifest fields, `examples`, `export`, `build` (Ch. 2, 5).
-- [`includeDir`](https://docs.platformio.org/en/stable/manifests/library-json/fields/build/includedir.html): default include paths of a library (Ch. 2).
-- [Espressif 32 ESP-IDF framework](https://docs.platformio.org/en/latest/frameworks/espidf.html): project structure, `src_dir`, and limitations (Ch. 4, 5).
-- [Package Management CLI](https://docs.platformio.org/en/latest/core/userguide/pkg/index.html): `pio pkg pack` and `pio pkg publish` (Ch. 5).
-- [PlatformIO Issue #12672](https://github.com/platformio/platformio-home/issues/12672): PIO Home flattening multi-file `examples` entries (Ch. 5, 7).
-
-### Reference implementation
-
-- [CS123x](https://github.com/FMazz97/CS123x): the library on which this guide is based (Ch. 3, 5).
-- [DualBlinkCpp](https://github.com/FMazz97/DualBlinkCpp): the minimal, buildable example of the guide (App. E).
-
-### Appendices
-
-- **Appendix A, IDF Dependency Resolution**
-  - [ESP-IDF Build System](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/build-system.html): component discovery, `EXTRA_COMPONENT_DIRS`, and the override order.
-  - [IDF Component Manager](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/tools/idf-component-manager.html): how the manager runs inside the configuration step and what it adds to the build system.
-  - [IDF Component Manager and ESP Component Registry Documentation](https://docs.espressif.com/projects/idf-component-manager/en/latest/): the manifest and registry reference.
-  - [ESP-IDF Programming Guide](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/index.html): the entry point to the official documentation.
-  - [What is the ESP Component Registry?](https://developer.espressif.com/blog/2024/10/what-is-the-esp-registry/): already listed under ESP-IDF, also relied upon here.
-- **Appendix B, Yield & Interrupts**
-  - Arduino-ESP32 core, `esp32-hal-misc.c`: the `yield()` wrapper around `vPortYield()` and `yieldIfNecessary()`. Read from the installed package through "Go to Definition" (see Appendix D).
-  - FreeRTOS kernel, `tasks.c`: the behaviour of `vTaskDelay(0)`, which only forces a reschedule. Read from the framework sources, in the same way.
-  - Arduino core for ESP8266, `core_esp8266_wiring_digital.cpp`: where the core protects its own GPIO handling with `esp8266::InterruptLock`, the guard that replaced the failed `xt_rsil` attempt. Read from the installed package, in the same way.
-  - [CS123x](https://github.com/FMazz97/CS123x): the library where the Task Watchdog failure was observed and fixed.
-- **Appendix C, Naming Convention**
-  - [C++ Core Guidelines, Naming and layout](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming): `underscore_style` (NL.10) and ALL_CAPS reserved for macros (NL.9).
-  - [Arduino Library Style Guide](https://docs.arduino.cc/learn/contributions/arduino-library-style-guide/): `camelCase` functions and the advice on boolean arguments.
-  - [ESP-IDF Style Guide](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/contribute/style-guide.html): `snake_case` in C and C++, and the type and constant conventions.
-- **Appendix D, Testing During Development**
-  - No external sources beyond those already listed (PlatformIO and ESP-IDF documentation). The behaviour described was observed on hardware and checked in the framework sources.
-
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
 <div align="center">
 
-[⬅️ Chapter 7 - Conclusions](07-conclusions.md) — [Introduction](../README.md)
+[⬅️ Chapter 7 - Conclusions](07-conclusions.md) — [Introduction](../README.md) — [Appendix A - IDF Dependency Resolution ➡️](appendices/A-esp-idf-dependency-resolution.md)
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

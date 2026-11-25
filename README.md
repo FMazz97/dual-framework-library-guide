@@ -24,7 +24,7 @@
   - [Chapter 7 - Conclusions](chapters/07-conclusions.md)
   - [Final Checklist](chapters/08-final-checklist.md)
 
-- Appendices:
+- **Appendices:**
   - Technical background:
     - [Appendix A - IDF Dependency Resolution](appendices/A-esp-idf-dependency-resolution.md)
     - [Appendix B - Yield & Interrupts](appendices/B-yield-interrupts.md)
@@ -32,6 +32,8 @@
   - Development workflow
     - [Appendix D - Testing During Development](appendices/D-testing-during-development.md)
     - [Appendix E - Check Manifest Versions](appendices/E-manifest-version-check.md)
+
+- [References & Links](appendices/Z-references.md)
 
 - **Licenses:**
   - [LICENSE](LICENSE)
@@ -134,6 +136,7 @@ If you reuse or adapt the text, give credit as: *"Dual-Framework Library Guide" 
 These licenses apply to all versions, commits, and historical revisions of this repository.
 <!-- markdownlint-enable MD034 -->
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -143,3 +146,4 @@ These licenses apply to all versions, commits, and historical revisions of this 
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

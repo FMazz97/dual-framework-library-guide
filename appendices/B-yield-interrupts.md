@@ -167,6 +167,7 @@ If the device signals readiness with an interrupt, keep the ISR to setting a fla
 
 Waiting and bit-banging ask opposite things of the CPU, and each has a different mechanism on every platform: three behind the one name `yield()`, four behind the one need for a critical section. Neither is a portable one-liner: each comes with its own cost and its own way to fail. The failures found here (watchdog starvation under `taskYIELD()`, an assembler error under `xt_rsil`) surfaced on hardware or at build time, and both were explained by reading the platform's own source, not its documentation. Following the definitions with Go to Definition (F12) from the selected PlatformIO environment, as described in [Appendix D](D-testing-during-development.md#reading-the-framework-source-go-to-definition), is what makes that a keystroke.
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -176,3 +177,4 @@ Waiting and bit-banging ask opposite things of the CPU, and each has a different
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

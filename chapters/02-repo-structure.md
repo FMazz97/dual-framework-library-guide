@@ -99,6 +99,7 @@ The distinction becomes even more important once publication enters the picture:
 
 [Chapter 3 - Agnostic Core & HAL Architecture](03-agnostic-core-hal-architecture.md) builds on this layout, showing how to organize the code so that application logic stays shared across frameworks while framework-specific hardware access remains isolated.
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -108,3 +109,4 @@ The distinction becomes even more important once publication enters the picture:
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

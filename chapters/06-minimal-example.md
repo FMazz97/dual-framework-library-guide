@@ -378,6 +378,7 @@ extern "C" void app_main(void) {
 
 On ESP-IDF a polling loop must hand control back to the scheduler, with `vTaskDelay(1)` and not `taskYIELD()` ([Appendix B](../appendices/B-yield-interrupts.md)). The example layouts, the `platformio.ini` and the dependency declarations are described in [Chapter 4](04-examples.md).
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -387,3 +388,4 @@ On ESP-IDF a polling loop must hand control back to the scheduler, with `vTaskDe
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->

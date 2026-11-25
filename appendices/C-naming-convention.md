@@ -94,6 +94,7 @@ The mapping is mechanical: drop the underscores and capitalise the next letter (
 
 The same Arduino style guide advises avoiding boolean arguments, suggesting two functions with distinguishing names instead. The library knowingly deviates with `bool verify = true`, found on `set_config()`, `set_ch()`, `set_gain()`, `set_rate()`, `set_ref()`, `read_temp()`, and `read_dual_channel()`. The flag is uniform across the whole API (always the last parameter, always defaulting to `true`, always meaning "read the register back to confirm"), so it reads as a convention rather than an oversight, and it avoids doubling every hardware-writing method into a verified and an unverified twin.
 
+<!--START_no_print_zone-->
 ---
 
 <!-- markdownlint-disable MD033 -->
@@ -103,3 +104,4 @@ The same Arduino style guide advises avoiding boolean arguments, suggesting two 
 
 </div>
 <!-- markdownlint-enable MD033 -->
+<!--STOP_no_print_zone-->
