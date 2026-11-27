@@ -269,7 +269,8 @@ includes=DualBlinkCpp.h
 }
 ```
 
-The `"build"` flag exposes `src/core/` to PlatformIO, as explained in [Chapter 2](02-repo-structure.md#213-platformio-source--include-path).
+- The `"build"` flag exposes `src/core/` to PlatformIO, as explained in [Chapter 2](02-repo-structure.md#213-platformio-source--include-path).
+- `.gitattributes`, `.githooks/*`, `.github/*` and `scripts/*` are files of the version check (see [Appendix E](../appendices/E-manifest-version-check.md)): they are not needed in the published package.
 
 ### 6.3.3 `idf_component.yml` (ESP-IDF)
 
@@ -293,15 +294,16 @@ files:
   exclude:
     - "library.properties"
     - "library.json"
-    - "src/DualBlinkCpp.h"                      # Arduino's facade *
-    - "src/hal/dual_blink_cpp_hal_arduino.h"    # Arduino's HAL *
+    - "src/DualBlinkCpp.h"                      # * Arduino's facade
+    - "src/hal/dual_blink_cpp_hal_arduino.h"    # * Arduino's HAL
     - ".gitattributes"
     - ".githooks/**"
     - ".github/**"
     - "scripts/**"
 ```
 
-The entries marked with `*` are optional: leave them out of the exclusions to support Arduino as an ESP-IDF component ([Chapter 5](05-publishing.md#521-manifest-and-metadata)). Add the `examples` key when the repository has examples.
+- The entries marked with `*` are optional: leave them out of the exclusions to support Arduino as an ESP-IDF component ([Chapter 5](05-publishing.md#521-manifest-and-metadata)). Add the `examples` key when the repository has examples.
+- `.gitattributes`, `.githooks/*`, `.github/*` and `scripts/*` are files of the version check (see [Appendix E](../appendices/E-manifest-version-check.md)): they are not needed in the published package.
 
 ### 6.3.4 `CMakeLists.txt` (ESP-IDF)
 

@@ -70,6 +70,7 @@ Keep the hook on LF line endings — `.githooks/* text eol=lf` in `.gitattribute
 - **Nothing protects `main` by default.** Branch protection is a setting of each GitHub repository, not part of the files: without it, a merge made on the website skips the hook and a failing check does not stop it.
 - **A Release created on the GitHub website never passes through the hook.** Only the workflow sees it, afterwards. The deletion job, verified in a test repository, removes the tag within moments, but a registry may have looked at it first.
 - **Deleting a tag does not unpublish a version**: the Arduino Library Manager indexes hourly, and removing a release requires an issue. After a bad tag, fix it and publish the **next** version. Reusing a number whose tag was deleted is also possible, and not covered.
+- **A tag deleted only locally comes back.** Before checking, the hook fetches the tags from the remote, so a tag that still exists there is restored locally on the next push: delete it on the remote first, then locally.
 - **Only the tip of each pushed branch is checked**, and only versions are compared, not the other fields.
 - **Old branches are rejected** until updated from the main branch, and re-running the workflow of a commit already released fails by design.
 
